@@ -204,7 +204,7 @@ if (!$is_lookup_mode && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['u
                         if ($to !== '') {
                             $name = $t && isset($t['name']) ? (string)$t['name'] : 'Tailor';
                             $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-                            $baseUrl = $scheme . '://' . $_SERVER['HTTP_HOST'] . '/Tailors%20project';
+                            $baseUrl = $scheme . '://' . $_SERVER['HTTP_HOST'];
                             $link = $baseUrl . '/tailor/order_details.php?id=' . (int)$order['id'];
                             $subject = 'Silah: Payment proof submitted (' . $orderNumber . ')';
                             $body =
@@ -302,7 +302,7 @@ if (!$is_lookup_mode && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['u
                         if ($to !== '') {
                             $name = $t && isset($t['name']) ? (string)$t['name'] : 'Tailor';
                             $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-                            $baseUrl = $scheme . '://' . $_SERVER['HTTP_HOST'] . '/Tailors%20project';
+                            $baseUrl = $scheme . '://' . $_SERVER['HTTP_HOST'];
                             $link = $baseUrl . '/tailor/order_details.php?id=' . (int)$order['id'];
                             $subject = 'Silah: Remaining payment proof submitted (' . $orderNumber . ')';
                             $body =
@@ -397,7 +397,7 @@ if (!$is_lookup_mode && $_SERVER['REQUEST_METHOD'] === 'POST') {
                 if ($to !== '') {
                     $name = $t && isset($t['name']) ? (string)$t['name'] : 'Tailor';
                     $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-                    $baseUrl = $scheme . '://' . $_SERVER['HTTP_HOST'] . '/Tailors%20project';
+                    $baseUrl = $scheme . '://' . $_SERVER['HTTP_HOST'];
                     $link = $baseUrl . '/tailor/order_details.php?id=' . (int)$order['id'];
                     $subject = 'Silah: New message (' . $orderNumber . ')';
                     $body =
@@ -741,7 +741,7 @@ if ($is_lookup_mode && $lookup_error === '' && $hasEmailLookup) {
                                     <tbody>
                                         <?php
                                             $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-                                            $baseUrl = $scheme . '://' . $_SERVER['HTTP_HOST'] . '/Tailors%20project';
+                                            $baseUrl = $scheme . '://' . $_SERVER['HTTP_HOST'];
                                         ?>
                                         <?php foreach ($emailOrders as $o): ?>
                                             <tr>
@@ -777,7 +777,7 @@ if ($is_lookup_mode && $lookup_error === '' && $hasEmailLookup) {
             <?php else: ?>
                 <?php
                     $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-                    $baseUrl = $scheme . '://' . $_SERVER['HTTP_HOST'] . '/Tailors%20project';
+                    $baseUrl = $scheme . '://' . $_SERVER['HTTP_HOST'];
                     $chatLink = $baseUrl . '/order_chat.php?token=' . urlencode((string)$order['chat_token']);
                     $reopenLink = $baseUrl . '/order_chat.php?order_id=' . urlencode((string)$order['id']) . '&email=' . urlencode((string)$order['customer_email']);
                 ?>

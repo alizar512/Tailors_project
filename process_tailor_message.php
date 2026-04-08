@@ -68,7 +68,7 @@ try {
         if ($to !== '') {
             $name = $t && isset($t['name']) ? (string)$t['name'] : 'Tailor';
             $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-            $baseUrl = $scheme . '://' . $_SERVER['HTTP_HOST'] . '/Tailors%20project';
+            $baseUrl = $scheme . '://' . $_SERVER['HTTP_HOST'];
             $link = $baseUrl . '/tailor/messages.php';
             $subject = 'Silah: New customer inquiry';
             $body =

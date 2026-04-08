@@ -110,7 +110,7 @@ if ($pdo && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['send_message'
             }
 
             $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-            $baseUrl = $scheme . '://' . $_SERVER['HTTP_HOST'] . '/Tailors%20project';
+            $baseUrl = $scheme . '://' . $_SERVER['HTTP_HOST'];
             $tailorLink = $baseUrl . '/tailor/order_details.php?id=' . (int)$order['id'];
             $customerLink = $baseUrl . '/order_chat.php?token=' . urlencode((string)($order['chat_token'] ?? ''));
 
@@ -312,7 +312,7 @@ include 'sidebar.php';
                 </div>
                 <?php if (isset($order['chat_token']) && trim((string)$order['chat_token']) !== ''): ?>
                     <?php
-                        $baseUrl = 'http://' . $_SERVER['HTTP_HOST'] . '/Tailors%20project';
+                        $baseUrl = 'http://' . $_SERVER['HTTP_HOST'];
                         $chatUrl = $baseUrl . '/order_chat.php?token=' . urlencode((string)$order['chat_token']);
                     ?>
                     <a href="<?= htmlspecialchars($chatUrl) ?>" target="_blank" class="btn btn-outline !py-2 !px-4 text-[10px] uppercase tracking-widest font-bold no-underline">Customer Chat</a>

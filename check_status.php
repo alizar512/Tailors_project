@@ -89,7 +89,7 @@ try {
     $total = isset($order['total_price']) && $order['total_price'] !== null && $order['total_price'] !== '' ? (float)$order['total_price'] : (isset($order['budget']) ? (float)$order['budget'] : 0.0);
 
     $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-    $baseUrl = $scheme . '://' . $_SERVER['HTTP_HOST'] . '/Tailors%20project';
+    $baseUrl = $scheme . '://' . $_SERVER['HTTP_HOST'];
     $chatReopen = $baseUrl . '/order_chat.php?order_id=' . urlencode((string)$id) . '&email=' . urlencode($email);
 
     $cargoCompany = isset($order['cargo_company']) ? (string)$order['cargo_company'] : '';

@@ -216,7 +216,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['application_id']) && i
 
                 $_SESSION['success'] = "Tailor approved and added successfully.";
                 if (isset($app['email']) && $app['email']) {
-                    $baseUrl = 'http://' . $_SERVER['HTTP_HOST'] . '/Tailors%20project';
+                    $baseUrl = 'http://' . $_SERVER['HTTP_HOST'];
                     $loginUrl = $baseUrl . '/admin/login.php';
                     $to = (string)$app['email'];
                     $subject = 'Silah: Your tailor application is approved';

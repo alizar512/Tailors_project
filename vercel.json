@@ -7,12 +7,6 @@
     }
   ],
   "routes": [
-    { "src": "/css/(.*)", "dest": "/css/$1" },
-    { "src": "/js/(.*)", "dest": "/js/$1" },
-    { "src": "/images/(.*)", "dest": "/images/$1" },
-    { "src": "/uploads/(.*)", "dest": "/uploads/$1" },
-    { "src": "/(admin|tailor|api|includes)/(.*).php", "dest": "/$1/$2.php" },
-    { "src": "/(.*).php", "dest": "/$1.php" },
     { "src": "/", "dest": "/index.php" }
   ]
 }

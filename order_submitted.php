@@ -45,7 +45,7 @@ if ($id > 0) {
 }
 
 $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-$baseUrl = $scheme . '://' . $_SERVER['HTTP_HOST'] . '/Tailors%20project';
+$baseUrl = $scheme . '://' . $_SERVER['HTTP_HOST'];
 $chatUrl = $baseUrl . '/order_chat.php?token=' . urlencode((string)$order['chat_token']) . '&new=1';
 if ($return !== '') {
     $chatUrl .= '&return=' . urlencode($return);

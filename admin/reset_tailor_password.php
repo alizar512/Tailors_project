@@ -65,7 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->execute([$hash, (int)$tailor['id']]);
 
             if ($send_email && isset($tailor['email']) && $tailor['email']) {
-                $baseUrl = 'http://' . $_SERVER['HTTP_HOST'] . '/Tailors%20project';
+                $baseUrl = 'http://' . $_SERVER['HTTP_HOST'];
                 $loginUrl = $baseUrl . '/admin/login.php';
                 $to = (string)$tailor['email'];
                 $subject = 'Silah: Your password has been reset';
