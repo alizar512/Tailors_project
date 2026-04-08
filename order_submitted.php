@@ -93,8 +93,8 @@ $trackUrl = $baseUrl . '/index.php#track';
             <div class="glass-card p-4 p-md-5">
                 <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Next Step</p>
                 <div class="d-flex flex-wrap gap-3">
-                    <a href="<?= htmlspecialchars($chatUrl) ?>" class="btn btn-primary rounded-full px-6 py-2.5 font-bold">Open Bargaining Chat</a>
-                    <a href="<?= htmlspecialchars($trackUrl) ?>" class="btn btn-outline rounded-full px-6 py-2.5 font-bold">Track Order</a>
+                    <a href="<?= htmlspecialchars((string)($chatUrl ?? '')) ?>" class="btn btn-primary rounded-full px-6 py-2.5 font-bold">Open Bargaining Chat</a>
+                    <a href="<?= htmlspecialchars((string)($trackUrl ?? '')) ?>" class="btn btn-outline rounded-full px-6 py-2.5 font-bold">Track Order</a>
                 </div>
                 <p class="text-xs text-gray-400 mt-3 mb-0">You can reopen chat later using tracking or the chat link.</p>
             </div>

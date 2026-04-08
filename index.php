@@ -363,7 +363,7 @@ if ($hire_mode) {
                 <form method="GET" action="index.php#tailors" class="row g-3 align-items-end">
                     <div class="col-lg-4">
                         <label class="form-label font-semibold text-sm text-gray-600">Search</label>
-                        <input type="text" name="q" value="<?= htmlspecialchars($filter_q) ?>" class="form-control" placeholder="Name, skills, or specialization">
+                        <input type="text" name="q" value="<?= htmlspecialchars((string)($filter_q ?? '')) ?>" class="form-control" placeholder="Name, skills, or specialization">
                     </div>
                     <div class="col-lg-3">
                         <label class="form-label font-semibold text-sm text-gray-600">Location</label>
@@ -377,7 +377,7 @@ if ($hire_mode) {
                             <option value="__other__" <?= $filter_location_raw === '__other__' ? 'selected' : '' ?>>Other (Type City)</option>
                         </select>
                         <div class="mt-2 d-none" data-city-other-wrap>
-                            <input type="text" name="location_other" value="<?= htmlspecialchars($filter_location_other) ?>" class="form-control" placeholder="Type city name" data-city-other-input>
+                            <input type="text" name="location_other" value="<?= htmlspecialchars((string)($filter_location_other ?? '')) ?>" class="form-control" placeholder="Type city name" data-city-other-input>
                         </div>
                     </div>
                     <div class="col-lg-2">
@@ -422,7 +422,7 @@ if ($hire_mode) {
                         <a href="tailor_profile.php?id=<?= $tailor['id'] ?>" class="block h-full text-decoration-none">
                             <div class="tailor-card group">
                                 <div class="tailor-img-container">
-                                    <img src="<?= htmlspecialchars($tailor['profile_image']) ?>" alt="<?= htmlspecialchars($tailor['name']) ?>" class="tailor-img">
+                                    <img src="<?= htmlspecialchars((string)($tailor['profile_image'] ?? '')) ?>" alt="<?= htmlspecialchars((string)($tailor['name'] ?? 'Tailor')) ?>" class="tailor-img">
                                     <div class="absolute top-4 right-4 z-10">
                                         <span class="bg-white/95 backdrop-blur-md text-primary text-[10px] font-bold px-3 py-1.5 rounded-full shadow-sm flex items-center gap-1.5 border border-gray-100">
                                             <i class="fas fa-star text-yellow-400"></i> 4.9
@@ -434,11 +434,11 @@ if ($hire_mode) {
                                 </div>
                                 <div class="tailor-info">
                                     <div class="tailor-badge-row">
-                                        <span class="glass-badge"><?= htmlspecialchars($tailor['location'] ?? 'Remote') ?></span>
-                                        <span class="price-tag"><?= htmlspecialchars($tailor['experience_years'] ?? '0') ?>Y Exp</span>
+                                        <span class="glass-badge"><?= htmlspecialchars((string)($tailor['location'] ?? 'Remote')) ?></span>
+                                        <span class="price-tag"><?= htmlspecialchars((string)($tailor['experience_years'] ?? '0')) ?>Y Exp</span>
                                     </div>
-                                    <h3 class="text-xl font-extrabold text-primary mb-2 group-hover:text-accent transition-colors duration-300"><?= htmlspecialchars($tailor['name'] ?? 'Tailor') ?></h3>
-                                    <p class="text-sm text-gray-500 mb-6 line-clamp-2 leading-relaxed italic">"<?= htmlspecialchars($tailor['tagline'] ?? 'Quality Tailoring') ?>"</p>
+                                    <h3 class="text-xl font-extrabold text-primary mb-2 group-hover:text-accent transition-colors duration-300"><?= htmlspecialchars((string)($tailor['name'] ?? 'Tailor')) ?></h3>
+                                    <p class="text-sm text-gray-500 mb-6 line-clamp-2 leading-relaxed italic">"<?= htmlspecialchars((string)($tailor['tagline'] ?? 'Quality Tailoring')) ?>"</p>
                                     
                                     <div class="mt-auto flex items-center justify-between pt-5 border-t border-gray-50">
                                         <div class="flex flex-col">
