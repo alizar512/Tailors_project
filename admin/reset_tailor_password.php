@@ -143,13 +143,39 @@ include 'sidebar.php';
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
                 <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">New Password (manual)</label>
-                <input type="password" name="manual_password" class="form-control" placeholder="Min 8 characters">
+                <div class="relative">
+                    <input type="password" name="manual_password" id="manual_password" class="form-control pr-10" placeholder="Min 8 characters">
+                    <button type="button" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-primary transition-colors focus:outline-none border-none bg-transparent" onclick="togglePass('manual_password', this)">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
             </div>
             <div>
                 <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">Confirm Password</label>
-                <input type="password" name="confirm_password" class="form-control" placeholder="Repeat password">
+                <div class="relative">
+                    <input type="password" name="confirm_password" id="confirm_password" class="form-control pr-10" placeholder="Repeat password">
+                    <button type="button" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-primary transition-colors focus:outline-none border-none bg-transparent" onclick="togglePass('confirm_password', this)">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
             </div>
         </div>
+
+        <script>
+        function togglePass(id, btn) {
+            const input = document.getElementById(id);
+            const icon = btn.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+        </script>
 
         <div class="pt-2">
             <button type="submit" class="btn btn-primary w-full rounded-xl py-3 font-black uppercase tracking-widest text-xs shadow-lg hover:shadow-primary/20 transition-all">Reset Password</button>

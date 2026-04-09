@@ -71,21 +71,52 @@ include 'header.php';
         <?php endif; ?>
 
         <form action="change_password.php" method="POST" class="space-y-5">
-            <div>
+            <div class="relative">
                 <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">Current Password</label>
-                <input type="password" name="current_password" class="form-control" required>
+                <div class="relative">
+                    <input type="password" name="current_password" id="current_password" class="form-control pr-10" required>
+                    <button type="button" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-primary transition-colors focus:outline-none border-none bg-transparent" onclick="togglePass('current_password', this)">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
             </div>
             <div>
                 <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">New Password</label>
-                <input type="password" name="new_password" class="form-control" required>
+                <div class="relative">
+                    <input type="password" name="new_password" id="new_password" class="form-control pr-10" required>
+                    <button type="button" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-primary transition-colors focus:outline-none border-none bg-transparent" onclick="togglePass('new_password', this)">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
             </div>
             <div>
                 <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">Confirm New Password</label>
-                <input type="password" name="confirm_password" class="form-control" required>
+                <div class="relative">
+                    <input type="password" name="confirm_password" id="confirm_password" class="form-control pr-10" required>
+                    <button type="button" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-primary transition-colors focus:outline-none border-none bg-transparent" onclick="togglePass('confirm_password', this)">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
             </div>
 
             <button type="submit" class="btn btn-primary w-full rounded-xl py-3 font-black uppercase tracking-widest text-xs shadow-lg hover:shadow-primary/20 transition-all">Update Password</button>
         </form>
+
+        <script>
+        function togglePass(id, btn) {
+            const input = document.getElementById(id);
+            const icon = btn.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+        </script>
 
         <div class="mt-6 pt-6 border-t border-gray-100">
             <a href="../admin/logout.php" class="btn btn-outline w-full rounded-xl py-3 font-black uppercase tracking-widest text-xs no-underline">Logout</a>
