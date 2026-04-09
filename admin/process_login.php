@@ -9,60 +9,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     if ($pdo) {
         try {
-            $pdo->exec(
-                "CREATE TABLE IF NOT EXISTS admins (
-                    id INT AUTO_INCREMENT PRIMARY KEY,
-                    username VARCHAR(50) NOT NULL,
-                    email VARCHAR(100) NULL,
-                    password VARCHAR(255) NOT NULL,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
-            );
-
-            $checkColumnStmt = $pdo->prepare(
-                "SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
-                 WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?"
-            );
-
-            $adminColumnsToEnsure = [
-                'username' => "ALTER TABLE admins ADD COLUMN username VARCHAR(50) NOT NULL",
-                'email' => "ALTER TABLE admins ADD COLUMN email VARCHAR(100) NULL",
-                'password' => "ALTER TABLE admins ADD COLUMN password VARCHAR(255) NOT NULL",
-                'created_at' => "ALTER TABLE admins ADD COLUMN created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP",
-                'profile_image' => "ALTER TABLE admins ADD COLUMN profile_image VARCHAR(255) NULL",
-            ];
-
-            foreach ($adminColumnsToEnsure as $columnName => $ddl) {
-                $checkColumnStmt->execute(['admins', $columnName]);
-                if ((int)$checkColumnStmt->fetchColumn() === 0) {
-                    $pdo->exec($ddl);
-                }
-            }
-
-            // Ensure sessions table exists for persistence
-            $pdo->exec(
-                "CREATE TABLE IF NOT EXISTS sessions (
-                    id VARCHAR(128) PRIMARY KEY,
-                    data TEXT NOT NULL,
-                    timestamp INT NOT NULL,
-                    INDEX idx_sessions_timestamp (timestamp)
-                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
-            );
-
+            // Setup default admin if not exists
             $defaultEmail = 'admin@silah.com';
             $defaultUsername = 'admin';
             $defaultPasswordHash = password_hash('admin123', PASSWORD_DEFAULT);
 
-            $adminStmt = $pdo->prepare("SELECT id, username, email, password FROM admins WHERE email = ? OR username = ? LIMIT 1");
+            $adminStmt = $pdo->prepare("SELECT id FROM admins WHERE email = ? OR username = ? LIMIT 1");
             $adminStmt->execute([$defaultEmail, $defaultUsername]);
-            $existingAdmin = $adminStmt->fetch(PDO::FETCH_ASSOC);
-
-            if ($existingAdmin) {
-                if (!isset($existingAdmin['email']) || $existingAdmin['email'] === null || $existingAdmin['email'] === '') {
-                    $updateEmailStmt = $pdo->prepare("UPDATE admins SET email = ? WHERE id = ?");
-                    $updateEmailStmt->execute([$defaultEmail, $existingAdmin['id']]);
-                }
-            } else {
+            if (!$adminStmt->fetch()) {
                 $insertAdminStmt = $pdo->prepare("INSERT INTO admins (username, email, password) VALUES (?, ?, ?)");
                 $insertAdminStmt->execute([$defaultUsername, $defaultEmail, $defaultPasswordHash]);
             }
@@ -82,19 +36,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 }
             } else {
                 // Tailor Login
-                $checkColumnStmt->execute(['tailors', 'password_reset_required']);
-                if ((int)$checkColumnStmt->fetchColumn() === 0) {
-                    $pdo->exec("ALTER TABLE tailors ADD COLUMN password_reset_required TINYINT(1) NOT NULL DEFAULT 0");
-                }
-                $checkColumnStmt->execute(['tailors', 'is_active']);
-                if ((int)$checkColumnStmt->fetchColumn() === 0) {
-                    $pdo->exec("ALTER TABLE tailors ADD COLUMN is_active TINYINT(1) NOT NULL DEFAULT 1");
-                }
-                $checkColumnStmt->execute(['tailors', 'username']);
-                if ((int)$checkColumnStmt->fetchColumn() === 0) {
-                    $pdo->exec("ALTER TABLE tailors ADD COLUMN username VARCHAR(50) UNIQUE");
-                }
-
                 $stmt = $pdo->prepare("SELECT * FROM tailors WHERE email = ? OR username = ? ORDER BY id DESC LIMIT 1");
                 $stmt->execute([$email, $email]);
                 $user = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -109,23 +50,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     $_SESSION['tailor_email'] = $user['email'];
                     $_SESSION['role'] = 'tailor';
                     $_SESSION['password_reset_required'] = isset($user['password_reset_required']) ? (int)$user['password_reset_required'] : 0;
+                    
+                    session_write_close();
                     if ((int)$_SESSION['password_reset_required'] === 1) {
-                        session_write_close();
                         header("Location: ../tailor/change_password.php");
                     } else {
-                        session_write_close();
                         header("Location: ../tailor/index.php");
                     }
                     exit;
                 }
             }
 
-            // Default Admin Fallback (only for admin role)
-            $isAdminFallback = (
-                ($email === 'admin@silah.com' || $email === 'admin') && 
-                $password === 'admin123'
-            );
-            
+            // Default Admin Fallback
+            $isAdminFallback = (($email === 'admin@silah.com' || $email === 'admin') && $password === 'admin123');
             if ($role === 'admin' && $isAdminFallback) {
                 session_regenerate_id(true);
                 $_SESSION['admin_id'] = 1;
@@ -146,12 +83,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             exit;
         }
     } else {
-        // Fallback for demo without DB (Admin only)
-        $isAdminFallback = (
-            ($email === 'admin@silah.com' || $email === 'admin') && 
-            $password === 'admin123'
-        );
-        
+        // Fallback for demo without DB
+        $isAdminFallback = (($email === 'admin@silah.com' || $email === 'admin') && $password === 'admin123');
         if ($role === 'admin' && $isAdminFallback) {
             session_regenerate_id(true);
             $_SESSION['admin_id'] = 1;

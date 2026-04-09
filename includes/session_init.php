@@ -16,15 +16,36 @@ class SilahSessionHandler implements SessionHandlerInterface {
 
     private function getPdo() {
         if ($this->pdo === null) {
-            // Include db_connect if not already there
-            require_once __DIR__ . '/db_connect.php';
             global $pdo;
-            $this->pdo = $pdo;
+            if ($pdo === null) {
+                // If global $pdo was destroyed during shutdown, re-include db_connect
+                // We use require instead of require_once to ensure it runs again if needed
+                require __DIR__ . '/db_connect.php';
+                $this->pdo = $pdo;
+            } else {
+                $this->pdo = $pdo;
+            }
         }
         return $this->pdo;
     }
 
     public function open($path, $name): bool {
+        $pdo = $this->getPdo();
+        if ($pdo) {
+            try {
+                // Ensure sessions table exists on first session open
+                $pdo->exec(
+                    "CREATE TABLE IF NOT EXISTS sessions (
+                        id VARCHAR(128) PRIMARY KEY,
+                        data TEXT NOT NULL,
+                        timestamp INT NOT NULL,
+                        INDEX idx_sessions_timestamp (timestamp)
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
+                );
+            } catch (Exception $e) {
+                // Fail silently but log if possible in a real app
+            }
+        }
         return true;
     }
 
@@ -120,4 +141,12 @@ if (session_status() === PHP_SESSION_NONE) {
     
     session_start();
 }
+
+// Global shutdown registration for serverless
+// This ensures session data is committed before the lambda process is frozen
+register_shutdown_function(function() {
+    if (session_status() === PHP_SESSION_ACTIVE) {
+        session_write_close();
+    }
+});
 ?>
