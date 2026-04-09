@@ -1,6 +1,6 @@
 <?php
 require_once 'auth_check.php';
-require_once '../includes/db_connect.php';
+require_once __DIR__ . '/../includes/db_connect.php';
 
 function tableExists(PDO $pdo, string $table): bool {
     $stmt = $pdo->prepare("SHOW TABLES LIKE ?");

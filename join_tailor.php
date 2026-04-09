@@ -1,6 +1,6 @@
 <?php
-require_once 'includes/db_connect.php';
-require_once 'includes/cities.php';
+require_once __DIR__ . '/includes/db_connect.php';
+require_once __DIR__ . '/includes/cities.php';
 $cities = silah_get_cities($pdo);
 ?>
 <!DOCTYPE html>

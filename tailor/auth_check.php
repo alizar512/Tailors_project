@@ -1,6 +1,6 @@
 <?php
-require_once '../includes/session_init.php';
-require_once '../includes/db_connect.php';
+require_once __DIR__ . '/../includes/session_init.php';
+require_once __DIR__ . '/../includes/db_connect.php';
 
 if (!isset($_SESSION['tailor_id']) || $_SESSION['role'] !== 'tailor') {
     header("Location: ../admin/login.php");

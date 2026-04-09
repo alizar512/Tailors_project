@@ -1,5 +1,5 @@
 <?php
-require_once 'includes/db_connect.php';
+require_once __DIR__ . '/includes/db_connect.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name = isset($_POST['name']) ? trim((string)$_POST['name']) : '';

@@ -1,7 +1,7 @@
 <?php
 require_once 'auth_check.php';
-require_once '../includes/db_connect.php';
-require_once '../includes/notifications.php';
+require_once __DIR__ . '/../includes/db_connect.php';
+require_once __DIR__ . '/../includes/notifications.php';
 
 $tailor_id = (int)$_SESSION['tailor_id'];
 
@@ -75,4 +75,4 @@ include 'sidebar.php';
     </div>
 </div>
 
-<?php include '../admin/footer.php'; ?>
+<?php include __DIR__ . '/../admin/footer.php'; ?>

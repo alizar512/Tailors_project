@@ -1,6 +1,6 @@
 <?php
 $current_page = basename($_SERVER['PHP_SELF']);
-require_once '../includes/notifications.php';
+require_once __DIR__ . '/../includes/notifications.php';
 ?>
 <aside class="w-72 bg-[#2D1B36] text-white hidden lg:flex flex-col fixed h-full z-50" data-sidebar>
     <div class="p-8">

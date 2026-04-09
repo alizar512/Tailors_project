@@ -1,8 +1,8 @@
 <?php
-require_once 'includes/db_connect.php';
-require_once 'includes/notifications.php';
-require_once 'includes/mailer.php';
-require_once 'includes/order_messages.php';
+require_once __DIR__ . '/includes/db_connect.php';
+require_once __DIR__ . '/includes/notifications.php';
+require_once __DIR__ . '/includes/mailer.php';
+require_once __DIR__ . '/includes/order_messages.php';
 
 $token = isset($_GET['token']) ? trim((string)$_GET['token']) : '';
 $return = isset($_GET['return']) ? trim((string)$_GET['return']) : '';

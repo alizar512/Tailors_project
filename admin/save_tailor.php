@@ -1,7 +1,7 @@
 <?php
 require_once 'auth_check.php';
-require_once '../includes/db_connect.php';
-require_once '../includes/cities.php';
+require_once __DIR__ . '/../includes/db_connect.php';
+require_once __DIR__ . '/../includes/cities.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $id = isset($_POST['id']) ? (int)$_POST['id'] : 0;

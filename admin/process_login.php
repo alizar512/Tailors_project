@@ -1,6 +1,6 @@
 <?php
-require_once '../includes/session_init.php';
-require_once '../includes/db_connect.php';
+require_once __DIR__ . '/../includes/session_init.php';
+require_once __DIR__ . '/../includes/db_connect.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email = isset($_POST['email']) ? trim((string)$_POST['email']) : '';

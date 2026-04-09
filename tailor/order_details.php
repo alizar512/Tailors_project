@@ -1,9 +1,9 @@
 <?php
 require_once 'auth_check.php';
-require_once '../includes/db_connect.php';
-require_once '../includes/notifications.php';
-require_once '../includes/mailer.php';
-require_once '../includes/order_messages.php';
+require_once __DIR__ . '/../includes/db_connect.php';
+require_once __DIR__ . '/../includes/notifications.php';
+require_once __DIR__ . '/../includes/mailer.php';
+require_once __DIR__ . '/../includes/order_messages.php';
 
 $tailor_id = (int)$_SESSION['tailor_id'];
 $order_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
@@ -801,4 +801,4 @@ include 'sidebar.php';
     </div>
 </div>
 
-<?php include '../admin/footer.php'; ?>
+<?php include __DIR__ . '/../admin/footer.php'; ?>

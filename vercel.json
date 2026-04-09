@@ -1,39 +1,14 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "**/*.php",
-      "use": "vercel-php@0.7.2"
-    },
-    {
-      "src": "css/*.css",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "js/*.js",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "images/**/*",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "uploads/**/*",
-      "use": "@vercel/static"
+  "functions": {
+    "**/*.php": {
+      "runtime": "vercel-php@0.7.2",
+      "includeFiles": "{includes,admin,tailor,api}/**"
     }
-  ],
+  },
   "routes": [
-    {
-      "src": "/",
-      "dest": "/index.php"
-    },
-    {
-      "src": "/(.*).php",
-      "dest": "/$1.php"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/$1"
-    }
+    { "src": "/", "dest": "/index.php" },
+    { "src": "/(.*).php", "dest": "/$1.php" },
+    { "src": "/(.*)", "dest": "/$1" }
   ]
 }

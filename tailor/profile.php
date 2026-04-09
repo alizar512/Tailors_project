@@ -1,7 +1,7 @@
 <?php
 require_once 'auth_check.php';
-require_once '../includes/db_connect.php';
-require_once '../includes/cities.php';
+require_once __DIR__ . '/../includes/db_connect.php';
+require_once __DIR__ . '/../includes/cities.php';
 
 $tailor_id = (int)$_SESSION['tailor_id'];
 $cities = silah_get_cities($pdo);
@@ -534,4 +534,4 @@ include 'sidebar.php';
     })();
 </script>
 
-<?php include '../admin/footer.php'; ?>
+<?php include __DIR__ . '/../admin/footer.php'; ?>

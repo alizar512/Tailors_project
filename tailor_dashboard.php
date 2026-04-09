@@ -1,6 +1,6 @@
 <?php
 // tailor_dashboard.php
-require_once 'includes/db_connect.php';
+require_once __DIR__ . '/includes/db_connect.php';
 // For demo, we'll assume a tailor is logged in
 $tailor_id = 1; 
 

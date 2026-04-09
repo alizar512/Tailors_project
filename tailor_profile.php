@@ -1,5 +1,5 @@
 <?php
-require_once 'includes/db_connect.php';
+require_once __DIR__ . '/includes/db_connect.php';
 
 $tailor_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 $tailor = null;

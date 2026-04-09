@@ -1,6 +1,6 @@
 <?php
 require_once 'auth_check.php';
-require_once '../includes/db_connect.php';
+require_once __DIR__ . '/../includes/db_connect.php';
 
 $tailor_id = (int)$_SESSION['tailor_id'];
 $status_filter = isset($_GET['status']) ? (string)$_GET['status'] : 'all';
@@ -102,4 +102,4 @@ include 'sidebar.php';
     </div>
 </div>
 
-<?php include '../admin/footer.php'; ?>
+<?php include __DIR__ . '/../admin/footer.php'; ?>

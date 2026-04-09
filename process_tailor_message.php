@@ -1,8 +1,8 @@
 <?php
-require_once 'includes/db_connect.php';
-require_once 'includes/notifications.php';
-require_once 'includes/mailer.php';
-require_once 'includes/notifications.php';
+require_once __DIR__ . '/includes/db_connect.php';
+require_once __DIR__ . '/includes/notifications.php';
+require_once __DIR__ . '/includes/mailer.php';
+require_once __DIR__ . '/includes/notifications.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header("Location: index.php");

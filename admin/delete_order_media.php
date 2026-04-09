@@ -1,6 +1,6 @@
 <?php
 require_once 'auth_check.php';
-require_once '../includes/db_connect.php';
+require_once __DIR__ . '/../includes/db_connect.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['order_id']) && isset($_POST['image_path'])) {
     $order_id = (int)$_POST['order_id'];

@@ -1,7 +1,7 @@
 <?php
 $current_page = basename($_SERVER['PHP_SELF']);
-require_once '../includes/db_connect.php';
-require_once '../includes/notifications.php';
+require_once __DIR__ . '/../includes/db_connect.php';
+require_once __DIR__ . '/../includes/notifications.php';
 
 $sidebar_tailor_id = $_SESSION['tailor_id'];
 $sidebar_tailor = null;

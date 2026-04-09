@@ -1,5 +1,5 @@
 <?php
-require_once 'includes/db_connect.php';
+require_once __DIR__ . '/includes/db_connect.php';
 
 $token = isset($_GET['token']) ? trim((string)$_GET['token']) : '';
 $return = isset($_GET['return']) ? trim((string)$_GET['return']) : '';
