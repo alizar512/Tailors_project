@@ -235,7 +235,7 @@ include 'sidebar.php';
                     <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Service Selection</p>
                     <div class="p-4 bg-primary/5 rounded-2xl border border-primary/10">
                         <p class="text-sm font-black text-primary mb-1"><?= htmlspecialchars((string)$order['service_type']) ?></p>
-                        <p class="text-xs text-gray-500 mb-1">Budget: <span class="font-bold text-gray-700">PKR <?= number_format($order['budget']) ?></span></p>
+                        <p class="text-xs text-gray-500 mb-1">Budget: <span class="font-bold text-gray-700">PKR <?= number_format((float)$order['budget']) ?></span></p>
                         <p class="text-xs text-gray-500">Timeline: <span class="font-bold text-gray-700"><?= date('M d, Y', strtotime($order['expected_delivery'])) ?></span></p>
                     </div>
                 </div>
@@ -396,7 +396,7 @@ include 'sidebar.php';
                     <div class="relative">
                         <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-xs">PKR</span>
                         <div class="form-control rounded-xl border-gray-100 bg-gray-50 text-sm font-black pl-12 py-3">
-                            <?= number_format($totalPrice) ?>
+                            <?= number_format((float)$totalPrice) ?>
                         </div>
                     </div>
                     <p class="text-[9px] text-gray-400 mt-2 italic">*Only tailors can update the status and price.</p>
@@ -406,7 +406,7 @@ include 'sidebar.php';
                     <div class="p-4 rounded-2xl bg-primary/5 border border-primary/10 mb-0">
                         <div class="flex justify-between items-center mb-2">
                             <span class="text-[10px] font-bold text-gray-500 uppercase">30% Advance</span>
-                            <span class="text-sm font-black text-primary">PKR <?= number_format($totalPrice * 0.3) ?></span>
+                            <span class="text-sm font-black text-primary">PKR <?= number_format((float)$totalPrice * 0.3) ?></span>
                         </div>
                         <div class="flex justify-between items-center">
                             <span class="text-[10px] font-bold text-gray-500 uppercase">Payment Status</span>

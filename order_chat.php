@@ -580,8 +580,8 @@ if ($is_lookup_mode && $lookup_error === '' && $hasEmailLookup) {
                     <div class="d-flex justify-content-between align-items-start gap-3">
                         <div>
                             <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Advance Payment (30%)</p>
-                            <p class="text-sm text-gray-700 mb-1">Required Advance: <span class="font-black text-primary">PKR <?= number_format($advanceAmount) ?></span></p>
-                            <p class="text-xs text-gray-500 mb-0">Total: PKR <?= number_format($totalPrice) ?></p>
+                            <p class="text-sm text-gray-700 mb-1">Required Advance: <span class="font-black text-primary">PKR <?= number_format((float)$advanceAmount) ?></span></p>
+                            <p class="text-xs text-gray-500 mb-0">Total: PKR <?= number_format((float)$totalPrice) ?></p>
                         </div>
                         <div class="text-end">
                             <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Status</p>
@@ -629,8 +629,8 @@ if ($is_lookup_mode && $lookup_error === '' && $hasEmailLookup) {
                         <div class="d-flex justify-content-between align-items-start gap-3">
                             <div>
                                 <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Remaining Payment (70%)</p>
-                                <p class="text-sm text-gray-700 mb-1">Remaining Amount: <span class="font-black text-primary">PKR <?= number_format($balanceAmount) ?></span></p>
-                                <p class="text-xs text-gray-500 mb-0">Total: PKR <?= number_format($totalPrice) ?></p>
+                                <p class="text-sm text-gray-700 mb-1">Remaining Amount: <span class="font-black text-primary">PKR <?= number_format((float)$balanceAmount) ?></span></p>
+                                <p class="text-xs text-gray-500 mb-0">Total: PKR <?= number_format((float)$totalPrice) ?></p>
                             </div>
                             <div class="text-end">
                                 <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Status</p>
@@ -812,7 +812,7 @@ if ($is_lookup_mode && $lookup_error === '' && $hasEmailLookup) {
                     </div>
                     <div class="col-md-6">
                         <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Your Budget</p>
-                        <p class="text-sm font-bold text-gray-800 mb-0">PKR <?= number_format(isset($order['budget']) ? (float)$order['budget'] : 0) ?></p>
+                        <p class="text-sm font-bold text-gray-800 mb-0">PKR <?= number_format((float)isset($order['budget']) ? (float)$order['budget'] : 0) ?></p>
                     </div>
                     <div class="col-12">
                         <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Delivery Address</p>

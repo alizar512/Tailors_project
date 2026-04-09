@@ -231,7 +231,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $msg =
                         "New order request.\n" .
                         "Services: " . ($service_type !== '' ? $service_type : '-') . "\n" .
-                        "Total: " . ($budget !== null ? ('PKR ' . number_format($budget)) : '-') . "\n" .
+                        "Total: " . ($budget !== null ? ('PKR ' . number_format((float)$budget)) : '-') . "\n" .
                         "Own clothing: " . ($is_own_clothing ? 'Yes' : 'No') . "\n" .
                         "Delivery: " . ($expected_delivery !== '' ? $expected_delivery : '-') . "\n\n" .
                         "Notes:\n" . ($notes !== '' ? $notes : '-') . "\n\n" .
@@ -270,7 +270,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         "New order request.\n" .
                         "Order #: " . ($orderId > 0 ? (string)$orderId : '-') . "\n" .
                         "Services: " . ($service_type !== '' ? $service_type : '-') . "\n" .
-                        "Total: " . ($budget !== null ? ('PKR ' . number_format($budget)) : '-') . "\n" .
+                        "Total: " . ($budget !== null ? ('PKR ' . number_format((float)$budget)) : '-') . "\n" .
                         "Own clothing: " . ($is_own_clothing ? 'Yes' : 'No') . "\n" .
                         "Delivery: " . ($expected_delivery !== '' ? $expected_delivery : '-') . "\n\n" .
                         "Notes:\n" . ($notes !== '' ? $notes : '-') . "\n\n" .

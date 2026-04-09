@@ -72,7 +72,7 @@ include 'sidebar.php';
                         </span>
                     </td>
                     <td class="py-5 border-0 text-center">
-                        <p class="text-[11px] font-black text-primary mb-0">PKR <?= number_format($t['price_range_min']) ?>+</p>
+                        <p class="text-[11px] font-black text-primary mb-0">PKR <?= number_format((float)$t['price_range_min']) ?>+</p>
                     </td>
                     <td class="px-8 py-5 border-0 text-end">
                         <div class="flex justify-end gap-2">

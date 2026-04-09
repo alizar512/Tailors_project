@@ -444,7 +444,7 @@ if ($hire_mode) {
                                         <div class="flex flex-col">
                                             <span class="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">Starting Price</span>
                                             <div class="flex items-baseline gap-1">
-                                                <span class="text-lg font-black text-primary">PKR <?= number_format($tailor['price_range_min'] ?? 0) ?></span>
+                                                <span class="text-lg font-black text-primary">PKR <?= number_format((float)$tailor['price_range_min'] ?? 0) ?></span>
                                             </div>
                                         </div>
                                         <div class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center transform group-hover:rotate-[360deg] group-hover:bg-accent transition-all duration-700 shadow-lg">

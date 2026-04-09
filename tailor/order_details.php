@@ -288,7 +288,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['set_offer']) && isset
             $label = $t && isset($t['name']) ? (string)$t['name'] : 'Tailor';
             $tEmail = $t && isset($t['email']) ? (string)$t['email'] : '';
 
-            $msg = "Offer: PKR " . number_format($offer_price);
+            $msg = "Offer: PKR " . number_format((float)$offer_price);
             if ($offer_notes !== '') {
                 $msg .= "\n\n" . $offer_notes;
             }
@@ -626,8 +626,8 @@ include 'sidebar.php';
                 <div class="flex items-center justify-between gap-3">
                     <div>
                         <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">30% Required</p>
-                        <p class="text-sm font-black text-primary mb-0">PKR <?= number_format($tAdvance) ?></p>
-                        <p class="text-[11px] text-gray-500 mb-0">Total: PKR <?= number_format($tTotal) ?></p>
+                        <p class="text-sm font-black text-primary mb-0">PKR <?= number_format((float)$tAdvance) ?></p>
+                        <p class="text-[11px] text-gray-500 mb-0">Total: PKR <?= number_format((float)$tTotal) ?></p>
                     </div>
                     <div class="text-right">
                         <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Status</p>
@@ -675,8 +675,8 @@ include 'sidebar.php';
                         <div class="flex items-center justify-between gap-3">
                             <div>
                                 <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">70% Remaining</p>
-                                <p class="text-sm font-black text-primary mb-0">PKR <?= number_format($tBalance) ?></p>
-                                <p class="text-[11px] text-gray-500 mb-0">Total: PKR <?= number_format($tTotal) ?></p>
+                                <p class="text-sm font-black text-primary mb-0">PKR <?= number_format((float)$tBalance) ?></p>
+                                <p class="text-[11px] text-gray-500 mb-0">Total: PKR <?= number_format((float)$tTotal) ?></p>
                             </div>
                             <div class="text-right">
                                 <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Status</p>

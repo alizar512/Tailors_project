@@ -130,7 +130,7 @@ include 'sidebar.php';
                     </td>
                     <td class="py-5 border-0">
                         <p class="text-[12px] font-bold text-gray-700 mb-0"><?= htmlspecialchars((string)$order['service_type']) ?></p>
-                        <p class="text-[10px] text-gray-400 font-medium italic">PKR <?= number_format($order['budget']) ?> Budget</p>
+                        <p class="text-[10px] text-gray-400 font-medium italic">PKR <?= number_format((float)$order['budget']) ?> Budget</p>
                     </td>
                     <td class="py-5 border-0">
                         <?php if (isset($order['tailor_offer_price']) && $order['tailor_offer_price'] !== null && (float)$order['tailor_offer_price'] > 0): ?>

@@ -259,7 +259,7 @@ include 'sidebar.php';
                         </td>
                         <td class="py-5 border-0">
                             <?php $budgetVal = isset($order['budget']) && $order['budget'] !== null && $order['budget'] !== '' ? (float)$order['budget'] : 0.0; ?>
-                            <span class="text-sm font-black text-primary tracking-tight">PKR <?= number_format($budgetVal) ?></span>
+                            <span class="text-sm font-black text-primary tracking-tight">PKR <?= number_format((float)$budgetVal) ?></span>
                         </td>
                         <td class="py-5 border-0 text-center">
                             <?php

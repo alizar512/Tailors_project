@@ -79,7 +79,7 @@ include 'sidebar.php';
                     <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Starting Price (PKR)</p>
                     <div class="flex items-center gap-3 text-sm">
                         <i class="fas fa-tag text-primary w-4"></i>
-                        <span class="text-gray-700">PKR <?= number_format(isset($app['price_range_min']) && $app['price_range_min'] !== '' ? (float)$app['price_range_min'] : 0) ?></span>
+                        <span class="text-gray-700">PKR <?= number_format((float)isset($app['price_range_min']) && $app['price_range_min'] !== '' ? (float)$app['price_range_min'] : 0) ?></span>
                     </div>
                 </div>
 

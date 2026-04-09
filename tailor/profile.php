@@ -350,7 +350,7 @@ include 'sidebar.php';
                             <?php
                                 $minPrice = isset($tailor['price_range_min']) && $tailor['price_range_min'] !== '' ? (float)$tailor['price_range_min'] : 0;
                             ?>
-                            Starting from PKR <?= number_format($minPrice) ?>
+                            Starting from PKR <?= number_format((float)$minPrice) ?>
                         </span>
                     </div>
                 </div>
@@ -417,7 +417,7 @@ include 'sidebar.php';
                     </div>
                     <div class="col-md-6">
                         <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Starting Price (PKR)</p>
-                        <div class="form-control bg-gray-50">PKR <?= number_format(isset($tailor['price_range_min']) && $tailor['price_range_min'] !== '' ? (float)$tailor['price_range_min'] : 0) ?></div>
+                        <div class="form-control bg-gray-50">PKR <?= number_format((float)isset($tailor['price_range_min']) && $tailor['price_range_min'] !== '' ? (float)$tailor['price_range_min'] : 0) ?></div>
                     </div>
                     <div class="col-md-6">
                         <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Instagram</p>

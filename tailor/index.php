@@ -122,7 +122,7 @@ include 'sidebar.php';
         </div>
         <div class="flex items-end justify-between gap-3">
             <div>
-                <h3 class="text-3xl sm:text-4xl font-extrabold mb-1 tracking-tight text-white">PKR <?= number_format($stats['total_earnings']) ?></h3>
+                <h3 class="text-3xl sm:text-4xl font-extrabold mb-1 tracking-tight text-white">PKR <?= number_format((float)$stats['total_earnings']) ?></h3>
                 <p class="text-[10px] font-extrabold uppercase tracking-widest mb-0" style="color: rgba(255,255,255,0.78);">Total Earnings</p>
             </div>
             <div class="w-14 h-7 opacity-30">

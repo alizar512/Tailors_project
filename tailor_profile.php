@@ -253,9 +253,9 @@ if (!$tailor) {
                                 $max = isset($tailor['price_range_max']) && $tailor['price_range_max'] !== null && $tailor['price_range_max'] !== '' ? (float)$tailor['price_range_max'] : null;
                             ?>
                             <?php if ($max !== null && $max > 0): ?>
-                                PKR <?= number_format($min) ?> - PKR <?= number_format($max) ?>
+                                PKR <?= number_format((float)$min) ?> - PKR <?= number_format((float)$max) ?>
                             <?php else: ?>
-                                Starting from PKR <?= number_format($min) ?>
+                                Starting from PKR <?= number_format((float)$min) ?>
                             <?php endif; ?>
                         </span>
                         <?php if (isset($tailor['email']) && $tailor['email']): ?>
