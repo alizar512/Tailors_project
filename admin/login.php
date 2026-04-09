@@ -132,6 +132,22 @@ if (isset($_SESSION['admin_id'])) {
             transition: all 0.2s ease;
             font-size: 14px;
         }
+        .password-toggle {
+            position: absolute;
+            right: 16px;
+            top: 36px;
+            color: #cbd5e1;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 14px;
+            background: none;
+            border: none;
+            padding: 0;
+            outline: none;
+        }
+        .password-toggle:hover {
+            color: var(--brand-primary);
+        }
         .input-field:focus + .input-icon {
             color: var(--brand-primary);
         }
@@ -224,8 +240,11 @@ if (isset($_SESSION['admin_id'])) {
 
                 <div class="input-group">
                     <label>Password</label>
-                    <input type="password" name="password" class="input-field" placeholder="••••••••" required>
+                    <input type="password" name="password" id="password" class="input-field" placeholder="••••••••" required>
                     <i class="fas fa-lock input-icon"></i>
+                    <button type="button" id="togglePassword" class="password-toggle">
+                        <i class="fas fa-eye" id="eyeIcon"></i>
+                    </button>
                 </div>
 
                 <button type="submit" class="submit-btn">
@@ -240,6 +259,22 @@ if (isset($_SESSION['admin_id'])) {
     </div>
 
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-    <script>AOS.init();</script>
+    <script>
+        AOS.init();
+        
+        const togglePassword = document.getElementById('togglePassword');
+        const password = document.getElementById('password');
+        const eyeIcon = document.getElementById('eyeIcon');
+
+        togglePassword.addEventListener('click', function (e) {
+            // toggle the type attribute
+            const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+            password.setAttribute('type', type);
+            
+            // toggle the eye icon
+            eyeIcon.classList.toggle('fa-eye');
+            eyeIcon.classList.toggle('fa-eye-slash');
+        });
+    </script>
 </body>
 </html>
