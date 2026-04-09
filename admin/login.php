@@ -210,7 +210,7 @@ if (isset($_SESSION['admin_id'])) {
                         <?php 
                             $errorMessages = [
                                 'invalid_credentials' => 'Invalid email or password',
-                                'db_error' => 'Database connection failed',
+                                'db_error' => 'Database connection failed: ' . (isset($_GET['msg']) ? htmlspecialchars((string)$_GET['msg']) : ''),
                                 'no_connection' => 'Connection error',
                                 'deactivated' => 'Your account has been deactivated by admin',
                             ];

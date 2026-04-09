@@ -66,6 +66,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     $_SESSION['admin_id'] = $user['id'];
                     $_SESSION['admin_email'] = isset($user['email']) ? $user['email'] : null;
                     $_SESSION['role'] = 'admin';
+                    session_write_close();
                     header("Location: index.php");
                     exit;
                 }
@@ -90,6 +91,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                 if ($user && password_verify($password, $user['password'])) {
                     if (isset($user['is_active']) && (int)$user['is_active'] === 0) {
+                        session_write_close();
                         header("Location: login.php?error=deactivated");
                         exit;
                     }
@@ -98,8 +100,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     $_SESSION['role'] = 'tailor';
                     $_SESSION['password_reset_required'] = isset($user['password_reset_required']) ? (int)$user['password_reset_required'] : 0;
                     if ((int)$_SESSION['password_reset_required'] === 1) {
+                        session_write_close();
                         header("Location: ../tailor/change_password.php");
                     } else {
+                        session_write_close();
                         header("Location: ../tailor/index.php");
                     }
                     exit;
@@ -111,15 +115,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $_SESSION['admin_id'] = 1;
                 $_SESSION['admin_email'] = 'admin@silah.com';
                 $_SESSION['role'] = 'admin';
+                session_write_close();
                 header("Location: index.php");
                 exit;
             }
 
+            session_write_close();
             header("Location: login.php?error=invalid_credentials");
             exit;
 
         } catch (PDOException $e) {
-            header("Location: login.php?error=db_error");
+            $msg = urlencode($e->getMessage());
+            header("Location: login.php?error=db_error&msg=$msg");
             exit;
         }
     } else {
@@ -128,6 +135,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $_SESSION['admin_id'] = 1;
             $_SESSION['admin_email'] = 'admin@silah.com';
             $_SESSION['role'] = 'admin';
+            session_write_close();
             header("Location: index.php");
             exit;
         }

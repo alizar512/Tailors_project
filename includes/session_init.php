@@ -27,10 +27,14 @@ if (is_writable($session_path)) {
 // Ensure session starts correctly
 if (session_status() === PHP_SESSION_NONE) {
     // Set some secure session defaults for production
-    if (getenv('VERCEL') === '1') {
+    if (getenv('VERCEL') === '1' || getenv('AWS_LAMBDA_FUNCTION_NAME')) {
         ini_set('session.cookie_secure', '1');
         ini_set('session.cookie_httponly', '1');
         ini_set('session.use_only_cookies', '1');
+        ini_set('session.gc_maxlifetime', '86400');
+        ini_set('session.cookie_lifetime', '86400');
+        // Ensure cookies are available for all subfolders (admin, tailor, api)
+        ini_set('session.cookie_path', '/');
     }
     
     session_start();
