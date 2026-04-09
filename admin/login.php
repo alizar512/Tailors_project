@@ -213,6 +213,7 @@ if (isset($_SESSION['admin_id'])) {
                                 'db_error' => 'Database connection failed: ' . (isset($_GET['msg']) ? htmlspecialchars((string)$_GET['msg']) : ''),
                                 'no_connection' => 'Connection error',
                                 'deactivated' => 'Your account has been deactivated by admin',
+                                'session_expired' => 'Session expired or could not be established. Please try again in an incognito window.',
                             ];
                             $key = (string)$_GET['error'];
                             echo isset($errorMessages[$key]) ? $errorMessages[$key] : 'An error occurred';

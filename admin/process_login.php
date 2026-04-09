@@ -39,6 +39,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 }
             }
 
+            // Ensure sessions table exists for persistence
+            $pdo->exec(
+                "CREATE TABLE IF NOT EXISTS sessions (
+                    id VARCHAR(128) PRIMARY KEY,
+                    data TEXT NOT NULL,
+                    timestamp INT NOT NULL,
+                    INDEX idx_sessions_timestamp (timestamp)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
+            );
+
             $defaultEmail = 'admin@silah.com';
             $defaultUsername = 'admin';
             $defaultPasswordHash = password_hash('admin123', PASSWORD_DEFAULT);
@@ -111,7 +121,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
 
             // Default Admin Fallback (only for admin role)
-            if ($role === 'admin' && $email === 'admin@silah.com' && $password === 'admin123') {
+            $isAdminFallback = (
+                ($email === 'admin@silah.com' || $email === 'admin') && 
+                $password === 'admin123'
+            );
+            
+            if ($role === 'admin' && $isAdminFallback) {
+                session_regenerate_id(true);
                 $_SESSION['admin_id'] = 1;
                 $_SESSION['admin_email'] = 'admin@silah.com';
                 $_SESSION['role'] = 'admin';
@@ -131,7 +147,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     } else {
         // Fallback for demo without DB (Admin only)
-        if ($role === 'admin' && $email === 'admin@silah.com' && $password === 'admin123') {
+        $isAdminFallback = (
+            ($email === 'admin@silah.com' || $email === 'admin') && 
+            $password === 'admin123'
+        );
+        
+        if ($role === 'admin' && $isAdminFallback) {
+            session_regenerate_id(true);
             $_SESSION['admin_id'] = 1;
             $_SESSION['admin_email'] = 'admin@silah.com';
             $_SESSION['role'] = 'admin';
