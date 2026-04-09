@@ -129,7 +129,7 @@ include 'sidebar.php';
         <div class="px-8 pt-6">
             <div class="p-4 rounded-2xl border <?= $box ?>">
                 <p class="text-xs font-extrabold uppercase tracking-widest mb-1 <?= $t1 ?>"><?= $isOk ? 'Sent' : 'Error' ?></p>
-                <p class="text-sm font-semibold mb-0 <?= $t2 ?>"><?= htmlspecialchars($txt) ?></p>
+                <p class="text-sm font-semibold mb-0 <?= $t2 ?>"><?= htmlspecialchars((string)$txt) ?></p>
             </div>
         </div>
     <?php endif; ?>
@@ -189,7 +189,7 @@ include 'sidebar.php';
                     </td>
                     <td class="py-5 border-0">
                         <div class="portal-message-preview">
-                            <?= nl2br(htmlspecialchars($msgText)) ?>
+                            <?= nl2br(htmlspecialchars((string)$msgText)) ?>
                         </div>
                     </td>
                     <td class="py-5 border-0 text-center">

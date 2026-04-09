@@ -180,7 +180,7 @@ include 'sidebar.php';
 
         <ul class="list-group">
             <?php foreach ($updates as $u): ?>
-                <li class="list-group-item"><?= htmlspecialchars($u) ?></li>
+                <li class="list-group-item"><?= htmlspecialchars((string)$u) ?></li>
             <?php endforeach; ?>
             <?php if (empty($updates)): ?>
                 <li class="list-group-item text-gray-500">No changes needed.</li>

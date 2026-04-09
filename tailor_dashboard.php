@@ -55,13 +55,13 @@ if ($pdo) {
                                 <?php foreach ($orders as $order): ?>
                                 <tr>
                                     <td>
-                                        <div class="font-bold"><?= htmlspecialchars($order['customer_name']) ?></div>
-                                        <div class="text-xs text-gray-500"><?= htmlspecialchars($order['customer_email']) ?></div>
+                                        <div class="font-bold"><?= htmlspecialchars((string)$order['customer_name']) ?></div>
+                                        <div class="text-xs text-gray-500"><?= htmlspecialchars((string)$order['customer_email']) ?></div>
                                     </td>
-                                    <td><?= htmlspecialchars($order['service_type']) ?></td>
-                                    <td><?= htmlspecialchars($order['budget']) ?> PKR</td>
+                                    <td><?= htmlspecialchars((string)$order['service_type']) ?></td>
+                                    <td><?= htmlspecialchars((string)$order['budget']) ?> PKR</td>
                                     <td>
-                                        <span class="status-badge bg-primary-soft text-primary"><?= htmlspecialchars($order['status']) ?></span>
+                                        <span class="status-badge bg-primary-soft text-primary"><?= htmlspecialchars((string)$order['status']) ?></span>
                                     </td>
                                     <td>
                                         <button class="btn btn-sm btn-primary">Update Status</button>

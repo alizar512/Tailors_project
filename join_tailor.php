@@ -150,7 +150,7 @@ $cities = silah_get_cities($pdo);
                         <p class="text-xs font-extrabold text-red-600 uppercase tracking-widest mb-1">Submission Failed</p>
                         <p class="text-sm font-semibold text-red-800 mb-0">Something went wrong while submitting your application. Please try again.</p>
                         <?php if (isset($_GET['err']) && $_GET['err'] !== ''): ?>
-                            <p class="text-xs text-red-700 mt-2 mb-0 break-all"><?= htmlspecialchars($_GET['err']) ?></p>
+                            <p class="text-xs text-red-700 mt-2 mb-0 break-all"><?= htmlspecialchars((string)$_GET['err']) ?></p>
                         <?php endif; ?>
                     </div>
                         <?php endif; ?>

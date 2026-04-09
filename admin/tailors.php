@@ -53,22 +53,22 @@ include 'sidebar.php';
                 <tr class="group hover:bg-primary/5 transition-colors">
                     <td class="px-8 py-5 border-0">
                         <div class="flex items-center gap-4">
-                            <img src="../<?= htmlspecialchars($t['profile_image']) ?>" class="w-12 h-12 rounded-2xl object-cover shadow-sm border-2 border-white group-hover:scale-110 transition-transform duration-500">
+                            <img src="../<?= htmlspecialchars((string)$t['profile_image']) ?>" class="w-12 h-12 rounded-2xl object-cover shadow-sm border-2 border-white group-hover:scale-110 transition-transform duration-500">
                             <div>
-                                <p class="text-sm font-black text-gray-800 mb-0"><?= htmlspecialchars($t['name']) ?></p>
-                                <p class="text-[11px] text-gray-500 font-medium"><?= htmlspecialchars($t['tagline']) ?></p>
+                                <p class="text-sm font-black text-gray-800 mb-0"><?= htmlspecialchars((string)$t['name']) ?></p>
+                                <p class="text-[11px] text-gray-500 font-medium"><?= htmlspecialchars((string)$t['tagline']) ?></p>
                             </div>
                         </div>
                     </td>
                     <td class="py-5 border-0">
                         <div class="flex items-center gap-2">
                             <i class="fas fa-map-marker-alt text-primary text-[10px]"></i>
-                            <span class="text-[12px] font-bold text-gray-700"><?= htmlspecialchars($t['location']) ?></span>
+                            <span class="text-[12px] font-bold text-gray-700"><?= htmlspecialchars((string)$t['location']) ?></span>
                         </div>
                     </td>
                     <td class="py-5 border-0 text-center">
                         <span class="text-[10px] font-black uppercase px-2 py-1 bg-amber-50 text-amber-600 rounded-lg">
-                            <?= htmlspecialchars($t['experience_years']) ?> Years
+                            <?= htmlspecialchars((string)$t['experience_years']) ?> Years
                         </span>
                     </td>
                     <td class="py-5 border-0 text-center">

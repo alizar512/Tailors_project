@@ -450,15 +450,15 @@ include 'sidebar.php';
                 <div class="col-md-6">
                     <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Customer Details</p>
                     <div class="p-4 bg-gray-50 rounded-2xl border border-gray-100">
-                        <p class="text-sm font-black text-gray-800 mb-1"><?= htmlspecialchars(isset($order['customer_name']) ? $order['customer_name'] : '') ?></p>
-                        <p class="text-xs text-gray-500 mb-1"><?= htmlspecialchars(isset($order['customer_email']) ? $order['customer_email'] : '') ?></p>
-                        <p class="text-xs text-gray-500 mb-0"><?= htmlspecialchars(isset($order['customer_phone']) ? $order['customer_phone'] : '') ?></p>
+                        <p class="text-sm font-black text-gray-800 mb-1"><?= htmlspecialchars((string)isset($order['customer_name']) ? $order['customer_name'] : '') ?></p>
+                        <p class="text-xs text-gray-500 mb-1"><?= htmlspecialchars((string)isset($order['customer_email']) ? $order['customer_email'] : '') ?></p>
+                        <p class="text-xs text-gray-500 mb-0"><?= htmlspecialchars((string)isset($order['customer_phone']) ? $order['customer_phone'] : '') ?></p>
                     </div>
                 </div>
                 <div class="col-md-6">
                     <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Service</p>
                     <div class="p-4 bg-primary/5 rounded-2xl border border-primary/10">
-                        <p class="text-sm font-black text-primary mb-1"><?= htmlspecialchars(isset($order['service_type']) ? $order['service_type'] : '') ?></p>
+                        <p class="text-sm font-black text-primary mb-1"><?= htmlspecialchars((string)isset($order['service_type']) ? $order['service_type'] : '') ?></p>
                         <p class="text-xs text-gray-500 mb-0">Budget: <span class="font-bold text-gray-700">PKR <?= number_format((float)(isset($order['budget']) ? $order['budget'] : 0)) ?></span></p>
                     </div>
                 </div>
@@ -466,14 +466,14 @@ include 'sidebar.php';
 
             <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Notes</p>
             <div class="p-5 bg-white border border-gray-100 rounded-2xl shadow-sm mb-10">
-                <p class="text-sm text-gray-600 leading-relaxed mb-0 italic"><?= nl2br(htmlspecialchars(isset($order['notes']) ? $order['notes'] : '')) ?></p>
+                <p class="text-sm text-gray-600 leading-relaxed mb-0 italic"><?= nl2br(htmlspecialchars((string)isset($order['notes']) ? $order['notes'] : '')) ?></p>
             </div>
 
             <?php if (isset($order['measurements']) && $order['measurements']): ?>
                 <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Measurements</p>
                 <div class="p-5 bg-white border border-gray-100 rounded-2xl shadow-sm mb-10">
                     <?php $mText = str_replace("\\n", "\n", (string)$order['measurements']); ?>
-                    <p class="text-sm text-gray-700 leading-relaxed mb-0"><?= nl2br(htmlspecialchars($mText)) ?></p>
+                    <p class="text-sm text-gray-700 leading-relaxed mb-0"><?= nl2br(htmlspecialchars((string)$mText)) ?></p>
                 </div>
             <?php endif; ?>
 
@@ -481,16 +481,16 @@ include 'sidebar.php';
             <div class="p-5 bg-amber-50/50 border border-amber-100 rounded-2xl mb-10">
                 <div class="flex gap-3">
                     <i class="fas fa-map-pin text-amber-500 mt-1"></i>
-                    <p class="text-sm text-gray-700 leading-relaxed mb-0 font-medium"><?= htmlspecialchars(isset($order['location_details']) ? $order['location_details'] : '') ?></p>
+                    <p class="text-sm text-gray-700 leading-relaxed mb-0 font-medium"><?= htmlspecialchars((string)isset($order['location_details']) ? $order['location_details'] : '') ?></p>
                 </div>
             </div>
 
             <?php if (isset($order['reference_image']) && $order['reference_image']): ?>
                 <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Reference Image</p>
                 <div class="rounded-2xl overflow-hidden border border-gray-100 shadow-sm max-w-sm relative group">
-                    <img src="../<?= htmlspecialchars($order['reference_image']) ?>" class="w-full h-auto hover:scale-105 transition-transform duration-500">
+                    <img src="../<?= htmlspecialchars((string)$order['reference_image']) ?>" class="w-full h-auto hover:scale-105 transition-transform duration-500">
                     <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
-                        <a href="../<?= htmlspecialchars($order['reference_image']) ?>" target="_blank" class="w-10 h-10 rounded-full bg-white text-primary flex items-center justify-center shadow-xl hover:scale-110 transition-transform">
+                        <a href="../<?= htmlspecialchars((string)$order['reference_image']) ?>" target="_blank" class="w-10 h-10 rounded-full bg-white text-primary flex items-center justify-center shadow-xl hover:scale-110 transition-transform">
                             <i class="fas fa-eye"></i>
                         </a>
                     </div>
@@ -509,7 +509,7 @@ include 'sidebar.php';
                         $baseUrl = 'http://' . $_SERVER['HTTP_HOST'];
                         $chatUrl = $baseUrl . '/order_chat.php?token=' . urlencode((string)$order['chat_token']);
                     ?>
-                    <a href="<?= htmlspecialchars($chatUrl) ?>" target="_blank" class="btn btn-outline !py-2 !px-4 text-[10px] uppercase tracking-widest font-bold no-underline">Customer Link</a>
+                    <a href="<?= htmlspecialchars((string)$chatUrl) ?>" target="_blank" class="btn btn-outline !py-2 !px-4 text-[10px] uppercase tracking-widest font-bold no-underline">Customer Link</a>
                 <?php endif; ?>
             </div>
 
@@ -529,8 +529,8 @@ include 'sidebar.php';
                             <div class="flex <?= $alignClass ?>">
                                 <div class="rounded-2xl px-4 py-3 <?= $bubbleClass ?>" style="max-width: 85%;">
                                     <div class="flex justify-between gap-3 mb-1">
-                                        <span class="text-[11px] font-extrabold <?= $isTailorMsg ? 'text-white/90' : 'text-gray-500' ?>"><?= htmlspecialchars($name) ?></span>
-                                        <span class="text-[10px] <?= $isTailorMsg ? 'text-white/70' : 'text-gray-400' ?>"><?= htmlspecialchars(date('M d, H:i', strtotime((string)$m['created_at']))) ?></span>
+                                        <span class="text-[11px] font-extrabold <?= $isTailorMsg ? 'text-white/90' : 'text-gray-500' ?>"><?= htmlspecialchars((string)$name) ?></span>
+                                        <span class="text-[10px] <?= $isTailorMsg ? 'text-white/70' : 'text-gray-400' ?>"><?= htmlspecialchars((string)date('M d, H:i', strtotime((string)$m['created_at']))) ?></span>
                                     </div>
                                     <div class="text-sm leading-relaxed"><?= nl2br(htmlspecialchars((string)$m['message'])) ?></div>
                                 </div>
@@ -631,7 +631,7 @@ include 'sidebar.php';
                     </div>
                     <div class="text-right">
                         <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Status</p>
-                        <span class="text-[10px] font-black uppercase px-3 py-1 rounded-full <?= $badge ?>"><?= htmlspecialchars($pStatus) ?></span>
+                        <span class="text-[10px] font-black uppercase px-3 py-1 rounded-full <?= $badge ?>"><?= htmlspecialchars((string)$pStatus) ?></span>
                     </div>
                 </div>
 
@@ -639,7 +639,7 @@ include 'sidebar.php';
                     <div class="mt-4">
                         <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Payment Proof</p>
                         <div class="rounded-2xl overflow-hidden border border-gray-100">
-                            <img src="../<?= htmlspecialchars($pProof) ?>" alt="Payment proof" class="w-full h-auto">
+                            <img src="../<?= htmlspecialchars((string)$pProof) ?>" alt="Payment proof" class="w-full h-auto">
                         </div>
                     </div>
 
@@ -680,7 +680,7 @@ include 'sidebar.php';
                             </div>
                             <div class="text-right">
                                 <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Status</p>
-                                <span class="text-[10px] font-black uppercase px-3 py-1 rounded-full <?= $bBadge ?>"><?= htmlspecialchars($bStatus) ?></span>
+                                <span class="text-[10px] font-black uppercase px-3 py-1 rounded-full <?= $bBadge ?>"><?= htmlspecialchars((string)$bStatus) ?></span>
                             </div>
                         </div>
 
@@ -688,7 +688,7 @@ include 'sidebar.php';
                             <div class="mt-4">
                                 <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Payment Proof</p>
                                 <div class="rounded-2xl overflow-hidden border border-gray-100">
-                                    <img src="../<?= htmlspecialchars($bProof) ?>" alt="Remaining payment proof" class="w-full h-auto">
+                                    <img src="../<?= htmlspecialchars((string)$bProof) ?>" alt="Remaining payment proof" class="w-full h-auto">
                                 </div>
                             </div>
 
@@ -748,11 +748,11 @@ include 'sidebar.php';
 
                     <div>
                         <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">Cargo Name</label>
-                        <input type="text" name="cargo_company" class="form-control" value="<?= htmlspecialchars($cargoCompany) ?>" placeholder="e.g. TCS, Leopards, DHL" required>
+                        <input type="text" name="cargo_company" class="form-control" value="<?= htmlspecialchars((string)$cargoCompany) ?>" placeholder="e.g. TCS, Leopards, DHL" required>
                     </div>
                     <div>
                         <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">Cargo Number</label>
-                        <input type="text" name="cargo_tracking_number" class="form-control" value="<?= htmlspecialchars($cargoTrack) ?>" placeholder="Tracking / Consignment No." required>
+                        <input type="text" name="cargo_tracking_number" class="form-control" value="<?= htmlspecialchars((string)$cargoTrack) ?>" placeholder="Tracking / Consignment No." required>
                     </div>
                     <div>
                         <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">Upload Transcript</label>
@@ -762,12 +762,12 @@ include 'sidebar.php';
 
                     <?php if ($cargoReceipt !== ''): ?>
                         <div class="rounded-2xl overflow-hidden border border-gray-100 bg-white">
-                            <img src="../<?= htmlspecialchars($cargoReceipt) ?>" alt="Cargo receipt" class="w-full h-auto">
+                            <img src="../<?= htmlspecialchars((string)$cargoReceipt) ?>" alt="Cargo receipt" class="w-full h-auto">
                         </div>
                     <?php endif; ?>
 
                     <?php if ($shipAt !== ''): ?>
-                        <p class="text-[11px] text-gray-500 mb-0">Shipped: <?= htmlspecialchars(date('M d, Y H:i', strtotime($shipAt))) ?></p>
+                        <p class="text-[11px] text-gray-500 mb-0">Shipped: <?= htmlspecialchars((string)date('M d, Y H:i', strtotime($shipAt))) ?></p>
                     <?php endif; ?>
 
                     <button type="submit" class="btn btn-primary w-full rounded-xl py-3 font-black uppercase tracking-widest text-xs shadow-lg hover:shadow-primary/20 transition-all">Save & Mark Shipped</button>
@@ -788,11 +788,11 @@ include 'sidebar.php';
                 <input type="hidden" name="set_offer" value="1">
                 <div>
                     <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">Offer Price (PKR)</label>
-                    <input type="number" name="tailor_offer_price" class="form-control" min="0" step="0.01" value="<?= htmlspecialchars(isset($order['tailor_offer_price']) ? (string)$order['tailor_offer_price'] : '') ?>" required>
+                    <input type="number" name="tailor_offer_price" class="form-control" min="0" step="0.01" value="<?= htmlspecialchars((string)isset($order['tailor_offer_price']) ? (string)$order['tailor_offer_price'] : '') ?>" required>
                 </div>
                 <div>
                     <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">Offer Notes (optional)</label>
-                    <textarea name="tailor_offer_notes" class="form-control" rows="4"><?= htmlspecialchars(isset($order['tailor_offer_notes']) ? (string)$order['tailor_offer_notes'] : '') ?></textarea>
+                    <textarea name="tailor_offer_notes" class="form-control" rows="4"><?= htmlspecialchars((string)isset($order['tailor_offer_notes']) ? (string)$order['tailor_offer_notes'] : '') ?></textarea>
                 </div>
                 <button type="submit" class="btn btn-primary w-full rounded-xl py-3 font-black uppercase tracking-widest text-xs shadow-lg hover:shadow-primary/20 transition-all">Send Offer</button>
             </form>

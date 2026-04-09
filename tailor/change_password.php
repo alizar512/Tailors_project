@@ -66,7 +66,7 @@ include 'header.php';
         <?php if ($error !== ''): ?>
             <div class="mb-6 p-4 rounded-2xl border bg-red-50 border-red-100">
                 <p class="text-xs font-extrabold text-red-600 uppercase tracking-widest mb-1">Update Failed</p>
-                <p class="text-sm font-semibold text-red-800 mb-0"><?= htmlspecialchars($error) ?></p>
+                <p class="text-sm font-semibold text-red-800 mb-0"><?= htmlspecialchars((string)$error) ?></p>
             </div>
         <?php endif; ?>
 

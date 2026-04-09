@@ -104,7 +104,7 @@ include 'sidebar.php';
             <p class="text-xs text-gray-500 font-medium mb-0">Manage Pakistan cities used across dropdowns</p>
         </div>
         <form method="GET" class="d-flex gap-2 align-items-center flex-wrap">
-            <input type="text" name="q" value="<?= htmlspecialchars($q) ?>" class="form-control" style="min-width: 220px;" placeholder="Search city...">
+            <input type="text" name="q" value="<?= htmlspecialchars((string)$q) ?>" class="form-control" style="min-width: 220px;" placeholder="Search city...">
             <select name="filter" class="form-select" style="min-width: 160px;">
                 <option value="active" <?= $filter === 'active' ? 'selected' : '' ?>>Active (<?= (int)$counts['active'] ?>)</option>
                 <option value="inactive" <?= $filter === 'inactive' ? 'selected' : '' ?>>Inactive (<?= (int)$counts['inactive'] ?>)</option>
@@ -125,7 +125,7 @@ include 'sidebar.php';
         ?>
         <div class="px-8 pt-6">
             <div class="p-4 rounded-2xl border <?= $box ?>">
-                <p class="text-sm font-semibold mb-0 <?= $t2 ?>"><?= htmlspecialchars($txt) ?></p>
+                <p class="text-sm font-semibold mb-0 <?= $t2 ?>"><?= htmlspecialchars((string)$txt) ?></p>
             </div>
         </div>
     <?php endif; ?>

@@ -73,7 +73,7 @@ $trackUrl = $baseUrl . '/index.php#track';
                     <p class="text-sm text-gray-500 mb-0">Save your order number to track and reopen chat anytime.</p>
                 </div>
                 <?php if ($return !== ''): ?>
-                    <a href="<?= htmlspecialchars($return) ?>" class="btn btn-outline rounded-full px-4 py-2">Back</a>
+                    <a href="<?= htmlspecialchars((string)$return) ?>" class="btn btn-outline rounded-full px-4 py-2">Back</a>
                 <?php else: ?>
                     <a href="index.php" class="btn btn-outline rounded-full px-4 py-2">Home</a>
                 <?php endif; ?>
@@ -83,7 +83,7 @@ $trackUrl = $baseUrl . '/index.php#track';
                 <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Order Number</p>
                 <div class="d-flex flex-wrap align-items-center gap-3">
                     <div class="px-4 py-3 rounded-3xl bg-primary/5 border border-primary/10">
-                        <span class="text-lg font-black text-primary"><?= htmlspecialchars($orderNumber) ?></span>
+                        <span class="text-lg font-black text-primary"><?= htmlspecialchars((string)$orderNumber) ?></span>
                     </div>
                     <button type="button" class="btn btn-outline rounded-full px-5 py-2.5 font-bold" id="copyOrderBtn">Copy</button>
                 </div>

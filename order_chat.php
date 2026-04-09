@@ -518,7 +518,7 @@ if ($is_lookup_mode && $lookup_error === '' && $hasEmailLookup) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= htmlspecialchars($title) ?> | Silah</title>
+    <title><?= htmlspecialchars((string)$title) ?> | Silah</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="css/tailwind.css">
@@ -529,7 +529,7 @@ if ($is_lookup_mode && $lookup_error === '' && $hasEmailLookup) {
         <div class="max-w-4xl mx-auto">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
-                    <h1 class="text-2xl md:text-3xl font-extrabold text-primary mb-1"><?= htmlspecialchars($title) ?></h1>
+                    <h1 class="text-2xl md:text-3xl font-extrabold text-primary mb-1"><?= htmlspecialchars((string)$title) ?></h1>
                     <?php if (!$is_lookup_mode): ?>
                         <p class="text-sm text-gray-500 mb-0">Order #SIL-<?= str_pad((string)$order['id'], 4, '0', STR_PAD_LEFT) ?> • <?= htmlspecialchars((string)($order['status'] ?? '')) ?></p>
                     <?php else: ?>
@@ -537,7 +537,7 @@ if ($is_lookup_mode && $lookup_error === '' && $hasEmailLookup) {
                     <?php endif; ?>
                 </div>
                 <?php if ($return !== ''): ?>
-                    <a href="<?= htmlspecialchars($return) ?>" class="btn btn-outline rounded-full px-4 py-2">Back</a>
+                    <a href="<?= htmlspecialchars((string)$return) ?>" class="btn btn-outline rounded-full px-4 py-2">Back</a>
                 <?php else: ?>
                     <a href="index.php" class="btn btn-outline rounded-full px-4 py-2">Home</a>
                 <?php endif; ?>
@@ -586,7 +586,7 @@ if ($is_lookup_mode && $lookup_error === '' && $hasEmailLookup) {
                         <div class="text-end">
                             <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Status</p>
                             <span class="text-[10px] font-black uppercase px-3 py-1 rounded-full <?= $paymentStatus === 'Confirmed' ? 'bg-green-100 text-green-700' : ($paymentStatus === 'Submitted' ? 'bg-amber-100 text-amber-700' : ($paymentStatus === 'Rejected' ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-600')) ?>">
-                                <?= htmlspecialchars($paymentStatus) ?>
+                                <?= htmlspecialchars((string)$paymentStatus) ?>
                             </span>
                         </div>
                     </div>
@@ -596,7 +596,7 @@ if ($is_lookup_mode && $lookup_error === '' && $hasEmailLookup) {
                         <div class="mt-4">
                             <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Payment Screenshot</p>
                             <div class="rounded-3xl overflow-hidden border border-gray-100">
-                                <img src="<?= htmlspecialchars($paymentProof) ?>" alt="Payment proof" class="w-100" style="max-height: 420px; object-fit: contain; background: #fff;">
+                                <img src="<?= htmlspecialchars((string)$paymentProof) ?>" alt="Payment proof" class="w-100" style="max-height: 420px; object-fit: contain; background: #fff;">
                             </div>
                             <?php if ($paymentStatus === 'Rejected'): ?>
                                 <p class="text-xs text-red-700 mt-3 mb-0">Payment was rejected. Please upload a new screenshot.</p>
@@ -635,7 +635,7 @@ if ($is_lookup_mode && $lookup_error === '' && $hasEmailLookup) {
                             <div class="text-end">
                                 <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Status</p>
                                 <span class="text-[10px] font-black uppercase px-3 py-1 rounded-full <?= $balanceStatus === 'Confirmed' ? 'bg-green-100 text-green-700' : ($balanceStatus === 'Submitted' ? 'bg-amber-100 text-amber-700' : ($balanceStatus === 'Rejected' ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-600')) ?>">
-                                    <?= htmlspecialchars($balanceStatus) ?>
+                                    <?= htmlspecialchars((string)$balanceStatus) ?>
                                 </span>
                             </div>
                         </div>
@@ -645,7 +645,7 @@ if ($is_lookup_mode && $lookup_error === '' && $hasEmailLookup) {
                             <div class="mt-4">
                                 <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Payment Screenshot</p>
                                 <div class="rounded-3xl overflow-hidden border border-gray-100">
-                                    <img src="<?= htmlspecialchars($balanceProof) ?>" alt="Remaining payment proof" class="w-100" style="max-height: 420px; object-fit: contain; background: #fff;">
+                                    <img src="<?= htmlspecialchars((string)$balanceProof) ?>" alt="Remaining payment proof" class="w-100" style="max-height: 420px; object-fit: contain; background: #fff;">
                                 </div>
                                 <?php if ($balanceStatus === 'Rejected'): ?>
                                     <p class="text-xs text-red-700 mt-3 mb-0">Payment was rejected. Please upload a new screenshot.</p>
@@ -679,7 +679,7 @@ if ($is_lookup_mode && $lookup_error === '' && $hasEmailLookup) {
             <?php if ($is_lookup_mode): ?>
                 <?php if ($lookup_error !== ''): ?>
                     <div class="mb-4 p-4 rounded-3xl bg-red-50 border border-red-100">
-                        <p class="text-sm font-semibold text-red-800 mb-0"><?= htmlspecialchars($lookup_error) ?></p>
+                        <p class="text-sm font-semibold text-red-800 mb-0"><?= htmlspecialchars((string)$lookup_error) ?></p>
                     </div>
                 <?php endif; ?>
                 <div class="glass-card p-4 p-md-5">
@@ -694,7 +694,7 @@ if ($is_lookup_mode && $lookup_error === '' && $hasEmailLookup) {
                             <input type="email" name="email" class="form-control" placeholder="your@email.com" required>
                         </div>
                         <?php if ($return !== ''): ?>
-                            <input type="hidden" name="return" value="<?= htmlspecialchars($return) ?>">
+                            <input type="hidden" name="return" value="<?= htmlspecialchars((string)$return) ?>">
                         <?php endif; ?>
                         <div class="col-12 d-flex justify-content-end">
                             <button type="submit" class="btn btn-primary rounded-full px-5 py-2.5 font-bold">Open Chat</button>
@@ -709,14 +709,14 @@ if ($is_lookup_mode && $lookup_error === '' && $hasEmailLookup) {
                     <form method="GET" class="row g-3 mb-4">
                         <div class="col-md-6">
                             <label class="form-label text-sm font-semibold text-gray-600">Email</label>
-                            <input type="email" name="email" class="form-control" value="<?= htmlspecialchars($email_lookup) ?>" placeholder="your@email.com" required>
+                            <input type="email" name="email" class="form-control" value="<?= htmlspecialchars((string)$email_lookup) ?>" placeholder="your@email.com" required>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label text-sm font-semibold text-gray-600">Phone</label>
-                            <input type="text" name="phone" class="form-control" value="<?= htmlspecialchars($phone_lookup) ?>" placeholder="+92xxxxxxxxxx" required>
+                            <input type="text" name="phone" class="form-control" value="<?= htmlspecialchars((string)$phone_lookup) ?>" placeholder="+92xxxxxxxxxx" required>
                         </div>
                         <?php if ($return !== ''): ?>
-                            <input type="hidden" name="return" value="<?= htmlspecialchars($return) ?>">
+                            <input type="hidden" name="return" value="<?= htmlspecialchars((string)$return) ?>">
                         <?php endif; ?>
                         <div class="col-12 d-flex justify-content-end">
                             <button type="submit" class="btn btn-outline rounded-full px-5 py-2.5 font-bold">Find My Chats</button>
@@ -749,13 +749,13 @@ if ($is_lookup_mode && $lookup_error === '' && $hasEmailLookup) {
                                                     <span class="text-sm font-black text-gray-800">SIL-<?= str_pad((string)$o['id'], 4, '0', STR_PAD_LEFT) ?></span>
                                                 </td>
                                                 <td class="border-0">
-                                                    <span class="text-sm text-gray-700"><?= htmlspecialchars($o['service_type']) ?></span>
+                                                    <span class="text-sm text-gray-700"><?= htmlspecialchars((string)$o['service_type']) ?></span>
                                                 </td>
                                                 <td class="border-0">
-                                                    <span class="text-sm text-gray-700"><?= htmlspecialchars($o['status']) ?></span>
+                                                    <span class="text-sm text-gray-700"><?= htmlspecialchars((string)$o['status']) ?></span>
                                                 </td>
                                                 <td class="border-0">
-                                                    <span class="text-sm text-gray-500"><?= htmlspecialchars(date('M d, Y', strtotime($o['created_at']))) ?></span>
+                                                    <span class="text-sm text-gray-500"><?= htmlspecialchars((string)date('M d, Y', strtotime($o['created_at']))) ?></span>
                                                 </td>
                                                 <td class="border-0 text-end">
                                                     <?php
@@ -764,7 +764,7 @@ if ($is_lookup_mode && $lookup_error === '' && $hasEmailLookup) {
                                                             $link .= '&return=' . urlencode($return);
                                                         }
                                                     ?>
-                                                    <a class="btn btn-primary rounded-full px-4 py-2 font-bold" href="<?= htmlspecialchars($link) ?>">Open</a>
+                                                    <a class="btn btn-primary rounded-full px-4 py-2 font-bold" href="<?= htmlspecialchars((string)$link) ?>">Open</a>
                                                 </td>
                                             </tr>
                                         <?php endforeach; ?>
@@ -787,14 +787,14 @@ if ($is_lookup_mode && $lookup_error === '' && $hasEmailLookup) {
                         <div class="col-12">
                             <label class="form-label text-sm font-semibold text-gray-600">Chat Link</label>
                             <div class="input-group">
-                                <input type="text" class="form-control" value="<?= htmlspecialchars($chatLink) ?>" readonly id="chatLinkInput">
+                                <input type="text" class="form-control" value="<?= htmlspecialchars((string)$chatLink) ?>" readonly id="chatLinkInput">
                                 <button type="button" class="btn btn-outline" id="copyChatLinkBtn">Copy</button>
                             </div>
                         </div>
                         <div class="col-12">
                             <label class="form-label text-sm font-semibold text-gray-600">Reopen Link (Order + Email)</label>
                             <div class="input-group">
-                                <input type="text" class="form-control" value="<?= htmlspecialchars($reopenLink) ?>" readonly id="reopenLinkInput">
+                                <input type="text" class="form-control" value="<?= htmlspecialchars((string)$reopenLink) ?>" readonly id="reopenLinkInput">
                                 <button type="button" class="btn btn-outline" id="copyReopenLinkBtn">Copy</button>
                             </div>
                         </div>
@@ -849,11 +849,11 @@ if ($is_lookup_mode && $lookup_error === '' && $hasEmailLookup) {
                                 <div class="d-flex <?= $alignClass ?>">
                                     <div class="rounded-4 px-4 py-3 <?= $bubbleClass ?>" style="max-width: 85%;">
                                         <div class="d-flex justify-content-between gap-3 mb-1">
-                                            <span class="text-[11px] font-extrabold <?= $isCustomer ? 'text-white/90' : 'text-gray-500' ?>"><?= htmlspecialchars($name) ?></span>
-                                            <span class="text-[10px] <?= $isCustomer ? 'text-white/70' : 'text-gray-400' ?>"><?= htmlspecialchars(date('M d, H:i', strtotime((string)$m['created_at']))) ?></span>
+                                            <span class="text-[11px] font-extrabold <?= $isCustomer ? 'text-white/90' : 'text-gray-500' ?>"><?= htmlspecialchars((string)$name) ?></span>
+                                            <span class="text-[10px] <?= $isCustomer ? 'text-white/70' : 'text-gray-400' ?>"><?= htmlspecialchars((string)date('M d, H:i', strtotime((string)$m['created_at']))) ?></span>
                                         </div>
                                         <?php $msgText = str_replace("\\n", "\n", (string)$m['message']); ?>
-                                        <div class="text-sm leading-relaxed"><?= nl2br(htmlspecialchars($msgText)) ?></div>
+                                        <div class="text-sm leading-relaxed"><?= nl2br(htmlspecialchars((string)$msgText)) ?></div>
                                     </div>
                                 </div>
                             <?php endforeach; ?>

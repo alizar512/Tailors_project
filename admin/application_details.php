@@ -38,14 +38,14 @@ include 'sidebar.php';
                     : '';
                 ?>
                 <?php if ($imgSrc !== ''): ?>
-                    <img src="<?= htmlspecialchars($imgSrc) ?>" alt="Profile picture" class="w-24 h-24 rounded-3xl object-cover mx-auto mb-4 border border-gray-100 shadow-sm">
+                    <img src="<?= htmlspecialchars((string)$imgSrc) ?>" alt="Profile picture" class="w-24 h-24 rounded-3xl object-cover mx-auto mb-4 border border-gray-100 shadow-sm">
                 <?php else: ?>
                     <div class="w-24 h-24 rounded-3xl bg-primary/10 flex items-center justify-center text-primary font-black text-3xl mx-auto mb-4">
                         <?= substr($app['name'], 0, 1) ?>
                     </div>
                 <?php endif; ?>
-                <h2 class="text-2xl font-black text-primary mb-1"><?= htmlspecialchars($app['name']) ?></h2>
-                <p class="text-xs text-gray-500 font-bold uppercase tracking-widest"><?= htmlspecialchars($app['specialization']) ?></p>
+                <h2 class="text-2xl font-black text-primary mb-1"><?= htmlspecialchars((string)$app['name']) ?></h2>
+                <p class="text-xs text-gray-500 font-bold uppercase tracking-widest"><?= htmlspecialchars((string)$app['specialization']) ?></p>
             </div>
             
             <div class="space-y-6">
@@ -54,15 +54,15 @@ include 'sidebar.php';
                     <div class="space-y-3">
                         <div class="flex items-center gap-3 text-sm">
                             <i class="fas fa-envelope text-primary w-4"></i>
-                            <span class="text-gray-700"><?= htmlspecialchars($app['email']) ?></span>
+                            <span class="text-gray-700"><?= htmlspecialchars((string)$app['email']) ?></span>
                         </div>
                         <div class="flex items-center gap-3 text-sm">
                             <i class="fas fa-phone text-primary w-4"></i>
-                            <span class="text-gray-700"><?= htmlspecialchars($app['phone']) ?></span>
+                            <span class="text-gray-700"><?= htmlspecialchars((string)$app['phone']) ?></span>
                         </div>
                         <div class="flex items-center gap-3 text-sm">
                             <i class="fas fa-map-marker-alt text-primary w-4"></i>
-                            <span class="text-gray-700"><?= htmlspecialchars($app['location']) ?></span>
+                            <span class="text-gray-700"><?= htmlspecialchars((string)$app['location']) ?></span>
                         </div>
                     </div>
                 </div>
@@ -71,7 +71,7 @@ include 'sidebar.php';
                     <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Experience</p>
                     <div class="flex items-center gap-3 text-sm">
                         <i class="fas fa-briefcase text-primary w-4"></i>
-                        <span class="text-gray-700"><?= htmlspecialchars($app['experience_years']) ?> Years Professional Experience</span>
+                        <span class="text-gray-700"><?= htmlspecialchars((string)$app['experience_years']) ?> Years Professional Experience</span>
                     </div>
                 </div>
 
@@ -86,7 +86,7 @@ include 'sidebar.php';
                 <?php if ($app['instagram_link']): ?>
                 <div>
                     <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Social Media</p>
-                    <a href="<?= htmlspecialchars($app['instagram_link']) ?>" target="_blank" class="flex items-center gap-3 text-sm text-primary no-underline font-bold">
+                    <a href="<?= htmlspecialchars((string)$app['instagram_link']) ?>" target="_blank" class="flex items-center gap-3 text-sm text-primary no-underline font-bold">
                         <i class="fab fa-instagram w-4"></i>
                         <span>View Instagram Profile</span>
                     </a>
@@ -145,8 +145,8 @@ include 'sidebar.php';
                     <div class="col-span-full"><p class="text-sm text-gray-400 italic mb-0">No images uploaded.</p></div>
                 <?php else: foreach ($images as $img): ?>
                     <?php $src = '../' . ltrim((string)$img, '/'); ?>
-                    <button type="button" class="group text-left relative overflow-hidden rounded-3xl bg-gray-100 border border-gray-100 shadow-sm hover:shadow-lg transition-all aspect-[4/3]" data-portfolio-open="<?= htmlspecialchars($src) ?>">
-                        <img src="<?= htmlspecialchars($src) ?>" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" alt="Portfolio image">
+                    <button type="button" class="group text-left relative overflow-hidden rounded-3xl bg-gray-100 border border-gray-100 shadow-sm hover:shadow-lg transition-all aspect-[4/3]" data-portfolio-open="<?= htmlspecialchars((string)$src) ?>">
+                        <img src="<?= htmlspecialchars((string)$src) ?>" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" alt="Portfolio image">
                         <div class="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                         <div class="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/75 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
                             <div class="flex items-center justify-between">
@@ -170,7 +170,7 @@ include 'sidebar.php';
                     <?php $vsrc = '../' . ltrim((string)$vid, '/'); ?>
                     <div class="rounded-3xl overflow-hidden bg-black aspect-video border border-black/10 shadow-sm">
                         <video controls class="w-full h-full">
-                            <source src="<?= htmlspecialchars($vsrc) ?>" type="video/mp4">
+                            <source src="<?= htmlspecialchars((string)$vsrc) ?>" type="video/mp4">
                             Your browser does not support the video tag.
                         </video>
                     </div>
@@ -182,7 +182,7 @@ include 'sidebar.php';
             <h3 class="text-xl font-black text-primary mb-4">Full Address</h3>
             <div class="p-4 bg-gray-50 rounded-2xl border border-gray-100">
                 <p class="text-sm text-gray-700 leading-relaxed mb-0">
-                    <?= nl2br(htmlspecialchars($app['address'])) ?>
+                    <?= nl2br(htmlspecialchars((string)$app['address'])) ?>
                 </p>
             </div>
         </div>

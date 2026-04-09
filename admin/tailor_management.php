@@ -59,14 +59,14 @@ include 'sidebar.php';
 <?php if ($success !== ''): ?>
     <div class="mb-6 p-4 rounded-2xl border bg-green-50 border-green-100">
         <p class="text-xs font-extrabold text-green-700 uppercase tracking-widest mb-1">Success</p>
-        <p class="text-sm font-semibold text-green-800 mb-0"><?= htmlspecialchars($success) ?></p>
+        <p class="text-sm font-semibold text-green-800 mb-0"><?= htmlspecialchars((string)$success) ?></p>
     </div>
 <?php endif; ?>
 
 <?php if ($error !== ''): ?>
     <div class="mb-6 p-4 rounded-2xl border bg-red-50 border-red-100">
         <p class="text-xs font-extrabold text-red-600 uppercase tracking-widest mb-1">Error</p>
-        <p class="text-sm font-semibold text-red-800 mb-0"><?= htmlspecialchars($error) ?></p>
+        <p class="text-sm font-semibold text-red-800 mb-0"><?= htmlspecialchars((string)$error) ?></p>
     </div>
 <?php endif; ?>
 
@@ -77,7 +77,7 @@ include 'sidebar.php';
             <p class="text-xs text-gray-500 font-medium mb-0">Manage all tailor accounts and access</p>
         </div>
         <form method="GET" action="tailor_management.php" class="flex items-center gap-2">
-            <input type="text" name="q" value="<?= htmlspecialchars(isset($_GET['q']) ? (string)$_GET['q'] : '') ?>" class="form-control !py-2 !px-4" placeholder="Search name/email/username">
+            <input type="text" name="q" value="<?= htmlspecialchars((string)isset($_GET['q']) ? (string)$_GET['q'] : '') ?>" class="form-control !py-2 !px-4" placeholder="Search name/email/username">
             <button type="submit" class="btn btn-primary !py-2 !px-4 text-[10px] uppercase tracking-widest font-bold">Search</button>
             <a href="tailor_management.php" class="btn btn-outline !py-2 !px-4 text-[10px] uppercase tracking-widest font-bold no-underline">Clear</a>
         </form>

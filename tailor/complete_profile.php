@@ -144,7 +144,7 @@ include 'sidebar.php';
             <h2 class="text-2xl font-black text-primary mb-1">Complete Profile</h2>
             <p class="text-xs text-gray-500 font-medium mb-0">Complete your profile to access the tailor dashboard.</p>
         </div>
-        <img src="<?= htmlspecialchars($tailor_avatar) ?>" class="w-12 h-12 rounded-2xl border border-gray-100 object-cover" alt="Profile">
+        <img src="<?= htmlspecialchars((string)$tailor_avatar) ?>" class="w-12 h-12 rounded-2xl border border-gray-100 object-cover" alt="Profile">
     </div>
 
     <?php if (isset($_GET['password_changed']) && $_GET['password_changed'] == '1'): ?>
@@ -157,7 +157,7 @@ include 'sidebar.php';
     <?php if ($error !== ''): ?>
         <div class="mb-8 p-4 rounded-2xl border bg-red-50 border-red-100">
             <p class="text-xs font-extrabold text-red-600 uppercase tracking-widest mb-1">Error</p>
-            <p class="text-sm font-semibold text-red-800 mb-0"><?= htmlspecialchars($error) ?></p>
+            <p class="text-sm font-semibold text-red-800 mb-0"><?= htmlspecialchars((string)$error) ?></p>
         </div>
     <?php endif; ?>
 

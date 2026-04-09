@@ -125,11 +125,11 @@ include 'sidebar.php';
                         #SIL-<?= str_pad($order['id'], 4, '0', STR_PAD_LEFT) ?>
                     </td>
                     <td class="py-5 border-0">
-                        <p class="text-sm font-black text-gray-800 mb-0"><?= htmlspecialchars($order['customer_name']) ?></p>
-                        <p class="text-[11px] text-gray-500 font-medium"><?= htmlspecialchars($order['customer_email']) ?></p>
+                        <p class="text-sm font-black text-gray-800 mb-0"><?= htmlspecialchars((string)$order['customer_name']) ?></p>
+                        <p class="text-[11px] text-gray-500 font-medium"><?= htmlspecialchars((string)$order['customer_email']) ?></p>
                     </td>
                     <td class="py-5 border-0">
-                        <p class="text-[12px] font-bold text-gray-700 mb-0"><?= htmlspecialchars($order['service_type']) ?></p>
+                        <p class="text-[12px] font-bold text-gray-700 mb-0"><?= htmlspecialchars((string)$order['service_type']) ?></p>
                         <p class="text-[10px] text-gray-400 font-medium italic">PKR <?= number_format($order['budget']) ?> Budget</p>
                     </td>
                     <td class="py-5 border-0">
@@ -172,7 +172,7 @@ include 'sidebar.php';
                         <?php $paymentStatus = isset($order['payment_status']) && $order['payment_status'] ? (string)$order['payment_status'] : 'Pending'; ?>
                         <div class="flex items-center gap-2">
                             <div class="w-2 h-2 rounded-full <?= $paymentStatus == 'Pending' ? 'bg-red-400' : 'bg-green-400' ?>"></div>
-                            <span class="text-[11px] font-bold text-gray-600"><?= htmlspecialchars($paymentStatus) ?></span>
+                            <span class="text-[11px] font-bold text-gray-600"><?= htmlspecialchars((string)$paymentStatus) ?></span>
                         </div>
                     </td>
                     <td class="px-8 py-5 border-0 text-end">

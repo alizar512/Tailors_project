@@ -176,12 +176,12 @@ require_once '../includes/notifications.php';
                                     $altClass = ($i % 2 === 0) ? 'portal-bell-item--alt' : '';
                                     $readClass = $isRead ? 'portal-bell-item--read' : '';
                                 ?>
-                                <a href="<?= htmlspecialchars($href) ?>" class="portal-bell-item <?= $typeClass ?> <?= $altClass ?> <?= $readClass ?> text-decoration-none">
+                                <a href="<?= htmlspecialchars((string)$href) ?>" class="portal-bell-item <?= $typeClass ?> <?= $altClass ?> <?= $readClass ?> text-decoration-none">
                                     <div class="d-flex justify-content-between gap-3 mb-1">
                                         <p class="text-sm font-black text-gray-800 mb-0"><?= htmlspecialchars((string)($n['title'] ?? 'Notification')) ?></p>
                                         <span class="text-[10px] font-bold text-gray-400 uppercase"><?= isset($n['created_at']) ? date('M d, H:i', strtotime((string)$n['created_at'])) : '' ?></span>
                                     </div>
-                                    <p class="text-xs text-gray-600 mb-0"><?= htmlspecialchars($msg) ?></p>
+                                    <p class="text-xs text-gray-600 mb-0"><?= htmlspecialchars((string)$msg) ?></p>
                                 </a>
                             <?php endforeach; ?>
                         </div>
@@ -192,7 +192,7 @@ require_once '../includes/notifications.php';
             <div class="h-8 w-[1px] bg-gray-300"></div>
             
             <div class="flex items-center gap-3">
-                <span class="text-sm font-bold text-gray-700"><?= htmlspecialchars($_SESSION['admin_email'] ?? 'Silah Admin') ?></span>
+                <span class="text-sm font-bold text-gray-700"><?= htmlspecialchars((string)$_SESSION['admin_email'] ?? 'Silah Admin') ?></span>
                 <?php
                     $adminAvatar = 'https://ui-avatars.com/api/?name=Admin&background=865294&color=fff';
                     if ($pdo && isset($_SESSION['admin_id'])) {
@@ -210,7 +210,7 @@ require_once '../includes/notifications.php';
                     }
                 ?>
                 <a href="settings.php" class="no-underline" title="Edit Profile">
-                    <img src="<?= htmlspecialchars($adminAvatar) ?>" class="w-10 h-10 rounded-full border-2 border-white shadow-md object-cover">
+                    <img src="<?= htmlspecialchars((string)$adminAvatar) ?>" class="w-10 h-10 rounded-full border-2 border-white shadow-md object-cover">
                 </a>
             </div>
         </div>

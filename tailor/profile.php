@@ -310,7 +310,7 @@ include 'sidebar.php';
     <div class="col-lg-4">
         <div class="glass-card p-8 sticky top-32">
             <div class="text-center mb-8">
-                <img src="<?= htmlspecialchars($tailor_avatar) ?>" class="w-24 h-24 rounded-3xl object-cover mx-auto mb-4 border border-gray-100" alt="Profile">
+                <img src="<?= htmlspecialchars((string)$tailor_avatar) ?>" class="w-24 h-24 rounded-3xl object-cover mx-auto mb-4 border border-gray-100" alt="Profile">
                 <h2 class="text-2xl font-black text-primary mb-1"><?= htmlspecialchars((string)$tailor['name']) ?></h2>
                 <p class="text-xs text-gray-500 font-bold uppercase tracking-widest mb-0"><?= htmlspecialchars((string)($tailor['tagline'] ?? '')) ?></p>
             </div>
@@ -378,7 +378,7 @@ include 'sidebar.php';
             <?php if ($is_debug): ?>
                 <div class="mb-8 p-4 rounded-2xl border bg-white border-gray-100">
                     <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Debug</p>
-                    <pre class="text-xs text-gray-700 mb-0 whitespace-pre-wrap"><?= htmlspecialchars(json_encode($debugInfo, JSON_PRETTY_PRINT)) ?></pre>
+                    <pre class="text-xs text-gray-700 mb-0 whitespace-pre-wrap"><?= htmlspecialchars((string)json_encode($debugInfo, JSON_PRETTY_PRINT)) ?></pre>
                 </div>
             <?php endif; ?>
 
@@ -471,7 +471,7 @@ include 'sidebar.php';
                                 <option value="__other__" <?= $isOtherCity ? 'selected' : '' ?>>Other (Type City)</option>
                             </select>
                             <div class="mt-3 d-none" data-city-other-wrap>
-                                <input type="text" name="location_other" class="form-control" value="<?= $isOtherCity ? htmlspecialchars($currentLoc) : '' ?>" placeholder="Type city name" data-city-other-input>
+                                <input type="text" name="location_other" class="form-control" value="<?= $isOtherCity ? htmlspecialchars((string)$currentLoc) : '' ?>" placeholder="Type city name" data-city-other-input>
                             </div>
                         </div>
                         <div class="col-12">

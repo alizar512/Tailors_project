@@ -62,7 +62,7 @@ include 'sidebar.php';
                             <p class="text-sm text-gray-700 leading-relaxed mb-0"><?= htmlspecialchars((string)($n['message'] ?? '')) ?></p>
                             <?php if ($link !== ''): ?>
                                 <div class="mt-4">
-                                    <a href="<?= htmlspecialchars($link) ?>" class="btn btn-outline !py-2 !px-4 text-[10px] uppercase tracking-widest font-black no-underline">Open</a>
+                                    <a href="<?= htmlspecialchars((string)$link) ?>" class="btn btn-outline !py-2 !px-4 text-[10px] uppercase tracking-widest font-black no-underline">Open</a>
                                 </div>
                             <?php endif; ?>
                         </div>

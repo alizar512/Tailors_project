@@ -91,13 +91,13 @@ include 'sidebar.php';
     <?php if ($success !== ''): ?>
         <div class="mb-6 p-4 rounded-2xl border bg-green-50 border-green-100">
             <p class="text-xs font-extrabold text-green-700 uppercase tracking-widest mb-1">Saved</p>
-            <p class="text-sm font-semibold text-green-800 mb-0"><?= htmlspecialchars($success) ?></p>
+            <p class="text-sm font-semibold text-green-800 mb-0"><?= htmlspecialchars((string)$success) ?></p>
         </div>
     <?php endif; ?>
     <?php if ($error !== ''): ?>
         <div class="mb-6 p-4 rounded-2xl border bg-red-50 border-red-100">
             <p class="text-xs font-extrabold text-red-600 uppercase tracking-widest mb-1">Error</p>
-            <p class="text-sm font-semibold text-red-800 mb-0"><?= htmlspecialchars($error) ?></p>
+            <p class="text-sm font-semibold text-red-800 mb-0"><?= htmlspecialchars((string)$error) ?></p>
         </div>
     <?php endif; ?>
 

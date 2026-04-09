@@ -86,10 +86,10 @@ $recent_notifications = $pdo ? silah_get_recent_notifications($pdo, 'tailor', (i
     <div class="p-6 border-t border-white/10">
         <div class="bg-white/5 rounded-2xl p-4 group hover:bg-white/10 transition-all cursor-pointer">
             <div class="flex items-center gap-3 mb-3">
-                <img src="<?= htmlspecialchars($tailor_avatar) ?>" class="w-10 h-10 rounded-xl border-2 border-white/10 object-cover" alt="Profile">
+                <img src="<?= htmlspecialchars((string)$tailor_avatar) ?>" class="w-10 h-10 rounded-xl border-2 border-white/10 object-cover" alt="Profile">
                 <div class="overflow-hidden">
-                    <p class="text-xs font-black mb-0 truncate"><?= htmlspecialchars($tailor_name) ?></p>
-                    <p class="text-[10px] text-gray-400 mb-0 uppercase tracking-widest font-bold truncate"><?= htmlspecialchars($tailor_email ?? 'Tailor') ?></p>
+                    <p class="text-xs font-black mb-0 truncate"><?= htmlspecialchars((string)$tailor_name) ?></p>
+                    <p class="text-[10px] text-gray-400 mb-0 uppercase tracking-widest font-bold truncate"><?= htmlspecialchars((string)$tailor_email ?? 'Tailor') ?></p>
                 </div>
             </div>
             <a href="../admin/logout.php" data-tooltip="Logout" class="sidebar-link sidebar-link-logout flex items-center gap-4 px-4 py-3 text-gray-300 no-underline">
@@ -167,12 +167,12 @@ $recent_notifications = $pdo ? silah_get_recent_notifications($pdo, 'tailor', (i
                                         $altClass = ($i % 2 === 0) ? 'portal-bell-item--alt' : '';
                                         $readClass = $isRead ? 'portal-bell-item--read' : '';
                                     ?>
-                                    <a href="<?= htmlspecialchars($href) ?>" class="portal-bell-item <?= $typeClass ?> <?= $altClass ?> <?= $readClass ?> text-decoration-none">
+                                    <a href="<?= htmlspecialchars((string)$href) ?>" class="portal-bell-item <?= $typeClass ?> <?= $altClass ?> <?= $readClass ?> text-decoration-none">
                                         <div class="d-flex justify-content-between gap-3 mb-1">
                                             <p class="text-sm font-black text-gray-800 mb-0"><?= htmlspecialchars((string)($n['title'] ?? 'Notification')) ?></p>
                                             <span class="text-[10px] font-bold text-gray-400 uppercase"><?= isset($n['created_at']) ? date('M d, H:i', strtotime((string)$n['created_at'])) : '' ?></span>
                                         </div>
-                                        <p class="text-xs text-gray-600 mb-0"><?= htmlspecialchars($msg) ?></p>
+                                        <p class="text-xs text-gray-600 mb-0"><?= htmlspecialchars((string)$msg) ?></p>
                                     </a>
                                 <?php endforeach; ?>
                             </div>
@@ -183,8 +183,8 @@ $recent_notifications = $pdo ? silah_get_recent_notifications($pdo, 'tailor', (i
                 <div class="hidden sm:block h-8 w-[1px] bg-gray-300"></div>
                 
                 <div class="flex items-center gap-3">
-                    <span class="hidden sm:block text-sm font-bold text-gray-700"><?= htmlspecialchars($tailor_email ?? $tailor_name) ?></span>
-                    <img src="<?= htmlspecialchars($tailor_avatar) ?>" class="w-10 h-10 rounded-full border border-gray-100 shadow-sm object-cover">
+                    <span class="hidden sm:block text-sm font-bold text-gray-700"><?= htmlspecialchars((string)$tailor_email ?? $tailor_name) ?></span>
+                    <img src="<?= htmlspecialchars((string)$tailor_avatar) ?>" class="w-10 h-10 rounded-full border border-gray-100 shadow-sm object-cover">
                 </div>
             </div>
         </div>

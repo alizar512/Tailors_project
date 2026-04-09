@@ -87,13 +87,13 @@ include 'sidebar.php';
 
 <?php if ($error !== ''): ?>
     <div class="mb-6 p-4 rounded-3xl bg-red-50 border border-red-100">
-        <p class="text-sm font-semibold text-red-800 mb-0"><?= htmlspecialchars($error) ?></p>
+        <p class="text-sm font-semibold text-red-800 mb-0"><?= htmlspecialchars((string)$error) ?></p>
     </div>
 <?php endif; ?>
 
 <?php if ($success !== ''): ?>
     <div class="mb-6 p-4 rounded-3xl bg-green-50 border border-green-100">
-        <p class="text-sm font-semibold text-green-800 mb-0"><?= htmlspecialchars($success) ?></p>
+        <p class="text-sm font-semibold text-green-800 mb-0"><?= htmlspecialchars((string)$success) ?></p>
     </div>
 <?php endif; ?>
 
@@ -110,7 +110,7 @@ include 'sidebar.php';
             <div class="p-6 rounded-3xl border border-gray-100 bg-white">
                 <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Profile Image</p>
                 <div class="flex items-center gap-4">
-                    <img src="<?= htmlspecialchars($avatarSrc) ?>" class="w-20 h-20 rounded-3xl border border-gray-100 shadow-sm object-cover" alt="Admin profile image">
+                    <img src="<?= htmlspecialchars((string)$avatarSrc) ?>" class="w-20 h-20 rounded-3xl border border-gray-100 shadow-sm object-cover" alt="Admin profile image">
                     <div class="flex-grow">
                         <p class="text-sm font-black text-gray-900 mb-1"><?= htmlspecialchars((string)($admin['username'] ?? 'Admin')) ?></p>
                         <p class="text-xs text-gray-500 mb-0"><?= htmlspecialchars((string)($admin['email'] ?? '')) ?></p>

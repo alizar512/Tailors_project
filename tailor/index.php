@@ -158,7 +158,7 @@ include 'sidebar.php';
                         <?php foreach ($recent_orders as $order): ?>
                         <tr class="group hover:bg-primary/5 transition-colors">
                             <td class="px-8 py-4 border-0 font-black text-primary text-xs">#SIL-<?= str_pad($order['id'], 4, '0', STR_PAD_LEFT) ?></td>
-                            <td class="py-4 border-0 text-xs font-bold text-gray-700"><?= htmlspecialchars($order['customer_name']) ?></td>
+                            <td class="py-4 border-0 text-xs font-bold text-gray-700"><?= htmlspecialchars((string)$order['customer_name']) ?></td>
                             <td class="py-4 border-0 text-center">
                                 <span class="text-[9px] font-black uppercase px-2 py-1 rounded-full bg-blue-100 text-blue-600"><?= $order['status'] ?></span>
                             </td>

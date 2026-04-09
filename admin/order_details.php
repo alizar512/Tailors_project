@@ -226,15 +226,15 @@ include 'sidebar.php';
                 <div class="col-md-6">
                     <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Customer Details</p>
                     <div class="p-4 bg-gray-50 rounded-2xl border border-gray-100">
-                        <p class="text-sm font-black text-gray-800 mb-1"><?= htmlspecialchars($order['customer_name']) ?></p>
-                        <p class="text-xs text-gray-500 mb-1"><?= htmlspecialchars($order['customer_email']) ?></p>
-                        <p class="text-xs text-gray-500"><?= htmlspecialchars($order['customer_phone']) ?></p>
+                        <p class="text-sm font-black text-gray-800 mb-1"><?= htmlspecialchars((string)$order['customer_name']) ?></p>
+                        <p class="text-xs text-gray-500 mb-1"><?= htmlspecialchars((string)$order['customer_email']) ?></p>
+                        <p class="text-xs text-gray-500"><?= htmlspecialchars((string)$order['customer_phone']) ?></p>
                     </div>
                 </div>
                 <div class="col-md-6">
                     <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Service Selection</p>
                     <div class="p-4 bg-primary/5 rounded-2xl border border-primary/10">
-                        <p class="text-sm font-black text-primary mb-1"><?= htmlspecialchars($order['service_type']) ?></p>
+                        <p class="text-sm font-black text-primary mb-1"><?= htmlspecialchars((string)$order['service_type']) ?></p>
                         <p class="text-xs text-gray-500 mb-1">Budget: <span class="font-bold text-gray-700">PKR <?= number_format($order['budget']) ?></span></p>
                         <p class="text-xs text-gray-500">Timeline: <span class="font-bold text-gray-700"><?= date('M d, Y', strtotime($order['expected_delivery'])) ?></span></p>
                     </div>
@@ -243,14 +243,14 @@ include 'sidebar.php';
 
             <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Style Description</p>
             <div class="p-5 bg-white border border-gray-100 rounded-2xl shadow-sm mb-10">
-                <p class="text-sm text-gray-600 leading-relaxed mb-0 italic">"<?= nl2br(htmlspecialchars($order['notes'])) ?>..."</p>
+                <p class="text-sm text-gray-600 leading-relaxed mb-0 italic">"<?= nl2br(htmlspecialchars((string)$order['notes'])) ?>..."</p>
             </div>
 
             <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Delivery Address</p>
             <div class="p-5 bg-amber-50/50 border border-amber-100 rounded-2xl mb-10">
                 <div class="flex gap-3">
                     <i class="fas fa-map-pin text-amber-500 mt-1"></i>
-                    <p class="text-sm text-gray-700 leading-relaxed mb-0 font-medium"><?= htmlspecialchars($order['location_details']) ?></p>
+                    <p class="text-sm text-gray-700 leading-relaxed mb-0 font-medium"><?= htmlspecialchars((string)$order['location_details']) ?></p>
                 </div>
             </div>
 
@@ -287,14 +287,14 @@ include 'sidebar.php';
             <?php if ($order['reference_image']): ?>
             <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Design Reference</p>
             <div class="rounded-2xl overflow-hidden border border-gray-100 shadow-sm max-w-sm relative group">
-                <img src="../<?= htmlspecialchars($order['reference_image']) ?>" class="w-full h-auto hover:scale-105 transition-transform duration-500">
+                <img src="../<?= htmlspecialchars((string)$order['reference_image']) ?>" class="w-full h-auto hover:scale-105 transition-transform duration-500">
                 <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
-                    <a href="../<?= htmlspecialchars($order['reference_image']) ?>" target="_blank" class="w-10 h-10 rounded-full bg-white text-primary flex items-center justify-center shadow-xl hover:scale-110 transition-transform">
+                    <a href="../<?= htmlspecialchars((string)$order['reference_image']) ?>" target="_blank" class="w-10 h-10 rounded-full bg-white text-primary flex items-center justify-center shadow-xl hover:scale-110 transition-transform">
                         <i class="fas fa-eye"></i>
                     </a>
                     <form action="delete_order_media.php" method="POST" onsubmit="return confirm('Delete this image? This action cannot be undone.');">
                         <input type="hidden" name="order_id" value="<?= $order['id'] ?>">
-                        <input type="hidden" name="image_path" value="<?= htmlspecialchars($order['reference_image']) ?>">
+                        <input type="hidden" name="image_path" value="<?= htmlspecialchars((string)$order['reference_image']) ?>">
                         <button type="submit" class="w-10 h-10 rounded-full bg-white text-red-500 flex items-center justify-center shadow-xl hover:scale-110 transition-transform">
                             <i class="fas fa-trash"></i>
                         </button>
@@ -315,7 +315,7 @@ include 'sidebar.php';
                         $baseUrl = 'http://' . $_SERVER['HTTP_HOST'];
                         $chatUrl = $baseUrl . '/order_chat.php?token=' . urlencode((string)$order['chat_token']);
                     ?>
-                    <a href="<?= htmlspecialchars($chatUrl) ?>" target="_blank" class="btn btn-outline !py-2 !px-4 text-[10px] uppercase tracking-widest font-bold no-underline">Customer Chat</a>
+                    <a href="<?= htmlspecialchars((string)$chatUrl) ?>" target="_blank" class="btn btn-outline !py-2 !px-4 text-[10px] uppercase tracking-widest font-bold no-underline">Customer Chat</a>
                 <?php endif; ?>
             </div>
 
@@ -335,11 +335,11 @@ include 'sidebar.php';
                             <div class="flex <?= $alignClass ?>">
                                 <div class="rounded-2xl px-4 py-3 <?= $bubbleClass ?>" style="max-width: 85%;">
                                     <div class="flex justify-between gap-3 mb-1">
-                                        <span class="text-[11px] font-extrabold <?= $isAdminMsg ? 'text-white/90' : 'text-gray-500' ?>"><?= htmlspecialchars($name) ?></span>
-                                        <span class="text-[10px] <?= $isAdminMsg ? 'text-white/70' : 'text-gray-400' ?>"><?= htmlspecialchars(date('M d, H:i', strtotime((string)$m['created_at']))) ?></span>
+                                        <span class="text-[11px] font-extrabold <?= $isAdminMsg ? 'text-white/90' : 'text-gray-500' ?>"><?= htmlspecialchars((string)$name) ?></span>
+                                        <span class="text-[10px] <?= $isAdminMsg ? 'text-white/70' : 'text-gray-400' ?>"><?= htmlspecialchars((string)date('M d, H:i', strtotime((string)$m['created_at']))) ?></span>
                                     </div>
                                     <?php $msgText = str_replace("\\n", "\n", (string)$m['message']); ?>
-                                    <div class="text-sm leading-relaxed"><?= nl2br(htmlspecialchars($msgText)) ?></div>
+                                    <div class="text-sm leading-relaxed"><?= nl2br(htmlspecialchars((string)$msgText)) ?></div>
                                 </div>
                             </div>
                         <?php endforeach; ?>
@@ -387,7 +387,7 @@ include 'sidebar.php';
                 <div>
                     <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">Current Status</label>
                     <div class="p-3 rounded-xl bg-gray-50 border border-gray-100 text-sm font-bold text-gray-700">
-                        <?= htmlspecialchars($order['status']) ?>
+                        <?= htmlspecialchars((string)$order['status']) ?>
                     </div>
                 </div>
 
@@ -411,7 +411,7 @@ include 'sidebar.php';
                         <div class="flex justify-between items-center">
                             <span class="text-[10px] font-bold text-gray-500 uppercase">Payment Status</span>
                             <span class="text-[9px] font-black uppercase px-2 py-0.5 rounded-full <?= $paymentBadge ?>">
-                                <?= htmlspecialchars($paymentStatus) ?>
+                                <?= htmlspecialchars((string)$paymentStatus) ?>
                             </span>
                         </div>
                         <?php if (isset($order['payment_proof_image']) && trim((string)$order['payment_proof_image']) !== ''): ?>
@@ -444,7 +444,7 @@ include 'sidebar.php';
                         foreach($tailor_names as $tn): ?>
                         <div class="flex items-center gap-3">
                             <div class="w-2 h-2 rounded-full bg-primary"></div>
-                            <span class="text-xs font-bold text-gray-600"><?= htmlspecialchars($tn) ?></span>
+                            <span class="text-xs font-bold text-gray-600"><?= htmlspecialchars((string)$tn) ?></span>
                         </div>
                     <?php endforeach; endif; ?>
                 </div>

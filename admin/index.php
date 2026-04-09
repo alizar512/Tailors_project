@@ -196,10 +196,10 @@ include 'sidebar.php';
                     </div>
                     <div>
                         <div class="flex items-center gap-2 mb-1">
-                            <p class="text-sm font-black text-gray-800 mb-0"><?= htmlspecialchars($item['title']) ?></p>
+                            <p class="text-sm font-black text-gray-800 mb-0"><?= htmlspecialchars((string)$item['title']) ?></p>
                             <span class="text-[10px] font-bold text-gray-400 uppercase"><?= date('H:i', strtotime($item['created_at'])) ?></span>
                         </div>
-                        <p class="text-[11px] text-gray-500 font-medium leading-tight"><?= $item['type'] == 'order' ? 'Placed an order for ' : 'Applied as ' ?> <span class="text-primary font-semibold"><?= htmlspecialchars($item['subtitle']) ?></span></p>
+                        <p class="text-[11px] text-gray-500 font-medium leading-tight"><?= $item['type'] == 'order' ? 'Placed an order for ' : 'Applied as ' ?> <span class="text-primary font-semibold"><?= htmlspecialchars((string)$item['subtitle']) ?></span></p>
                     </div>
                 </div>
                 <?php endforeach; ?>
@@ -249,13 +249,13 @@ include 'sidebar.php';
                                     <?= substr($order['customer_name'], 0, 1) ?>
                                 </div>
                                 <div>
-                                    <p class="text-sm font-black text-gray-800 mb-0"><?= htmlspecialchars($order['customer_name']) ?></p>
-                                    <p class="text-[10px] text-gray-400 font-medium"><?= htmlspecialchars($order['customer_email']) ?></p>
+                                    <p class="text-sm font-black text-gray-800 mb-0"><?= htmlspecialchars((string)$order['customer_name']) ?></p>
+                                    <p class="text-[10px] text-gray-400 font-medium"><?= htmlspecialchars((string)$order['customer_email']) ?></p>
                                 </div>
                             </div>
                         </td>
                         <td class="py-5 border-0">
-                            <span class="text-[11px] font-bold text-gray-600"><?= htmlspecialchars($order['service_type']) ?></span>
+                            <span class="text-[11px] font-bold text-gray-600"><?= htmlspecialchars((string)$order['service_type']) ?></span>
                         </td>
                         <td class="py-5 border-0">
                             <?php $budgetVal = isset($order['budget']) && $order['budget'] !== null && $order['budget'] !== '' ? (float)$order['budget'] : 0.0; ?>

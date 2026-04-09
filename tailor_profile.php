@@ -185,7 +185,7 @@ if (!$tailor) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= htmlspecialchars($tailor['name']) ?> | Silah</title>
+    <title><?= htmlspecialchars((string)$tailor['name']) ?> | Silah</title>
     
     <!-- Fonts & CSS -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -234,14 +234,14 @@ if (!$tailor) {
             <div class="row align-items-center">
                 <div class="col-md-4 text-center md:text-start">
                     <div class="relative inline-block">
-                        <img src="<?= htmlspecialchars($tailor['profile_image']) ?>" class="w-48 h-48 rounded-full object-cover border-4 border-white shadow-2xl">
+                        <img src="<?= htmlspecialchars((string)$tailor['profile_image']) ?>" class="w-48 h-48 rounded-full object-cover border-4 border-white shadow-2xl">
                         <div class="absolute bottom-2 right-2 bg-green-500 w-6 h-6 rounded-full border-2 border-white"></div>
                     </div>
                 </div>
                 <div class="col-md-8 mt-6 md:mt-0 text-center md:text-start">
                     <span class="text-accent font-bold tracking-widest uppercase text-sm mb-2 block">Premium Tailor</span>
-                    <h1 class="text-4xl font-display font-bold text-primary mb-2"><?= htmlspecialchars($tailor['name']) ?></h1>
-                    <p class="text-xl text-gray-500 mb-4"><?= htmlspecialchars($tailor['tagline']) ?></p>
+                    <h1 class="text-4xl font-display font-bold text-primary mb-2"><?= htmlspecialchars((string)$tailor['name']) ?></h1>
+                    <p class="text-xl text-gray-500 mb-4"><?= htmlspecialchars((string)$tailor['tagline']) ?></p>
                     
                     <div class="flex flex-wrap justify-center md:justify-start gap-6 text-gray-600 mb-6">
                         <span class="flex items-center"><i class="fas fa-map-marker-alt text-accent mr-2"></i> <?= htmlspecialchars((string)$tailor['location']) ?></span>
@@ -298,7 +298,7 @@ if (!$tailor) {
                 <div class="modal-header bg-white border-0 p-4">
                     <div>
                         <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Hire Tailor</p>
-                        <h5 class="modal-title text-2xl font-bold text-primary mb-0"><?= htmlspecialchars($tailor['name']) ?></h5>
+                        <h5 class="modal-title text-2xl font-bold text-primary mb-0"><?= htmlspecialchars((string)$tailor['name']) ?></h5>
                     </div>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
@@ -515,7 +515,7 @@ if (!$tailor) {
                 <div class="modal-header bg-white border-0 p-4">
                     <div>
                         <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Contact Tailor</p>
-                        <h5 class="modal-title text-2xl font-bold text-primary mb-0"><?= htmlspecialchars($tailor['name']) ?></h5>
+                        <h5 class="modal-title text-2xl font-bold text-primary mb-0"><?= htmlspecialchars((string)$tailor['name']) ?></h5>
                     </div>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
@@ -564,7 +564,7 @@ if (!$tailor) {
                     <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 mb-8 sticky top-32">
                         <h3 class="text-xl font-bold mb-4 border-b pb-2">About Me</h3>
                         <p class="text-gray-600 leading-relaxed mb-6">
-                            <?= nl2br(htmlspecialchars($tailor['description'])) ?>
+                            <?= nl2br(htmlspecialchars((string)$tailor['description'])) ?>
                         </p>
                         
                         <h4 class="font-bold mb-3 mt-6">Specialties</h4>
@@ -578,7 +578,7 @@ if (!$tailor) {
                                 $skillsList = array_slice($skillsList, 0, 10);
                             ?>
                             <?php foreach ($skillsList as $skill): ?>
-                                <span class="bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-sm"><?= htmlspecialchars($skill) ?></span>
+                                <span class="bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-sm"><?= htmlspecialchars((string)$skill) ?></span>
                             <?php endforeach; ?>
                         </div>
                     </div>
@@ -596,9 +596,9 @@ if (!$tailor) {
                         <div class="row g-4">
                             <?php foreach ($portfolio as $item): ?>
                             <div class="col-md-6">
-                                <a href="<?= htmlspecialchars($item['image_url']) ?>" data-lightbox="portfolio" data-title="<?= htmlspecialchars($item['description']) ?>" class="block group relative overflow-hidden rounded-xl shadow-sm hover:shadow-lg transition-all">
+                                <a href="<?= htmlspecialchars((string)$item['image_url']) ?>" data-lightbox="portfolio" data-title="<?= htmlspecialchars((string)$item['description']) ?>" class="block group relative overflow-hidden rounded-xl shadow-sm hover:shadow-lg transition-all">
                                     <div class="aspect-w-4 aspect-h-3 h-64">
-                                        <img src="<?= htmlspecialchars($item['image_url']) ?>" class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500">
+                                        <img src="<?= htmlspecialchars((string)$item['image_url']) ?>" class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500">
                                     </div>
                                     <div class="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center">
                                         <div class="opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300">
@@ -608,7 +608,7 @@ if (!$tailor) {
                                         </div>
                                     </div>
                                 </a>
-                                <p class="mt-2 text-sm text-gray-500 font-medium"><?= htmlspecialchars($item['description']) ?></p>
+                                <p class="mt-2 text-sm text-gray-500 font-medium"><?= htmlspecialchars((string)$item['description']) ?></p>
                             </div>
                             <?php endforeach; ?>
                         </div>

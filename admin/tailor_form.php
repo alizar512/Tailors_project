@@ -50,22 +50,22 @@ include 'sidebar.php';
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="space-y-2">
                 <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-4">Full Name</label>
-                <input type="text" name="name" class="form-control rounded-2xl border-gray-100 bg-gray-50/50 py-3 px-5 text-sm font-bold text-gray-700" value="<?= htmlspecialchars($tailor['name']) ?>" required>
+                <input type="text" name="name" class="form-control rounded-2xl border-gray-100 bg-gray-50/50 py-3 px-5 text-sm font-bold text-gray-700" value="<?= htmlspecialchars((string)$tailor['name']) ?>" required>
             </div>
             
             <div class="space-y-2">
                 <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-4">Short Tagline</label>
-                <input type="text" name="tagline" class="form-control rounded-2xl border-gray-100 bg-gray-50/50 py-3 px-5 text-sm font-bold text-gray-700" value="<?= htmlspecialchars($tailor['tagline']) ?>" placeholder="e.g. Master of Bespoke Suits">
+                <input type="text" name="tagline" class="form-control rounded-2xl border-gray-100 bg-gray-50/50 py-3 px-5 text-sm font-bold text-gray-700" value="<?= htmlspecialchars((string)$tailor['tagline']) ?>" placeholder="e.g. Master of Bespoke Suits">
             </div>
             
             <div class="col-span-full space-y-2">
                 <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-4">Profile Image URL</label>
-                <input type="url" name="profile_image" class="form-control rounded-2xl border-gray-100 bg-gray-50/50 py-3 px-5 text-sm font-bold text-gray-700" value="<?= htmlspecialchars($tailor['profile_image']) ?>" placeholder="https://images.unsplash.com/..." required>
+                <input type="url" name="profile_image" class="form-control rounded-2xl border-gray-100 bg-gray-50/50 py-3 px-5 text-sm font-bold text-gray-700" value="<?= htmlspecialchars((string)$tailor['profile_image']) ?>" placeholder="https://images.unsplash.com/..." required>
             </div>
             
             <div class="col-span-full space-y-2">
                 <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-4">Professional Biography</label>
-                <textarea name="description" class="form-control rounded-2xl border-gray-100 bg-gray-50/50 py-4 px-5 text-sm font-medium text-gray-600 leading-relaxed" rows="4"><?= htmlspecialchars($tailor['description']) ?></textarea>
+                <textarea name="description" class="form-control rounded-2xl border-gray-100 bg-gray-50/50 py-4 px-5 text-sm font-medium text-gray-600 leading-relaxed" rows="4"><?= htmlspecialchars((string)$tailor['description']) ?></textarea>
             </div>
             
             <div class="space-y-2">
@@ -80,33 +80,33 @@ include 'sidebar.php';
                     <option value="__other__" <?= $isOtherCity ? 'selected' : '' ?>>Other (Type City)</option>
                 </select>
                 <div class="mt-3 d-none" data-city-other-wrap>
-                    <input type="text" name="location_other" class="form-control rounded-2xl border-gray-100 bg-gray-50/50 py-3 px-5 text-sm font-bold text-gray-700" value="<?= $isOtherCity ? htmlspecialchars($currentLoc) : '' ?>" placeholder="Type city name" data-city-other-input>
+                    <input type="text" name="location_other" class="form-control rounded-2xl border-gray-100 bg-gray-50/50 py-3 px-5 text-sm font-bold text-gray-700" value="<?= $isOtherCity ? htmlspecialchars((string)$currentLoc) : '' ?>" placeholder="Type city name" data-city-other-input>
                 </div>
             </div>
             
             <div class="space-y-2">
                 <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-4">Experience (Years)</label>
-                <input type="number" name="experience_years" class="form-control rounded-2xl border-gray-100 bg-gray-50/50 py-3 px-5 text-sm font-bold text-gray-700" value="<?= htmlspecialchars($tailor['experience_years']) ?>">
+                <input type="number" name="experience_years" class="form-control rounded-2xl border-gray-100 bg-gray-50/50 py-3 px-5 text-sm font-bold text-gray-700" value="<?= htmlspecialchars((string)$tailor['experience_years']) ?>">
             </div>
             
             <div class="space-y-2">
                 <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-4">Starting Price (PKR)</label>
-                <input type="number" step="0.01" name="price_range_min" class="form-control rounded-2xl border-gray-100 bg-gray-50/50 py-3 px-5 text-sm font-bold text-gray-700" value="<?= htmlspecialchars($tailor['price_range_min']) ?>">
+                <input type="number" step="0.01" name="price_range_min" class="form-control rounded-2xl border-gray-100 bg-gray-50/50 py-3 px-5 text-sm font-bold text-gray-700" value="<?= htmlspecialchars((string)$tailor['price_range_min']) ?>">
             </div>
             
             <div class="space-y-2">
                 <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-4">Max Price (PKR)</label>
-                <input type="number" step="0.01" name="price_range_max" class="form-control rounded-2xl border-gray-100 bg-gray-50/50 py-3 px-5 text-sm font-bold text-gray-700" value="<?= htmlspecialchars($tailor['price_range_max']) ?>">
+                <input type="number" step="0.01" name="price_range_max" class="form-control rounded-2xl border-gray-100 bg-gray-50/50 py-3 px-5 text-sm font-bold text-gray-700" value="<?= htmlspecialchars((string)$tailor['price_range_max']) ?>">
             </div>
             
             <div class="space-y-2">
                 <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-4">Contact Email</label>
-                <input type="email" name="email" class="form-control rounded-2xl border-gray-100 bg-gray-50/50 py-3 px-5 text-sm font-bold text-gray-700" value="<?= htmlspecialchars($tailor['email']) ?>">
+                <input type="email" name="email" class="form-control rounded-2xl border-gray-100 bg-gray-50/50 py-3 px-5 text-sm font-bold text-gray-700" value="<?= htmlspecialchars((string)$tailor['email']) ?>">
             </div>
             
             <div class="space-y-2">
                 <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-4">Phone Number</label>
-                <input type="text" name="phone" class="form-control rounded-2xl border-gray-100 bg-gray-50/50 py-3 px-5 text-sm font-bold text-gray-700" value="<?= htmlspecialchars($tailor['phone']) ?>">
+                <input type="text" name="phone" class="form-control rounded-2xl border-gray-100 bg-gray-50/50 py-3 px-5 text-sm font-bold text-gray-700" value="<?= htmlspecialchars((string)$tailor['phone']) ?>">
             </div>
 
             <div class="space-y-2">

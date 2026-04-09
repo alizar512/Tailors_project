@@ -106,14 +106,14 @@ include 'sidebar.php';
     <?php if ($success !== ''): ?>
         <div class="mb-8 p-4 rounded-2xl border bg-green-50 border-green-100">
             <p class="text-xs font-extrabold text-green-700 uppercase tracking-widest mb-1">Success</p>
-            <p class="text-sm font-semibold text-green-800 mb-0 break-all"><?= htmlspecialchars($success) ?></p>
+            <p class="text-sm font-semibold text-green-800 mb-0 break-all"><?= htmlspecialchars((string)$success) ?></p>
         </div>
     <?php endif; ?>
 
     <?php if ($error !== ''): ?>
         <div class="mb-8 p-4 rounded-2xl border bg-red-50 border-red-100">
             <p class="text-xs font-extrabold text-red-600 uppercase tracking-widest mb-1">Error</p>
-            <p class="text-sm font-semibold text-red-800 mb-0"><?= htmlspecialchars($error) ?></p>
+            <p class="text-sm font-semibold text-red-800 mb-0"><?= htmlspecialchars((string)$error) ?></p>
         </div>
     <?php endif; ?>
 
@@ -123,7 +123,7 @@ include 'sidebar.php';
             $actionUrl = "reset_tailor_password.php?email=" . urlencode($tailor_email);
         }
     ?>
-    <form action="<?= htmlspecialchars($actionUrl) ?>" method="POST" class="space-y-6">
+    <form action="<?= htmlspecialchars((string)$actionUrl) ?>" method="POST" class="space-y-6">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
                 <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">Mode</label>

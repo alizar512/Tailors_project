@@ -69,11 +69,11 @@ include 'sidebar.php';
                         #SIL-<?= str_pad((string)$order['id'], 4, '0', STR_PAD_LEFT) ?>
                     </td>
                     <td class="py-5 border-0">
-                        <p class="text-sm font-black text-gray-800 mb-0"><?= htmlspecialchars(isset($order['customer_name']) ? $order['customer_name'] : '') ?></p>
-                        <p class="text-[11px] text-gray-500 font-medium mb-0"><?= htmlspecialchars(isset($order['customer_email']) ? $order['customer_email'] : '') ?></p>
+                        <p class="text-sm font-black text-gray-800 mb-0"><?= htmlspecialchars((string)isset($order['customer_name']) ? $order['customer_name'] : '') ?></p>
+                        <p class="text-[11px] text-gray-500 font-medium mb-0"><?= htmlspecialchars((string)isset($order['customer_email']) ? $order['customer_email'] : '') ?></p>
                     </td>
                     <td class="py-5 border-0">
-                        <p class="text-[12px] font-bold text-gray-700 mb-0"><?= htmlspecialchars(isset($order['service_type']) ? $order['service_type'] : '') ?></p>
+                        <p class="text-[12px] font-bold text-gray-700 mb-0"><?= htmlspecialchars((string)isset($order['service_type']) ? $order['service_type'] : '') ?></p>
                         <p class="text-[10px] text-gray-400 font-medium italic mb-0">PKR <?= number_format((float)(isset($order['budget']) ? $order['budget'] : 0)) ?> Budget</p>
                     </td>
                     <td class="py-5 border-0 text-center">
@@ -87,7 +87,7 @@ include 'sidebar.php';
                         $status_class = isset($status_colors[$status]) ? $status_colors[$status] : 'bg-gray-100 text-gray-600';
                         ?>
                         <span class="text-[9px] font-black uppercase px-2 py-1 rounded-full <?= $status_class ?>">
-                            <?= htmlspecialchars($status !== '' ? $status : 'Unknown') ?>
+                            <?= htmlspecialchars((string)$status !== '' ? $status : 'Unknown') ?>
                         </span>
                     </td>
                     <td class="px-8 py-5 border-0 text-end">

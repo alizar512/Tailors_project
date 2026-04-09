@@ -47,11 +47,11 @@ include 'sidebar.php';
                 <?php foreach ($messages as $msg): ?>
                 <tr class="group hover:bg-primary/5 transition-colors">
                     <td class="px-8 py-5 border-0">
-                        <p class="text-sm font-black text-gray-800 mb-0"><?= htmlspecialchars($msg['name']) ?></p>
-                        <p class="text-[11px] text-gray-500 font-medium"><?= htmlspecialchars($msg['email']) ?></p>
+                        <p class="text-sm font-black text-gray-800 mb-0"><?= htmlspecialchars((string)$msg['name']) ?></p>
+                        <p class="text-[11px] text-gray-500 font-medium"><?= htmlspecialchars((string)$msg['email']) ?></p>
                     </td>
                     <td class="py-5 border-0">
-                        <p class="text-[11px] text-gray-500 line-clamp-1 max-w-xs mb-0 italic">"<?= htmlspecialchars($msg['message']) ?>..."</p>
+                        <p class="text-[11px] text-gray-500 line-clamp-1 max-w-xs mb-0 italic">"<?= htmlspecialchars((string)$msg['message']) ?>..."</p>
                     </td>
                     <td class="py-5 border-0">
                         <p class="text-[11px] text-gray-400 font-bold mb-0"><?= date('M d, Y', strtotime($msg['created_at'])) ?></p>
@@ -76,7 +76,7 @@ include 'sidebar.php';
                     <div class="modal-dialog modal-dialog-centered">
                         <div class="modal-content border-0 rounded-[24px] shadow-2xl overflow-hidden">
                             <div class="modal-header bg-primary text-white border-0 p-6">
-                                <h5 class="modal-title font-black uppercase tracking-tight text-sm">Message from <?= htmlspecialchars($msg['name']) ?></h5>
+                                <h5 class="modal-title font-black uppercase tracking-tight text-sm">Message from <?= htmlspecialchars((string)$msg['name']) ?></h5>
                                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div class="modal-body p-8">
@@ -85,17 +85,17 @@ include 'sidebar.php';
                                         <?= substr($msg['name'], 0, 1) ?>
                                     </div>
                                     <div>
-                                        <p class="text-sm font-black text-gray-800 mb-0"><?= htmlspecialchars($msg['name']) ?></p>
-                                        <p class="text-xs text-gray-500"><?= htmlspecialchars($msg['email']) ?></p>
+                                        <p class="text-sm font-black text-gray-800 mb-0"><?= htmlspecialchars((string)$msg['name']) ?></p>
+                                        <p class="text-xs text-gray-500"><?= htmlspecialchars((string)$msg['email']) ?></p>
                                     </div>
                                 </div>
                                 <div class="p-5 bg-gray-50 rounded-2xl border border-gray-100">
-                                    <p class="text-sm text-gray-600 leading-relaxed italic mb-0">"<?= nl2br(htmlspecialchars($msg['message'])) ?>"</p>
+                                    <p class="text-sm text-gray-600 leading-relaxed italic mb-0">"<?= nl2br(htmlspecialchars((string)$msg['message'])) ?>"</p>
                                 </div>
                             </div>
                             <div class="modal-footer border-0 p-6 bg-gray-50/50">
                                 <button type="button" class="btn btn-outline !py-2 !px-6 text-[10px] font-black uppercase tracking-widest" data-bs-dismiss="modal">Close</button>
-                                <a href="mailto:<?= htmlspecialchars($msg['email']) ?>" class="btn btn-primary !py-2 !px-6 text-[10px] font-black uppercase tracking-widest no-underline">Reply via Email</a>
+                                <a href="mailto:<?= htmlspecialchars((string)$msg['email']) ?>" class="btn btn-primary !py-2 !px-6 text-[10px] font-black uppercase tracking-widest no-underline">Reply via Email</a>
                             </div>
                         </div>
                     </div>

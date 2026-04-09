@@ -158,7 +158,7 @@ include 'sidebar.php';
             <p class="text-xs text-gray-500 font-medium mb-0">Checks tables, columns, and basic completeness.</p>
         </div>
         <form method="GET" action="db_verify.php" class="flex items-center gap-2">
-            <input type="text" name="email" value="<?= htmlspecialchars($emailQuery) ?>" class="form-control !py-2 !px-4" placeholder="Search tailor email/username">
+            <input type="text" name="email" value="<?= htmlspecialchars((string)$emailQuery) ?>" class="form-control !py-2 !px-4" placeholder="Search tailor email/username">
             <button type="submit" class="btn btn-primary !py-2 !px-4 text-[10px] uppercase tracking-widest font-bold">Search</button>
             <a href="db_verify.php" class="btn btn-outline !py-2 !px-4 text-[10px] uppercase tracking-widest font-bold no-underline">Clear</a>
         </form>
@@ -172,7 +172,7 @@ include 'sidebar.php';
         <?php if ($createdMessage): ?>
             <div class="mb-6 p-4 rounded-2xl border bg-green-50 border-green-100">
                 <p class="text-xs font-extrabold text-green-700 uppercase tracking-widest mb-1">Action</p>
-                <p class="text-sm font-semibold text-green-800 mb-0"><?= htmlspecialchars($createdMessage) ?></p>
+                <p class="text-sm font-semibold text-green-800 mb-0"><?= htmlspecialchars((string)$createdMessage) ?></p>
             </div>
         <?php endif; ?>
         <?php if ($emailQuery !== ''): ?>
@@ -269,7 +269,7 @@ include 'sidebar.php';
                 <tbody class="divide-y divide-gray-50">
                     <?php foreach ($results as $r): ?>
                         <tr>
-                            <td class="px-8 py-5 border-0 font-black text-primary text-xs"><?= htmlspecialchars($r['table']) ?></td>
+                            <td class="px-8 py-5 border-0 font-black text-primary text-xs"><?= htmlspecialchars((string)$r['table']) ?></td>
                             <td class="py-5 border-0 text-center">
                                 <span class="text-[10px] font-black uppercase px-3 py-1 rounded-full <?= $r['exists'] ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600' ?>">
                                     <?= $r['exists'] ? 'Yes' : 'No' ?>
@@ -282,7 +282,7 @@ include 'sidebar.php';
                                 <?php elseif (empty($r['missing_cols'])): ?>
                                     <span class="text-sm text-green-700 font-semibold">OK</span>
                                 <?php else: ?>
-                                    <span class="text-sm text-red-600 font-semibold"><?= htmlspecialchars(implode(', ', $r['missing_cols'])) ?></span>
+                                    <span class="text-sm text-red-600 font-semibold"><?= htmlspecialchars((string)implode(', ', $r['missing_cols'])) ?></span>
                                     <?php if ($r['table'] === 'portfolio_videos' && !$r['exists']): ?>
                                         <div class="mt-2">
                                             <a href="db_verify.php?create=portfolio_videos" class="btn btn-primary !py-2 !px-4 text-[10px] uppercase tracking-widest font-bold no-underline">Create Table</a>

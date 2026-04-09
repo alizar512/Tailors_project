@@ -56,14 +56,14 @@ include 'sidebar.php';
                                 <?= substr($app['name'], 0, 1) ?>
                             </div>
                             <div>
-                                <p class="text-sm font-black text-gray-800 mb-0"><?= htmlspecialchars($app['name']) ?></p>
-                                <p class="text-[11px] text-gray-500 font-medium"><?= htmlspecialchars($app['location']) ?></p>
+                                <p class="text-sm font-black text-gray-800 mb-0"><?= htmlspecialchars((string)$app['name']) ?></p>
+                                <p class="text-[11px] text-gray-500 font-medium"><?= htmlspecialchars((string)$app['location']) ?></p>
                             </div>
                         </div>
                     </td>
                     <td class="py-5 border-0">
-                        <p class="text-[13px] font-bold text-gray-700 mb-0"><?= htmlspecialchars($app['email']) ?></p>
-                        <p class="text-[11px] text-gray-400 font-medium"><?= htmlspecialchars($app['phone']) ?></p>
+                        <p class="text-[13px] font-bold text-gray-700 mb-0"><?= htmlspecialchars((string)$app['email']) ?></p>
+                        <p class="text-[11px] text-gray-400 font-medium"><?= htmlspecialchars((string)$app['phone']) ?></p>
                     </td>
                     <td class="py-5 border-0">
                         <div class="flex flex-wrap gap-1">
