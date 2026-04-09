@@ -8,19 +8,19 @@
       "use": "vercel-php@0.7.2"
     },
     {
-      "src": "css/**",
+      "src": "css/**/*",
       "use": "@vercel/static"
     },
     {
-      "src": "js/**",
+      "src": "js/**/*",
       "use": "@vercel/static"
     },
     {
-      "src": "images/**",
+      "src": "images/**/*",
       "use": "@vercel/static"
     },
     {
-      "src": "uploads/**",
+      "src": "uploads/**/*",
       "use": "@vercel/static"
     }
   ],
@@ -28,6 +28,9 @@
     {
       "src": "/",
       "dest": "/index.php"
+    },
+    {
+      "handle": "filesystem"
     },
     {
       "src": "/(.*).php",
