@@ -10,6 +10,7 @@ $return = isset($_GET['return']) ? trim((string)$_GET['return']) : '';
 $prefillEmailRaw = isset($_GET['email']) ? trim((string)$_GET['email']) : '';
 $prefillEmail = filter_var($prefillEmailRaw, FILTER_VALIDATE_EMAIL) ? $prefillEmailRaw : '';
 $prefillPhone = isset($_GET['phone']) ? trim((string)$_GET['phone']) : '';
+$googleClientId = getenv('GOOGLE_CLIENT_ID') ?: '';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -56,11 +57,36 @@ $prefillPhone = isset($_GET['phone']) ? trim((string)$_GET['phone']) : '';
                                 'phone_exists' => 'This phone number is already registered. Please login.',
                                 'invalid_input' => 'Please check your details.',
                                 'db_error' => 'Database connection failed: ' . (isset($_GET['msg']) ? htmlspecialchars((string)$_GET['msg']) : ''),
+                                'google_not_configured' => 'Google login is not configured yet.',
+                                'google_failed' => 'Google login failed. Please try again.',
                             ];
                             $key = (string)$_GET['error'];
                             echo isset($errorMessages[$key]) ? $errorMessages[$key] : 'An error occurred';
                         ?>
                     </p>
+                </div>
+            <?php endif; ?>
+
+            <?php if (trim((string)$googleClientId) !== ''): ?>
+                <form id="googleLoginForm" action="process_google_login.php" method="POST">
+                    <input type="hidden" name="credential" id="googleCredential">
+                    <input type="hidden" name="return" value="<?= htmlspecialchars((string)$return) ?>">
+                </form>
+                <div class="mb-4">
+                    <div id="g_id_onload"
+                        data-client_id="<?= htmlspecialchars((string)$googleClientId) ?>"
+                        data-callback="handleCredentialResponse"
+                        data-auto_prompt="false">
+                    </div>
+                    <div class="g_id_signin"
+                        data-type="standard"
+                        data-shape="pill"
+                        data-theme="outline"
+                        data-text="continue_with"
+                        data-size="large"
+                        data-width="360">
+                    </div>
+                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-3 mb-0 text-center">Or create with email</p>
                 </div>
             <?php endif; ?>
 
@@ -108,5 +134,17 @@ $prefillPhone = isset($_GET['phone']) ? trim((string)$_GET['phone']) : '';
 
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>AOS.init();</script>
+    <?php if (trim((string)$googleClientId) !== ''): ?>
+        <script src="https://accounts.google.com/gsi/client" async defer></script>
+        <script>
+            function handleCredentialResponse(response) {
+                const form = document.getElementById('googleLoginForm');
+                const input = document.getElementById('googleCredential');
+                if (!form || !input) return;
+                input.value = response.credential || '';
+                form.submit();
+            }
+        </script>
+    <?php endif; ?>
 </body>
 </html>

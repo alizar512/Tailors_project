@@ -40,6 +40,8 @@ try {
             phone VARCHAR(40),
             address VARCHAR(255),
             password_hash VARCHAR(255) NOT NULL,
+            auth_provider VARCHAR(20) NOT NULL DEFAULT 'password',
+            google_sub VARCHAR(64),
             is_active TINYINT(1) NOT NULL DEFAULT 1,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             INDEX idx_customers_email (email),
@@ -52,6 +54,18 @@ try {
     }
     try {
         $pdo->exec("ALTER TABLE customers ADD UNIQUE KEY uq_customers_phone (phone)");
+    } catch (Exception $e) {
+    }
+    try {
+        $pdo->exec("ALTER TABLE customers ADD COLUMN auth_provider VARCHAR(20) NOT NULL DEFAULT 'password'");
+    } catch (Exception $e) {
+    }
+    try {
+        $pdo->exec("ALTER TABLE customers ADD COLUMN google_sub VARCHAR(64)");
+    } catch (Exception $e) {
+    }
+    try {
+        $pdo->exec("ALTER TABLE customers ADD UNIQUE KEY uq_customers_google_sub (google_sub)");
     } catch (Exception $e) {
     }
     try {
