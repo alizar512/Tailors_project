@@ -141,6 +141,11 @@ if ($hire_mode) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Silah | Connect with Professional Tailors</title>
+    <?php 
+        require_once __DIR__ . '/includes/db_connect.php';
+        require_once __DIR__ . '/includes/theme.php';
+        if ($pdo) { echo silah_theme_styles($pdo, 'public'); }
+    ?>
     
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">

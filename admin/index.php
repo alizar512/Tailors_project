@@ -61,6 +61,20 @@ include 'sidebar.php';
 ?>
 
 <div class="animate__animated animate__fadeIn">
+    <?php 
+        require_once __DIR__ . '/../includes/theme.php';
+        $banner = $pdo ? silah_get_setting($pdo, 'admin_banner', '') : '';
+        if ($banner !== ''):
+    ?>
+    <div class="admin-banner rounded-3xl border border-gray-100 shadow-sm min-h-[140px] flex items-center justify-between px-6 bg-white overflow-hidden mb-8">
+        <div class="py-6">
+            <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Dashboard</p>
+            <h2 class="text-xl font-black text-gray-900 mb-0">Welcome back</h2>
+            <p class="text-xs font-bold text-gray-600 mb-0">Customize this banner from Theme Settings</p>
+        </div>
+        <a href="theme_settings.php" class="btn btn-outline rounded-full px-4 py-2 text-xs font-black uppercase tracking-widest no-underline">Theme Settings</a>
+    </div>
+    <?php endif; ?>
     <div class="mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
             <h2 class="text-2xl sm:text-3xl font-extrabold text-primary tracking-tight mb-1">Dashboard</h2>

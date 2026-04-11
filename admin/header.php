@@ -8,6 +8,12 @@ require_once 'auth_check.php';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Portal | Silah</title>
 
+    <?php 
+        require_once __DIR__ . '/../includes/db_connect.php';
+        require_once __DIR__ . '/../includes/theme.php';
+        if ($pdo) { echo silah_theme_styles($pdo, 'admin'); }
+    ?>
+
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 

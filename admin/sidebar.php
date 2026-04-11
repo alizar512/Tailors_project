@@ -78,6 +78,10 @@ require_once __DIR__ . '/../includes/notifications.php';
                 <i class="fas fa-user-gear w-5"></i>
                 <span class="font-medium">Tailor Management</span>
             </a>
+            <a href="theme_settings.php" data-tooltip="Theme Settings" class="sidebar-link flex items-center gap-4 px-4 py-3 text-gray-300 no-underline <?= $current_page == 'theme_settings.php' ? 'active text-white' : '' ?>">
+                <i class="fas fa-palette w-5"></i>
+                <span class="font-medium">Theme Settings</span>
+            </a>
         </div>
     </nav>
     
