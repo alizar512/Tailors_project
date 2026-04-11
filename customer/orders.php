@@ -103,11 +103,11 @@ try {
                                 </div>
                             </div>
                             <div class="flex items-center gap-2">
-                                <a href="../order_chat.php?order_id=<?= (int)$id ?>" class="px-5 py-2 rounded-full bg-white border border-gray-200 text-xs font-black uppercase tracking-widest text-gray-700 hover:border-pink-500 hover:text-pink-600 transition-all no-underline">
-                                    Open Chat
+                                <a href="order_details.php?id=<?= (int)$id ?>" class="px-5 py-2 rounded-full bg-white border border-gray-200 text-xs font-black uppercase tracking-widest text-gray-700 hover:border-pink-500 hover:text-pink-600 transition-all no-underline">
+                                    View Details
                                 </a>
-                                <a href="../order_chat.php?order_id=<?= (int)$id ?>" class="w-10 h-10 rounded-full bg-pink-600 text-white flex items-center justify-center hover:bg-pink-700 transition-all no-underline" aria-label="Open">
-                                    <i class="fas fa-arrow-right"></i>
+                                <a href="../order_chat.php?order_id=<?= (int)$id ?>" class="w-10 h-10 rounded-full bg-pink-600 text-white flex items-center justify-center hover:bg-pink-700 transition-all no-underline" aria-label="Open chat">
+                                    <i class="fas fa-comments"></i>
                                 </a>
                             </div>
                         </div>
