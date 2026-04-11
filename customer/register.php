@@ -1,5 +1,7 @@
 <?php
 require_once __DIR__ . '/../includes/session_init.php';
+require_once __DIR__ . '/../includes/db_connect.php';
+require_once __DIR__ . '/../includes/theme.php';
 
 if (isset($_SESSION['customer_id'])) {
     header("Location: orders.php");
@@ -10,7 +12,10 @@ $return = isset($_GET['return']) ? trim((string)$_GET['return']) : '';
 $prefillEmailRaw = isset($_GET['email']) ? trim((string)$_GET['email']) : '';
 $prefillEmail = filter_var($prefillEmailRaw, FILTER_VALIDATE_EMAIL) ? $prefillEmailRaw : '';
 $prefillPhone = isset($_GET['phone']) ? trim((string)$_GET['phone']) : '';
-$googleClientId = getenv('GOOGLE_CLIENT_ID') ?: '';
+$googleClientId = $pdo ? silah_get_setting($pdo, 'google_client_id', '') : '';
+if (trim((string)$googleClientId) === '') {
+    $googleClientId = getenv('GOOGLE_CLIENT_ID') ?: '';
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -67,12 +72,12 @@ $googleClientId = getenv('GOOGLE_CLIENT_ID') ?: '';
                 </div>
             <?php endif; ?>
 
-            <?php if (trim((string)$googleClientId) !== ''): ?>
-                <form id="googleLoginForm" action="process_google_login.php" method="POST">
-                    <input type="hidden" name="credential" id="googleCredential">
-                    <input type="hidden" name="return" value="<?= htmlspecialchars((string)$return) ?>">
-                </form>
-                <div class="mb-4">
+            <form id="googleLoginForm" action="process_google_login.php" method="POST">
+                <input type="hidden" name="credential" id="googleCredential">
+                <input type="hidden" name="return" value="<?= htmlspecialchars((string)$return) ?>">
+            </form>
+            <div class="mb-4">
+                <?php if (trim((string)$googleClientId) !== ''): ?>
                     <div id="g_id_onload"
                         data-client_id="<?= htmlspecialchars((string)$googleClientId) ?>"
                         data-callback="handleCredentialResponse"
@@ -86,9 +91,13 @@ $googleClientId = getenv('GOOGLE_CLIENT_ID') ?: '';
                         data-size="large"
                         data-width="360">
                     </div>
-                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-3 mb-0 text-center">Or create with email</p>
-                </div>
-            <?php endif; ?>
+                <?php else: ?>
+                    <a href="register.php?error=google_not_configured<?= $return !== '' ? ('&return=' . urlencode($return)) : '' ?>" class="block w-full px-5 py-3 rounded-full bg-white border-2 border-gray-200 text-gray-700 text-sm font-bold no-underline hover:border-pink-400 hover:text-pink-600 transition-all">
+                        Continue with Google
+                    </a>
+                <?php endif; ?>
+                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-3 mb-0 text-center">Or create with email</p>
+            </div>
 
             <form action="process_register.php" method="POST">
                 <input type="hidden" name="return" value="<?= htmlspecialchars((string)$return) ?>">

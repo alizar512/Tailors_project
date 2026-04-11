@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../includes/session_init.php';
 require_once __DIR__ . '/../includes/db_connect.php';
+require_once __DIR__ . '/../includes/theme.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header("Location: register.php");
@@ -15,7 +16,10 @@ if ($credential === '') {
     exit;
 }
 
-$clientId = getenv('GOOGLE_CLIENT_ID') ?: '';
+$clientId = $pdo ? silah_get_setting($pdo, 'google_client_id', '') : '';
+if (trim((string)$clientId) === '') {
+    $clientId = getenv('GOOGLE_CLIENT_ID') ?: '';
+}
 if (trim((string)$clientId) === '' || !$pdo) {
     header("Location: register.php?error=google_not_configured");
     exit;
