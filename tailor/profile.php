@@ -521,6 +521,7 @@ include 'sidebar.php';
                         <div class="col-12">
                             <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">Profile Picture</label>
                             <input type="file" name="profile_image" class="form-control" accept="image/*">
+                            <p class="text-[11px] text-gray-500 mt-2 mb-0 font-bold">On Vercel, please re-upload the photo once so it saves permanently.</p>
                         </div>
                     </div>
 
