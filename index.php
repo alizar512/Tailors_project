@@ -212,8 +212,8 @@ if ($hire_mode) {
                     <li class="nav-item"><a class="nav-link text-dark fw-medium" href="join_tailor.php">Join as Tailor</a></li>
                     <li class="nav-item"><a class="nav-link text-dark fw-medium" href="#contact">Contact</a></li>
                     <li class="nav-item ms-lg-3">
-                        <a href="admin/login.php" class="btn btn-outline px-6 py-2 rounded-full d-inline-block">
-                            Login
+                        <a href="customer/login.php" class="btn btn-outline px-6 py-2 rounded-full d-inline-block">
+                            Customer Login
                         </a>
                     </li>
                     <li class="nav-item ms-lg-3">
@@ -234,7 +234,7 @@ if ($hire_mode) {
         <div class="offcanvas-body">
             <div class="d-grid gap-2 mb-4">
                 <a class="btn btn-accent text-white rounded-full py-3 font-bold" href="place_order.php#order">Place Order</a>
-                <a class="btn btn-outline rounded-full py-3 font-bold" href="admin/login.php">Login</a>
+                <a class="btn btn-outline rounded-full py-3 font-bold" href="customer/login.php">Customer Login</a>
             </div>
             <div class="list-group list-group-flush">
                 <a class="list-group-item list-group-item-action py-3" href="#home" data-bs-dismiss="offcanvas">Home</a>
@@ -242,7 +242,7 @@ if ($hire_mode) {
                 <a class="list-group-item list-group-item-action py-3" href="#tailors" data-bs-dismiss="offcanvas">Tailors</a>
                 <a class="list-group-item list-group-item-action py-3" href="join_tailor.php">Join as Tailor</a>
                 <a class="list-group-item list-group-item-action py-3" href="#contact" data-bs-dismiss="offcanvas">Contact</a>
-                <a class="list-group-item list-group-item-action py-3" href="order_chat.php">Open Chat</a>
+                <a class="list-group-item list-group-item-action py-3" href="customer/orders.php">My Orders</a>
             </div>
         </div>
     </div>
@@ -1237,8 +1237,14 @@ if ($hire_mode) {
                             ${data.demo ? '<div class="badge bg-warning text-dark mt-3">Demo Mode: No DB connected</div>' : ''}
                         `;
                     } else {
-                        alert(data.message);
-                        resultDiv.classList.add('d-none');
+                        resultDiv.classList.remove('d-none');
+                        statusDetail.innerHTML = `
+                            <div class="p-4 bg-amber-50 border border-amber-100 rounded-3xl text-start max-w-md mx-auto shadow-sm">
+                                <p class="text-[10px] font-black text-amber-600 uppercase tracking-widest mb-2">Login Required</p>
+                                <p class="text-sm font-bold text-gray-800 mb-3">${data.message || 'Please login to continue.'}</p>
+                                ${data.login_url ? `<a class="btn btn-outline rounded-full px-6 py-2" href="${data.login_url}">Login</a>` : ''}
+                            </div>
+                        `;
                     }
                 })
                 .catch(err => alert('Error checking status. Please try again.'));

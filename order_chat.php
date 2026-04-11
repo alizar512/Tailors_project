@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/includes/session_init.php';
 require_once __DIR__ . '/includes/db_connect.php';
 require_once __DIR__ . '/includes/notifications.php';
 require_once __DIR__ . '/includes/mailer.php';
@@ -13,6 +14,16 @@ $email_lookup = filter_var($email_lookup_raw, FILTER_VALIDATE_EMAIL) ? $email_lo
 $phone_lookup_raw = isset($_GET['phone']) ? trim((string)$_GET['phone']) : '';
 $phone_lookup = $phone_lookup_raw;
 
+if (!isset($_SESSION['customer_id'])) {
+    $r = isset($_SERVER['REQUEST_URI']) ? (string)$_SERVER['REQUEST_URI'] : '';
+    $redir = 'customer/login.php';
+    if ($r !== '') {
+        $redir .= '?return=' . urlencode($r);
+    }
+    header("Location: " . $redir);
+    exit;
+}
+
 if (!$pdo) {
     header("Location: index.php");
     exit;
@@ -26,6 +37,10 @@ try {
 }
 try {
     $pdo->exec("ALTER TABLE orders ADD COLUMN order_number VARCHAR(20)");
+} catch (Exception $e) {
+}
+try {
+    $pdo->exec("ALTER TABLE orders ADD COLUMN customer_id INT NULL");
 } catch (Exception $e) {
 }
 try {
@@ -94,16 +109,27 @@ try {
 }
 
 $lookup_error = '';
-if ($token === '' && $order_lookup_id > 0 && $email_lookup !== '') {
+$customerId = (int)($_SESSION['customer_id'] ?? 0);
+$customerEmail = isset($_SESSION['customer_email']) ? (string)$_SESSION['customer_email'] : '';
+
+if ($token === '' && $order_lookup_id > 0) {
     try {
-        $stmt = $pdo->prepare("SELECT id, chat_token, customer_email FROM orders WHERE id = ? LIMIT 1");
+        $stmt = $pdo->prepare("SELECT * FROM orders WHERE id = ? LIMIT 1");
         $stmt->execute([$order_lookup_id]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         if ($row) {
-            $dbEmail = isset($row['customer_email']) ? (string)$row['customer_email'] : '';
-            $normDb = str_replace(' ', '', strtolower(trim($dbEmail)));
-            $normIn = str_replace(' ', '', strtolower(trim($email_lookup)));
-            if ($normDb === $normIn) {
+            $ok = false;
+            $rowCustomerId = isset($row['customer_id']) ? (int)$row['customer_id'] : 0;
+            if ($rowCustomerId > 0 && $customerId > 0) {
+                $ok = $rowCustomerId === $customerId;
+            } else {
+                $dbEmail = isset($row['customer_email']) ? (string)$row['customer_email'] : '';
+                $normDb = str_replace(' ', '', strtolower(trim($dbEmail)));
+                $normMe = str_replace(' ', '', strtolower(trim($customerEmail)));
+                $ok = $normDb !== '' && $normDb === $normMe;
+            }
+
+            if ($ok) {
                 $ct = isset($row['chat_token']) ? trim((string)$row['chat_token']) : '';
                 if ($ct === '') {
                     $ct = bin2hex(random_bytes(16));
@@ -113,17 +139,18 @@ if ($token === '' && $order_lookup_id > 0 && $email_lookup !== '') {
                     } catch (Exception $e) {
                     }
                 }
-                $redir = "order_chat.php?token=" . urlencode($ct);
-                if ($return !== '') {
-                    $redir .= "&return=" . urlencode($return);
-                }
-                header("Location: " . $redir);
+                $token = $ct;
+            } else {
+                header("Location: customer/orders.php");
                 exit;
             }
+        } else {
+            header("Location: customer/orders.php");
+            exit;
         }
-        $lookup_error = 'Order not found for this email.';
     } catch (Exception $e) {
-        $lookup_error = 'Could not open chat.';
+        header("Location: customer/orders.php");
+        exit;
     }
 }
 
@@ -138,7 +165,22 @@ if (!$is_lookup_mode) {
     } catch (Exception $e) {
     }
     if (!$order) {
-        header("Location: index.php");
+        header("Location: customer/orders.php");
+        exit;
+    }
+
+    $ok = false;
+    $rowCustomerId = isset($order['customer_id']) ? (int)$order['customer_id'] : 0;
+    if ($rowCustomerId > 0 && $customerId > 0) {
+        $ok = $rowCustomerId === $customerId;
+    } else {
+        $dbEmail = isset($order['customer_email']) ? (string)$order['customer_email'] : '';
+        $normDb = str_replace(' ', '', strtolower(trim($dbEmail)));
+        $normMe = str_replace(' ', '', strtolower(trim($customerEmail)));
+        $ok = $normDb !== '' && $normDb === $normMe;
+    }
+    if (!$ok) {
+        header("Location: customer/orders.php");
         exit;
     }
 }

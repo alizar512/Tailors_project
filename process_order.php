@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/includes/session_init.php';
 require_once __DIR__ . '/includes/db_connect.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -15,6 +16,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $measurements = isset($_POST['measurements']) ? trim((string)$_POST['measurements']) : '';
     $hire_tailor_id = isset($_POST['hire_tailor_id']) && is_numeric($_POST['hire_tailor_id']) ? (int)$_POST['hire_tailor_id'] : 0;
     $selected_tailor_id = isset($_POST['selected_tailor_id']) && is_numeric($_POST['selected_tailor_id']) ? (int)$_POST['selected_tailor_id'] : 0;
+
+    $customerId = isset($_SESSION['customer_id']) ? (int)$_SESSION['customer_id'] : 0;
+    $sessionEmail = isset($_SESSION['customer_email']) ? trim((string)$_SESSION['customer_email']) : '';
+    if ($sessionEmail !== '' && filter_var($sessionEmail, FILTER_VALIDATE_EMAIL)) {
+        $email = $sessionEmail;
+    }
 
     $service_ids = [];
     if (isset($_POST['service_ids']) && is_array($_POST['service_ids'])) {
@@ -105,6 +112,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             );
             $cols = [
                 'order_number' => "ALTER TABLE orders ADD COLUMN order_number VARCHAR(20)",
+                'customer_id' => "ALTER TABLE orders ADD COLUMN customer_id INT NULL",
                 'tailor_id' => "ALTER TABLE orders ADD COLUMN tailor_id INT",
                 'is_own_clothing' => "ALTER TABLE orders ADD COLUMN is_own_clothing TINYINT(1) DEFAULT 0",
                 'preferred_tailors' => "ALTER TABLE orders ADD COLUMN preferred_tailors TEXT",
@@ -197,6 +205,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $orderId = (int)$pdo->lastInsertId();
 
             if ($orderId > 0) {
+                if ($customerId > 0) {
+                    try {
+                        $stmt = $pdo->prepare("UPDATE orders SET customer_id = ? WHERE id = ? AND (customer_id IS NULL OR customer_id = 0)");
+                        $stmt->execute([$customerId, $orderId]);
+                    } catch (Exception $e) {
+                    }
+                }
                 $orderNumber = 'SIL-' . str_pad((string)$orderId, 4, '0', STR_PAD_LEFT);
                 try {
                     $stmt = $pdo->prepare("UPDATE orders SET order_number = ? WHERE id = ? AND (order_number IS NULL OR TRIM(order_number) = '')");

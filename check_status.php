@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/includes/session_init.php';
 require_once __DIR__ . '/includes/db_connect.php';
 
 header('Content-Type: application/json; charset=utf-8');
@@ -8,8 +9,13 @@ $email = filter_var($emailRaw, FILTER_VALIDATE_EMAIL) ? $emailRaw : '';
 $orderNumberRaw = isset($_GET['order_number']) ? trim((string)$_GET['order_number']) : '';
 $orderIdRaw = isset($_GET['order_id']) ? trim((string)$_GET['order_id']) : '';
 
-if ($email === '') {
-    echo json_encode(['success' => false, 'message' => 'Email is required.']);
+if (!isset($_SESSION['customer_id'])) {
+    $r = isset($_SERVER['REQUEST_URI']) ? (string)$_SERVER['REQUEST_URI'] : '';
+    $loginUrl = 'customer/login.php';
+    if ($r !== '') {
+        $loginUrl .= '?return=' . urlencode($r);
+    }
+    echo json_encode(['success' => false, 'message' => 'Please login to track your orders.', 'login_url' => $loginUrl]);
     exit;
 }
 
@@ -40,8 +46,15 @@ try {
         $pdo->exec("ALTER TABLE orders ADD COLUMN chat_token VARCHAR(64)");
     } catch (Exception $e) {
     }
+    try {
+        $pdo->exec("ALTER TABLE orders ADD COLUMN customer_id INT NULL");
+    } catch (Exception $e) {
+    }
 } catch (Exception $e) {
 }
+
+$customerId = (int)($_SESSION['customer_id'] ?? 0);
+$customerEmail = isset($_SESSION['customer_email']) ? (string)$_SESSION['customer_email'] : '';
 
 $orderId = 0;
 if ($orderNumberRaw !== '') {
@@ -58,16 +71,16 @@ if ($orderId <= 0 && $orderIdRaw !== '' && is_numeric($orderIdRaw)) {
 
 try {
     if ($orderId > 0) {
-        $stmt = $pdo->prepare("SELECT * FROM orders WHERE id = ? AND REPLACE(LOWER(TRIM(customer_email)), ' ', '') = REPLACE(LOWER(TRIM(?)), ' ', '') LIMIT 1");
-        $stmt->execute([$orderId, $email]);
+        $stmt = $pdo->prepare("SELECT * FROM orders WHERE id = ? AND (customer_id = ? OR REPLACE(LOWER(TRIM(customer_email)), ' ', '') = REPLACE(LOWER(TRIM(?)), ' ', '')) LIMIT 1");
+        $stmt->execute([$orderId, $customerId, $customerEmail]);
     } else {
-        $stmt = $pdo->prepare("SELECT * FROM orders WHERE REPLACE(LOWER(TRIM(customer_email)), ' ', '') = REPLACE(LOWER(TRIM(?)), ' ', '') ORDER BY created_at DESC LIMIT 1");
-        $stmt->execute([$email]);
+        $stmt = $pdo->prepare("SELECT * FROM orders WHERE customer_id = ? OR REPLACE(LOWER(TRIM(customer_email)), ' ', '') = REPLACE(LOWER(TRIM(?)), ' ', '') ORDER BY created_at DESC LIMIT 1");
+        $stmt->execute([$customerId, $customerEmail]);
     }
     $order = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$order) {
-        echo json_encode(['success' => false, 'message' => 'No order found with this email and order number.']);
+        echo json_encode(['success' => false, 'message' => 'No order found for this account.']);
         exit;
     }
 
@@ -90,7 +103,7 @@ try {
 
     $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
     $baseUrl = $scheme . '://' . $_SERVER['HTTP_HOST'];
-    $chatReopen = $baseUrl . '/order_chat.php?order_id=' . urlencode((string)$id) . '&email=' . urlencode($email);
+    $chatReopen = $baseUrl . '/order_chat.php?order_id=' . urlencode((string)$id);
 
     $cargoCompany = isset($order['cargo_company']) ? (string)$order['cargo_company'] : '';
     $cargoTrack = isset($order['cargo_tracking_number']) ? (string)$order['cargo_tracking_number'] : '';
