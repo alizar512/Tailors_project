@@ -51,8 +51,16 @@ if ($pdo) {
                     <li class="nav-item"><a class="nav-link text-dark fw-medium" href="index.php#tailors">Tailors</a></li>
                     <li class="nav-item"><a class="nav-link text-dark fw-medium" href="join_tailor.php">Join as Tailor</a></li>
                     <li class="nav-item"><a class="nav-link text-dark fw-medium" href="index.php#contact">Contact</a></li>
-                    <li class="nav-item ms-lg-3">
-                        <a href="customer/login.php" class="btn btn-outline px-6 py-2 rounded-full d-inline-block">Customer Login</a>
+                    <li class="nav-item dropdown ms-lg-3">
+                        <a class="btn btn-outline px-6 py-2 rounded-full d-inline-block dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Portal
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3xl p-2">
+                            <li><a class="dropdown-item rounded-2xl py-2 px-3" href="customer/login.php">Client Portal</a></li>
+                            <li><a class="dropdown-item rounded-2xl py-2 px-3" href="customer/orders.php">My Orders</a></li>
+                            <li><hr class="dropdown-divider my-2"></li>
+                            <li><a class="dropdown-item rounded-2xl py-2 px-3" href="admin/login.php">Admin / Tailor Portal</a></li>
+                        </ul>
                     </li>
                     <li class="nav-item ms-lg-3">
                         <a href="#order" class="btn btn-accent text-white px-6 py-2 rounded-full shadow-lg hover:shadow-xl transition-all d-inline-block">Place Order</a>

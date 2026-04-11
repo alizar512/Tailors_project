@@ -216,10 +216,16 @@ if ($hire_mode) {
                     <li class="nav-item"><a class="nav-link text-dark fw-medium" href="#tailors">Tailors</a></li>
                     <li class="nav-item"><a class="nav-link text-dark fw-medium" href="join_tailor.php">Join as Tailor</a></li>
                     <li class="nav-item"><a class="nav-link text-dark fw-medium" href="#contact">Contact</a></li>
-                    <li class="nav-item ms-lg-3">
-                        <a href="customer/login.php" class="btn btn-outline px-6 py-2 rounded-full d-inline-block">
-                            Customer Login
+                    <li class="nav-item dropdown ms-lg-3">
+                        <a class="btn btn-outline px-6 py-2 rounded-full d-inline-block dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Portal
                         </a>
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3xl p-2">
+                            <li><a class="dropdown-item rounded-2xl py-2 px-3" href="customer/login.php">Client Portal</a></li>
+                            <li><a class="dropdown-item rounded-2xl py-2 px-3" href="customer/orders.php">My Orders</a></li>
+                            <li><hr class="dropdown-divider my-2"></li>
+                            <li><a class="dropdown-item rounded-2xl py-2 px-3" href="admin/login.php">Admin / Tailor Portal</a></li>
+                        </ul>
                     </li>
                     <li class="nav-item ms-lg-3">
                         <a href="place_order.php#order" class="btn btn-accent text-white px-6 py-2 rounded-full shadow-lg hover:shadow-xl transition-all d-inline-block">
@@ -239,7 +245,14 @@ if ($hire_mode) {
         <div class="offcanvas-body">
             <div class="d-grid gap-2 mb-4">
                 <a class="btn btn-accent text-white rounded-full py-3 font-bold" href="place_order.php#order">Place Order</a>
-                <a class="btn btn-outline rounded-full py-3 font-bold" href="customer/login.php">Customer Login</a>
+                <button class="btn btn-outline rounded-full py-3 font-bold" type="button" data-bs-toggle="collapse" data-bs-target="#portalMenuMobile" aria-expanded="false" aria-controls="portalMenuMobile">Portal</button>
+                <div class="collapse" id="portalMenuMobile">
+                    <div class="d-grid gap-2 mt-2">
+                        <a class="btn btn-outline rounded-full py-3 font-bold" href="customer/login.php">Client Portal</a>
+                        <a class="btn btn-outline rounded-full py-3 font-bold" href="customer/orders.php">My Orders</a>
+                        <a class="btn btn-outline rounded-full py-3 font-bold" href="admin/login.php">Admin / Tailor Portal</a>
+                    </div>
+                </div>
             </div>
             <div class="list-group list-group-flush">
                 <a class="list-group-item list-group-item-action py-3" href="#home" data-bs-dismiss="offcanvas">Home</a>
@@ -247,7 +260,6 @@ if ($hire_mode) {
                 <a class="list-group-item list-group-item-action py-3" href="#tailors" data-bs-dismiss="offcanvas">Tailors</a>
                 <a class="list-group-item list-group-item-action py-3" href="join_tailor.php">Join as Tailor</a>
                 <a class="list-group-item list-group-item-action py-3" href="#contact" data-bs-dismiss="offcanvas">Contact</a>
-                <a class="list-group-item list-group-item-action py-3" href="customer/orders.php">My Orders</a>
             </div>
         </div>
     </div>
