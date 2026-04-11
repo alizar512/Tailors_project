@@ -20,7 +20,7 @@ try {
 
 $order = null;
 try {
-    $stmt = $pdo->prepare("SELECT id, order_number, status, created_at, customer_email, chat_token FROM orders WHERE chat_token = ? LIMIT 1");
+    $stmt = $pdo->prepare("SELECT id, order_number, status, created_at, customer_email, customer_phone, chat_token FROM orders WHERE chat_token = ? LIMIT 1");
     $stmt->execute([$token]);
     $order = $stmt->fetch(PDO::FETCH_ASSOC);
 } catch (Exception $e) {
@@ -52,6 +52,12 @@ if ($return !== '') {
 }
 
 $trackUrl = $baseUrl . '/index.php#track';
+
+$customerEmail = isset($order['customer_email']) ? trim((string)$order['customer_email']) : '';
+$customerPhone = isset($order['customer_phone']) ? trim((string)$order['customer_phone']) : '';
+$portalReturn = '/customer/order_details.php?id=' . urlencode((string)$id);
+$registerUrl = $baseUrl . '/customer/register.php?email=' . urlencode($customerEmail) . '&phone=' . urlencode($customerPhone) . '&return=' . urlencode($portalReturn);
+$loginUrl = $baseUrl . '/customer/login.php?return=' . urlencode($portalReturn);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -93,10 +99,11 @@ $trackUrl = $baseUrl . '/index.php#track';
             <div class="glass-card p-4 p-md-5">
                 <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Next Step</p>
                 <div class="d-flex flex-wrap gap-3">
-                    <a href="<?= htmlspecialchars((string)($chatUrl ?? '')) ?>" class="btn btn-primary rounded-full px-6 py-2.5 font-bold">Open Bargaining Chat</a>
-                    <a href="<?= htmlspecialchars((string)($trackUrl ?? '')) ?>" class="btn btn-outline rounded-full px-6 py-2.5 font-bold">Track Order</a>
+                    <a href="<?= htmlspecialchars((string)($registerUrl ?? '')) ?>" class="btn btn-primary rounded-full px-6 py-2.5 font-bold">Create Account</a>
+                    <a href="<?= htmlspecialchars((string)($loginUrl ?? '')) ?>" class="btn btn-outline rounded-full px-6 py-2.5 font-bold">Login to Portal</a>
+                    <a href="<?= htmlspecialchars((string)($chatUrl ?? '')) ?>" class="btn btn-outline rounded-full px-6 py-2.5 font-bold">Open Chat</a>
                 </div>
-                <p class="text-xs text-gray-400 mt-3 mb-0">You can reopen chat later using tracking or the chat link.</p>
+                <p class="text-xs text-gray-400 mt-3 mb-0">Create an account to save your orders, chats, and tracking history in one place.</p>
             </div>
         </div>
     </div>

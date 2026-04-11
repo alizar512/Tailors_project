@@ -11,13 +11,21 @@ $name = isset($_POST['name']) ? trim((string)$_POST['name']) : '';
 $emailRaw = isset($_POST['email']) ? trim((string)$_POST['email']) : '';
 $email = filter_var($emailRaw, FILTER_VALIDATE_EMAIL) ? $emailRaw : '';
 $phone = isset($_POST['phone']) ? trim((string)$_POST['phone']) : '';
+$address = isset($_POST['address']) ? trim((string)$_POST['address']) : '';
 $password = isset($_POST['password']) ? (string)$_POST['password'] : '';
+$confirmPassword = isset($_POST['confirm_password']) ? (string)$_POST['confirm_password'] : '';
 $return = isset($_POST['return']) ? trim((string)$_POST['return']) : '';
 
-if ($name === '' || $email === '' || strlen($password) < 8) {
+if ($name === '' || $email === '' || $phone === '' || $address === '' || strlen($password) < 8 || $password !== $confirmPassword) {
     $redir = "register.php?error=invalid_input";
     if ($return !== '') {
         $redir .= "&return=" . urlencode($return);
+    }
+    if ($email !== '') {
+        $redir .= "&email=" . urlencode($email);
+    }
+    if ($phone !== '') {
+        $redir .= "&phone=" . urlencode($phone);
     }
     header("Location: " . $redir);
     exit;
@@ -39,31 +47,50 @@ try {
             name VARCHAR(120) NOT NULL,
             email VARCHAR(160) NOT NULL UNIQUE,
             phone VARCHAR(40),
+            address VARCHAR(255),
             password_hash VARCHAR(255) NOT NULL,
             is_active TINYINT(1) NOT NULL DEFAULT 1,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            INDEX idx_customers_email (email)
+            INDEX idx_customers_email (email),
+            UNIQUE KEY uq_customers_phone (phone)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
     );
+    try {
+        $pdo->exec("ALTER TABLE customers ADD COLUMN address VARCHAR(255)");
+    } catch (Exception $e) {
+    }
+    try {
+        $pdo->exec("ALTER TABLE customers ADD UNIQUE KEY uq_customers_phone (phone)");
+    } catch (Exception $e) {
+    }
     try {
         $pdo->exec("ALTER TABLE orders ADD COLUMN customer_id INT NULL");
     } catch (Exception $e) {
     }
 
-    $stmt = $pdo->prepare("SELECT id FROM customers WHERE email = ? LIMIT 1");
-    $stmt->execute([$email]);
-    if ($stmt->fetch()) {
-        $redir = "register.php?error=email_exists";
+    $stmt = $pdo->prepare("SELECT id, email, phone FROM customers WHERE email = ? OR phone = ? LIMIT 1");
+    $stmt->execute([$email, $phone]);
+    $exists = $stmt->fetch(PDO::FETCH_ASSOC);
+    if ($exists) {
+        $err = 'invalid_input';
+        if (isset($exists['email']) && strtolower(trim((string)$exists['email'])) === strtolower(trim((string)$email))) {
+            $err = 'email_exists';
+        } elseif (isset($exists['phone']) && trim((string)$exists['phone']) === trim((string)$phone)) {
+            $err = 'phone_exists';
+        }
+        $redir = "register.php?error=" . urlencode($err);
         if ($return !== '') {
             $redir .= "&return=" . urlencode($return);
         }
+        $redir .= "&email=" . urlencode($email);
+        $redir .= "&phone=" . urlencode($phone);
         header("Location: " . $redir);
         exit;
     }
 
     $hash = password_hash($password, PASSWORD_DEFAULT);
-    $ins = $pdo->prepare("INSERT INTO customers (name, email, phone, password_hash) VALUES (?, ?, ?, ?)");
-    $ins->execute([$name, $email, $phone !== '' ? $phone : null, $hash]);
+    $ins = $pdo->prepare("INSERT INTO customers (name, email, phone, address, password_hash) VALUES (?, ?, ?, ?, ?)");
+    $ins->execute([$name, $email, $phone, $address, $hash]);
     $customerId = (int)$pdo->lastInsertId();
 
     if ($customerId > 0) {

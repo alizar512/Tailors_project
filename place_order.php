@@ -52,7 +52,7 @@ if ($pdo) {
                     <li class="nav-item"><a class="nav-link text-dark fw-medium" href="join_tailor.php">Join as Tailor</a></li>
                     <li class="nav-item"><a class="nav-link text-dark fw-medium" href="index.php#contact">Contact</a></li>
                     <li class="nav-item ms-lg-3">
-                        <a href="admin/login.php" class="btn btn-outline px-6 py-2 rounded-full d-inline-block">Login</a>
+                        <a href="customer/login.php" class="btn btn-outline px-6 py-2 rounded-full d-inline-block">Customer Login</a>
                     </li>
                     <li class="nav-item ms-lg-3">
                         <a href="#order" class="btn btn-accent text-white px-6 py-2 rounded-full shadow-lg hover:shadow-xl transition-all d-inline-block">Place Order</a>

@@ -68,8 +68,8 @@ $return = isset($_GET['return']) ? trim((string)$_GET['return']) : '';
             <form action="process_login.php" method="POST">
                 <input type="hidden" name="return" value="<?= htmlspecialchars((string)$return) ?>">
                 <div class="input-group">
-                    <label>Email</label>
-                    <input type="email" name="email" class="input-field" placeholder="you@example.com" required>
+                    <label>Email or Mobile</label>
+                    <input type="text" name="login" class="input-field" placeholder="you@example.com or +92..." required>
                     <i class="fas fa-envelope input-icon"></i>
                 </div>
 

@@ -7,6 +7,9 @@ if (isset($_SESSION['customer_id'])) {
 }
 
 $return = isset($_GET['return']) ? trim((string)$_GET['return']) : '';
+$prefillEmailRaw = isset($_GET['email']) ? trim((string)$_GET['email']) : '';
+$prefillEmail = filter_var($prefillEmailRaw, FILTER_VALIDATE_EMAIL) ? $prefillEmailRaw : '';
+$prefillPhone = isset($_GET['phone']) ? trim((string)$_GET['phone']) : '';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -50,6 +53,7 @@ $return = isset($_GET['return']) ? trim((string)$_GET['return']) : '';
                         <?php
                             $errorMessages = [
                                 'email_exists' => 'This email is already registered. Please login.',
+                                'phone_exists' => 'This phone number is already registered. Please login.',
                                 'invalid_input' => 'Please check your details.',
                                 'db_error' => 'Database connection failed: ' . (isset($_GET['msg']) ? htmlspecialchars((string)$_GET['msg']) : ''),
                             ];
@@ -69,17 +73,27 @@ $return = isset($_GET['return']) ? trim((string)$_GET['return']) : '';
 
                 <div class="input-group">
                     <label>Email</label>
-                    <input type="email" name="email" class="input-field" placeholder="you@example.com" required>
+                    <input type="email" name="email" class="input-field" placeholder="you@example.com" value="<?= htmlspecialchars((string)$prefillEmail) ?>" required>
                 </div>
 
                 <div class="input-group">
-                    <label>Phone (optional)</label>
-                    <input type="text" name="phone" class="input-field" placeholder="+92..." >
+                    <label>Mobile Number</label>
+                    <input type="text" name="phone" class="input-field" placeholder="+92..." value="<?= htmlspecialchars((string)$prefillPhone) ?>" required>
+                </div>
+
+                <div class="input-group">
+                    <label>Address</label>
+                    <input type="text" name="address" class="input-field" placeholder="Your address" required>
                 </div>
 
                 <div class="input-group">
                     <label>Password</label>
                     <input type="password" name="password" class="input-field" placeholder="Min 8 characters" minlength="8" required>
+                </div>
+
+                <div class="input-group">
+                    <label>Confirm Password</label>
+                    <input type="password" name="confirm_password" class="input-field" placeholder="Repeat password" minlength="8" required>
                 </div>
 
                 <button type="submit" class="submit-btn">Create Account</button>
