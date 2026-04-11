@@ -657,7 +657,8 @@ if ($hire_mode) {
                         <li><a href="#tailors" class="footer-link">Find Tailors</a></li>
                         <li><a href="join_tailor.php" class="footer-link">Join as Tailor</a></li>
                         <li><a href="tailor_dashboard.php" class="footer-link text-accent">Tailor Dashboard</a></li>
-                        <li><a href="admin/login.php" class="footer-link">Admin Login</a></li>
+                        <li><a href="customer/login.php" class="footer-link">Client Portal</a></li>
+                        <li><a href="admin/login.php" class="footer-link">Admin / Tailor Portal</a></li>
                     </ul>
                 </div>
                 <div class="col-lg-2 col-6">
