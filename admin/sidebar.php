@@ -78,10 +78,6 @@ require_once __DIR__ . '/../includes/notifications.php';
                 <i class="fas fa-user-gear w-5"></i>
                 <span class="font-medium">Tailor Management</span>
             </a>
-            <a href="theme_settings.php" data-tooltip="Theme Settings" class="sidebar-link flex items-center gap-4 px-4 py-3 text-gray-300 no-underline <?= $current_page == 'theme_settings.php' ? 'active text-white' : '' ?>">
-                <i class="fas fa-palette w-5"></i>
-                <span class="font-medium">Theme Settings</span>
-            </a>
         </div>
     </nav>
     
@@ -145,6 +141,10 @@ require_once __DIR__ . '/../includes/notifications.php';
                 <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
                 <input type="text" class="bg-white border border-gray-100 rounded-2xl py-2.5 pl-10 pr-4 text-sm w-64 shadow-sm focus:ring-2 focus:ring-primary/20 transition-all" placeholder="Search orders, tailors...">
             </div>
+
+            <a href="theme_settings.php" class="w-10 h-10 rounded-2xl bg-white border border-gray-100 flex items-center justify-center text-gray-500 shadow-sm hover:text-primary transition-all" title="Theme">
+                <i class="fas fa-palette"></i>
+            </a>
             
             <?php
                 $topUnread = $pdo ? silah_unread_notifications_count($pdo, 'admin', null) : 0;

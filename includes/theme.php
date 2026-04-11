@@ -42,6 +42,13 @@ function silah_theme_styles($pdo, $context = 'public') {
     } else {
         $css .= ":root{--admin-primary: {$primary}; --admin-bg: {$bg};}\n";
         $css .= "body{background-color: var(--admin-bg);} .w-72.bg-\\[\\#2D1B36\\]{background-color: {$sidebar} !important;}\n";
+        $css .= ".text-primary{color: var(--admin-primary) !important;}\n";
+        $css .= ".bg-primary{background-color: var(--admin-primary) !important;}\n";
+        $css .= ".border-primary{border-color: var(--admin-primary) !important;}\n";
+        $css .= ".btn-primary{background-color: var(--admin-primary) !important; border-color: var(--admin-primary) !important; color: #fff !important;}\n";
+        $css .= ".btn-primary:hover{filter: brightness(0.95);}\n";
+        $css .= ".btn-outline{border-color: var(--admin-primary) !important; color: var(--admin-primary) !important;}\n";
+        $css .= ".btn-outline:hover{background-color: rgba(0,0,0,0.03);}\n";
         if ($adminBanner !== '') {
             $safe = htmlspecialchars($adminBanner, ENT_QUOTES);
             $css .= ".admin-banner{background-image:url('{$safe}'); background-size:cover; background-position:center;}\n";
