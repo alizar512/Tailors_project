@@ -5,6 +5,13 @@ require_once __DIR__ . '/../includes/theme.php';
 
 $msg = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $pdo) {
+    if (isset($_POST['reset_admin_theme']) && (string)$_POST['reset_admin_theme'] === '1') {
+        silah_set_setting($pdo, 'admin_primary_color', '#865294');
+        silah_set_setting($pdo, 'admin_bg_color', '#ffffff');
+        silah_set_setting($pdo, 'admin_sidebar_color', '#2D1B36');
+        silah_set_setting($pdo, 'admin_banner', '');
+        $msg = 'Admin theme reset';
+    } else {
     $primary = isset($_POST['primary_color']) ? trim((string)$_POST['primary_color']) : '';
     $bg = isset($_POST['bg_color']) ? trim((string)$_POST['bg_color']) : '';
     $text = isset($_POST['text_color']) ? trim((string)$_POST['text_color']) : '';
@@ -43,6 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $pdo) {
         }
     }
     $msg = 'Saved';
+    }
 }
 
 $primary = $pdo ? silah_get_setting($pdo, 'primary_color', '#d63384') : '#d63384';
@@ -129,6 +137,10 @@ include 'sidebar.php';
             <div class="flex justify-end">
                 <button type="submit" class="btn btn-primary px-6 py-2.5 text-xs font-extrabold uppercase tracking-widest">Save Changes</button>
             </div>
+        </form>
+
+        <form action="theme_settings.php" method="POST" class="mt-4 flex justify-end">
+            <button type="submit" name="reset_admin_theme" value="1" class="btn btn-outline px-6 py-2.5 text-xs font-extrabold uppercase tracking-widest">Reset Admin Theme</button>
         </form>
     </div>
 </div>
