@@ -53,7 +53,7 @@ include 'sidebar.php';
                 <tr class="group hover:bg-primary/5 transition-colors">
                     <td class="px-8 py-5 border-0">
                         <div class="flex items-center gap-4">
-                            <img src="../<?= htmlspecialchars((string)$t['profile_image']) ?>" class="w-12 h-12 rounded-2xl object-cover shadow-sm border-2 border-white group-hover:scale-110 transition-transform duration-500">
+                            <img src="../image.php?kind=tailor&id=<?= (int)$t['id'] ?>" class="w-12 h-12 rounded-2xl object-cover shadow-sm border-2 border-white group-hover:scale-110 transition-transform duration-500">
                             <div>
                                 <p class="text-sm font-black text-gray-800 mb-0"><?= htmlspecialchars((string)$t['name']) ?></p>
                                 <p class="text-[11px] text-gray-500 font-medium"><?= htmlspecialchars((string)$t['tagline']) ?></p>

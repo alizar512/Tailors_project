@@ -30,7 +30,9 @@ if ($pdo) {
 $cities = silah_get_cities($pdo);
 
 // Fallback if no tailors found (or DB error)
+$using_fallback_tailors = false;
 if (empty($all_tailors)) {
+    $using_fallback_tailors = true;
     $all_tailors = [
         [
             'id' => 1,
@@ -439,7 +441,7 @@ if ($hire_mode) {
                         <a href="tailor_profile.php?id=<?= $tailor['id'] ?>" class="block h-full text-decoration-none">
                             <div class="tailor-card group">
                                 <div class="tailor-img-container">
-                                    <img src="<?= htmlspecialchars((string)($tailor['profile_image'] ?? '')) ?>" alt="<?= htmlspecialchars((string)($tailor['name'] ?? 'Tailor')) ?>" class="tailor-img">
+                                    <img src="<?= htmlspecialchars((string)($using_fallback_tailors ? ($tailor['profile_image'] ?? '') : ('image.php?kind=tailor&id=' . (int)$tailor['id']))) ?>" alt="<?= htmlspecialchars((string)($tailor['name'] ?? 'Tailor')) ?>" class="tailor-img">
                                     <div class="absolute top-4 right-4 z-10">
                                         <span class="bg-white/95 backdrop-blur-md text-primary text-[10px] font-bold px-3 py-1.5 rounded-full shadow-sm flex items-center gap-1.5 border border-gray-100">
                                             <i class="fas fa-star text-yellow-400"></i> 4.9

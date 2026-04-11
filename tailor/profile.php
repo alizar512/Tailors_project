@@ -42,17 +42,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     $profile_image = null;
+    $profile_blob = null;
+    $profile_mime = null;
     if (isset($_FILES['profile_image']) && $_FILES['profile_image']['error'] === UPLOAD_ERR_OK) {
         $fileType = isset($_FILES['profile_image']['type']) ? (string)$_FILES['profile_image']['type'] : '';
         $allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
         if (in_array($fileType, $allowedTypes, true)) {
-            $uploadDir = '../uploads/profile/';
-            if (!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
+            $isServerless = getenv('VERCEL') === '1' || getenv('AWS_LAMBDA_FUNCTION_NAME');
+            if ($isServerless) {
+                $bytes = @file_get_contents($_FILES['profile_image']['tmp_name']);
+                if ($bytes !== false && $bytes !== '') {
+                    $profile_blob = $bytes;
+                    $profile_mime = $fileType;
+                }
+            } else {
+                $uploadDir = '../uploads/profile/';
+                if (!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
 
-            $fileName = uniqid() . '_' . basename($_FILES['profile_image']['name']);
-            $uploadPath = $uploadDir . $fileName;
-            if (move_uploaded_file($_FILES['profile_image']['tmp_name'], $uploadPath)) {
-                $profile_image = 'uploads/profile/' . $fileName;
+                $fileName = uniqid() . '_' . basename($_FILES['profile_image']['name']);
+                $uploadPath = $uploadDir . $fileName;
+                if (move_uploaded_file($_FILES['profile_image']['tmp_name'], $uploadPath)) {
+                    $profile_image = 'uploads/profile/' . $fileName;
+                }
             }
         }
     }
@@ -75,8 +86,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $pdo->exec("ALTER TABLE tailors ADD COLUMN instagram_link VARCHAR(255)");
             } catch (Exception $e) {
             }
+            try {
+                $pdo->exec("ALTER TABLE tailors ADD COLUMN profile_image_blob LONGBLOB NULL");
+            } catch (Exception $e) {
+            }
+            try {
+                $pdo->exec("ALTER TABLE tailors ADD COLUMN profile_image_mime VARCHAR(100) NULL");
+            } catch (Exception $e) {
+            }
 
-            if ($profile_image) {
+            if ($profile_blob !== null) {
+                $stmt = $pdo->prepare("UPDATE tailors SET name = ?, phone = ?, location = ?, address = ?, skills = ?, instagram_link = ?, tagline = ?, description = ?, price_range_min = ?, profile_image_blob = ?, profile_image_mime = ? WHERE id = ?");
+                $stmt->execute([$name, $phone, $location, $address, $skills, $instagram_link !== '' ? $instagram_link : null, $tagline, $description, $price_range_min, $profile_blob, $profile_mime, $tailor_id]);
+            } else if ($profile_image) {
                 $stmt = $pdo->prepare("UPDATE tailors SET name = ?, phone = ?, location = ?, address = ?, skills = ?, instagram_link = ?, tagline = ?, description = ?, price_range_min = ?, profile_image = ? WHERE id = ?");
                 $stmt->execute([$name, $phone, $location, $address, $skills, $instagram_link !== '' ? $instagram_link : null, $tagline, $description, $price_range_min, $profile_image, $tailor_id]);
             } else {
@@ -297,8 +319,10 @@ try {
 } catch (Exception $e) {
 }
 
-$tailor_avatar = isset($tailor['profile_image']) && $tailor['profile_image'] ? (string)$tailor['profile_image'] : 'https://ui-avatars.com/api/?name=' . urlencode((string)$tailor['name']) . '&background=865294&color=fff';
-if (strpos($tailor_avatar, 'http://') !== 0 && strpos($tailor_avatar, 'https://') !== 0) {
+$has_blob = isset($tailor['profile_image_blob']) && $tailor['profile_image_blob'] !== null && $tailor['profile_image_blob'] !== '';
+$tailor_avatar = $has_blob ? ('../image.php?kind=tailor&id=' . (int)$tailor_id) : (isset($tailor['profile_image']) && $tailor['profile_image'] ? (string)$tailor['profile_image'] : 'https://ui-avatars.com/api/?name=' . urlencode((string)$tailor['name']) . '&background=865294&color=fff');
+if (strpos($tailor_avatar, '../image.php?') === 0) {
+} else if (strpos($tailor_avatar, 'http://') !== 0 && strpos($tailor_avatar, 'https://') !== 0) {
     $tailor_avatar = '../' . ltrim($tailor_avatar, '/');
 }
 

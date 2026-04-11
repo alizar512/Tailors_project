@@ -181,10 +181,12 @@ if (!$tailor) {
 }
 
 $tailor_name = isset($tailor['name']) ? (string)$tailor['name'] : 'Tailor';
-$tailor_avatar = isset($tailor['profile_image']) && trim((string)$tailor['profile_image']) !== '' ? (string)$tailor['profile_image'] : '';
+$has_blob = isset($tailor['profile_image_blob']) && $tailor['profile_image_blob'] !== null && $tailor['profile_image_blob'] !== '';
+$tailor_avatar = $has_blob ? ('image.php?kind=tailor&id=' . (int)$tailor_id) : (isset($tailor['profile_image']) && trim((string)$tailor['profile_image']) !== '' ? (string)$tailor['profile_image'] : '');
 $tailor_avatar_fallback = 'https://ui-avatars.com/api/?name=' . urlencode($tailor_name) . '&background=865294&color=fff';
 if ($tailor_avatar === '') {
     $tailor_avatar = $tailor_avatar_fallback;
+} else if (strpos($tailor_avatar, 'image.php?') === 0) {
 } else if (strpos($tailor_avatar, 'http://') !== 0 && strpos($tailor_avatar, 'https://') !== 0) {
     $rel = ltrim($tailor_avatar, '/');
     if (!file_exists(__DIR__ . '/' . $rel)) {

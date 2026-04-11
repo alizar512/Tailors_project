@@ -6,16 +6,20 @@ require_once __DIR__ . '/../includes/notifications.php';
 $sidebar_tailor_id = $_SESSION['tailor_id'];
 $sidebar_tailor = null;
 if ($pdo) {
-    $stmt = $pdo->prepare("SELECT id, name, email, profile_image FROM tailors WHERE id = ?");
+    try { $pdo->exec("ALTER TABLE tailors ADD COLUMN profile_image_blob LONGBLOB NULL"); } catch (Exception $e) {}
+    try { $pdo->exec("ALTER TABLE tailors ADD COLUMN profile_image_mime VARCHAR(100) NULL"); } catch (Exception $e) {}
+    $stmt = $pdo->prepare("SELECT id, name, email, profile_image, profile_image_blob FROM tailors WHERE id = ?");
     $stmt->execute([$sidebar_tailor_id]);
     $sidebar_tailor = $stmt->fetch(PDO::FETCH_ASSOC);
 }
 $tailor_name = $sidebar_tailor && isset($sidebar_tailor['name']) ? (string)$sidebar_tailor['name'] : 'Tailor';
 $tailor_email = $sidebar_tailor && isset($sidebar_tailor['email']) ? (string)$sidebar_tailor['email'] : null;
-$tailor_avatar_raw = $sidebar_tailor && isset($sidebar_tailor['profile_image']) && $sidebar_tailor['profile_image'] ? (string)$sidebar_tailor['profile_image'] : '';
+$has_blob = $sidebar_tailor && isset($sidebar_tailor['profile_image_blob']) && $sidebar_tailor['profile_image_blob'] !== null && $sidebar_tailor['profile_image_blob'] !== '';
+$tailor_avatar_raw = $has_blob ? ('../image.php?kind=tailor&id=' . (int)$sidebar_tailor_id) : ($sidebar_tailor && isset($sidebar_tailor['profile_image']) && $sidebar_tailor['profile_image'] ? (string)$sidebar_tailor['profile_image'] : '');
 $tailor_avatar_fallback = 'https://ui-avatars.com/api/?name=' . urlencode($tailor_name) . '&background=865294&color=fff';
 $tailor_avatar = $tailor_avatar_raw !== '' ? $tailor_avatar_raw : $tailor_avatar_fallback;
-if (strpos($tailor_avatar, 'http://') !== 0 && strpos($tailor_avatar, 'https://') !== 0) {
+if (strpos($tailor_avatar, '../image.php?') === 0) {
+} else if (strpos($tailor_avatar, 'http://') !== 0 && strpos($tailor_avatar, 'https://') !== 0) {
     $rel = ltrim((string)$tailor_avatar, '/');
     if (!file_exists(__DIR__ . '/../' . $rel)) {
         $tailor_avatar = $tailor_avatar_fallback;
