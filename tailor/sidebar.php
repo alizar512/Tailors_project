@@ -12,9 +12,16 @@ if ($pdo) {
 }
 $tailor_name = $sidebar_tailor && isset($sidebar_tailor['name']) ? (string)$sidebar_tailor['name'] : 'Tailor';
 $tailor_email = $sidebar_tailor && isset($sidebar_tailor['email']) ? (string)$sidebar_tailor['email'] : null;
-$tailor_avatar = $sidebar_tailor && isset($sidebar_tailor['profile_image']) && $sidebar_tailor['profile_image'] ? (string)$sidebar_tailor['profile_image'] : 'https://ui-avatars.com/api/?name=' . urlencode($tailor_name) . '&background=865294&color=fff';
+$tailor_avatar_raw = $sidebar_tailor && isset($sidebar_tailor['profile_image']) && $sidebar_tailor['profile_image'] ? (string)$sidebar_tailor['profile_image'] : '';
+$tailor_avatar_fallback = 'https://ui-avatars.com/api/?name=' . urlencode($tailor_name) . '&background=865294&color=fff';
+$tailor_avatar = $tailor_avatar_raw !== '' ? $tailor_avatar_raw : $tailor_avatar_fallback;
 if (strpos($tailor_avatar, 'http://') !== 0 && strpos($tailor_avatar, 'https://') !== 0) {
-    $tailor_avatar = '../' . ltrim($tailor_avatar, '/');
+    $rel = ltrim((string)$tailor_avatar, '/');
+    if (!file_exists(__DIR__ . '/../' . $rel)) {
+        $tailor_avatar = $tailor_avatar_fallback;
+    } else {
+        $tailor_avatar = '../' . $rel;
+    }
 }
 
 $unread_messages = 0;

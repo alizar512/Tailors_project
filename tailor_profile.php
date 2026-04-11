@@ -179,6 +179,20 @@ if (!$tailor) {
     header("Location: index.php");
     exit;
 }
+
+$tailor_name = isset($tailor['name']) ? (string)$tailor['name'] : 'Tailor';
+$tailor_avatar = isset($tailor['profile_image']) && trim((string)$tailor['profile_image']) !== '' ? (string)$tailor['profile_image'] : '';
+$tailor_avatar_fallback = 'https://ui-avatars.com/api/?name=' . urlencode($tailor_name) . '&background=865294&color=fff';
+if ($tailor_avatar === '') {
+    $tailor_avatar = $tailor_avatar_fallback;
+} else if (strpos($tailor_avatar, 'http://') !== 0 && strpos($tailor_avatar, 'https://') !== 0) {
+    $rel = ltrim($tailor_avatar, '/');
+    if (!file_exists(__DIR__ . '/' . $rel)) {
+        $tailor_avatar = $tailor_avatar_fallback;
+    } else {
+        $tailor_avatar = $rel;
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -234,7 +248,7 @@ if (!$tailor) {
             <div class="row align-items-center">
                 <div class="col-md-4 text-center md:text-start">
                     <div class="relative inline-block">
-                        <img src="<?= htmlspecialchars((string)$tailor['profile_image']) ?>" class="w-48 h-48 rounded-full object-cover border-4 border-white shadow-2xl">
+                        <img src="<?= htmlspecialchars((string)$tailor_avatar) ?>" class="w-48 h-48 rounded-full object-cover border-4 border-white shadow-2xl">
                         <div class="absolute bottom-2 right-2 bg-green-500 w-6 h-6 rounded-full border-2 border-white"></div>
                     </div>
                 </div>
