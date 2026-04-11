@@ -45,7 +45,7 @@ try {
     if ($safeReturn) {
         header("Location: " . $return);
     } else {
-        header("Location: orders.php");
+        header("Location: dashboard.php");
     }
     exit;
 } catch (Exception $e) {
@@ -53,4 +53,3 @@ try {
     exit;
 }
 ?>
-

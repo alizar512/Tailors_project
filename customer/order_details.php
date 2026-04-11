@@ -120,17 +120,11 @@ function silah_fmt_dt($dt) {
     return date('M d, Y h:i A', $ts);
 }
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= htmlspecialchars((string)$orderNumber) ?> - Order Details</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-50">
-    <div class="max-w-5xl mx-auto px-4 py-8">
+<?php
+$cp_title = 'Order Details';
+$cp_active = 'orders';
+require_once __DIR__ . '/portal_header.php';
+?>
         <?php
             $statusColors = [
                 'Order Placed' => 'bg-slate-50 text-slate-700 border-slate-200',
@@ -466,7 +460,6 @@ function silah_fmt_dt($dt) {
                 <?php endif; ?>
             </div>
         </div>
-    </div>
 
     <script>
         (function() {
@@ -516,5 +509,5 @@ function silah_fmt_dt($dt) {
             setTab('tabOverview');
         })();
     </script>
-</body>
-</html>
+
+<?php require_once __DIR__ . '/portal_footer.php'; ?>

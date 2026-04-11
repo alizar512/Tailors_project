@@ -118,7 +118,7 @@ try {
     if ($return !== '') {
         header("Location: " . $return);
     } else {
-        header("Location: orders.php");
+        header("Location: dashboard.php");
     }
     exit;
 } catch (PDOException $e) {

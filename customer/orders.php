@@ -40,61 +40,39 @@ try {
     $orders = [];
 }
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Orders - Silah</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-50">
-    <div class="max-w-5xl mx-auto px-4 py-8">
-        <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-5 mb-6">
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <div class="flex items-center gap-3">
-                    <img src="../images/logo1.png" alt="Silah Logo" class="w-10 h-10 object-contain mix-blend-multiply">
-                    <div>
-                        <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Customer Portal</p>
-                        <h1 class="text-xl font-black text-gray-900 mb-0">My Orders</h1>
-                        <p class="text-xs font-bold text-gray-500 mb-0"><?= htmlspecialchars((string)$customerEmail) ?></p>
-                    </div>
+<?php
+$cp_title = 'My Orders';
+$cp_active = 'orders';
+require_once __DIR__ . '/portal_header.php';
+?>
+
+        <div class="bg-white rounded-3xl border border-gray-100 p-5 mb-6">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div>
+                    <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Order History</p>
+                    <p class="text-sm font-bold text-gray-600 mb-0">Search and manage your orders</p>
                 </div>
                 <div class="flex flex-wrap items-center gap-2">
-                    <a href="../place_order.php#order" class="px-4 py-2 rounded-full bg-white border border-gray-200 text-xs font-black uppercase tracking-widest text-gray-700 hover:border-pink-500 hover:text-pink-600 transition-all no-underline">
-                        <i class="fas fa-plus me-1"></i> New Order
-                    </a>
-                    <a href="logout.php" class="px-4 py-2 rounded-full bg-pink-600 text-white text-xs font-black uppercase tracking-widest hover:bg-pink-700 transition-all no-underline">
-                        <i class="fas fa-arrow-right-from-bracket me-1"></i> Logout
-                    </a>
+                    <div class="relative w-full sm:w-[300px]">
+                        <i class="fas fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-gray-300"></i>
+                        <input id="orderSearch" type="text" class="w-full pl-10 pr-4 py-3 rounded-2xl border border-gray-200 bg-white text-sm font-semibold text-gray-700 focus:outline-none focus:ring-4 focus:ring-pink-100 focus:border-pink-400" placeholder="Search orders...">
+                    </div>
+                    <select id="statusFilter" class="w-full sm:w-[220px] px-4 py-3 rounded-2xl border border-gray-200 bg-white text-sm font-semibold text-gray-700 focus:outline-none focus:ring-4 focus:ring-pink-100 focus:border-pink-400">
+                        <option value="">All Status</option>
+                        <option value="Order Placed">Order Placed</option>
+                        <option value="Under Review">Under Review</option>
+                        <option value="Tailor Selected">Tailor Selected</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Completed">Completed</option>
+                    </select>
                 </div>
             </div>
 
-            <div class="mt-5 grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div class="p-4 rounded-3xl border border-gray-100 bg-gray-50">
-                    <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">Total Orders</p>
-                    <p class="text-lg font-black text-gray-900 mb-0"><?= (int)count($orders) ?></p>
-                </div>
-                <div class="p-4 rounded-3xl border border-gray-100 bg-gray-50 sm:col-span-2">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <div class="relative">
-                            <i class="fas fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-gray-300"></i>
-                            <input id="orderSearch" type="text" class="w-full pl-10 pr-4 py-3 rounded-2xl border border-gray-200 bg-white text-sm font-semibold text-gray-700 focus:outline-none focus:ring-4 focus:ring-pink-100 focus:border-pink-400" placeholder="Search by order no, status, service...">
-                        </div>
-                        <select id="statusFilter" class="w-full px-4 py-3 rounded-2xl border border-gray-200 bg-white text-sm font-semibold text-gray-700 focus:outline-none focus:ring-4 focus:ring-pink-100 focus:border-pink-400">
-                            <option value="">All Status</option>
-                            <option value="Order Placed">Order Placed</option>
-                            <option value="Under Review">Under Review</option>
-                            <option value="Tailor Selected">Tailor Selected</option>
-                            <option value="In Progress">In Progress</option>
-                            <option value="Completed">Completed</option>
-                        </select>
-                    </div>
-                    <p class="text-[11px] font-bold text-gray-500 mt-3 mb-0">
-                        Showing <span id="visibleCount">0</span> of <?= (int)count($orders) ?> orders
-                    </p>
-                </div>
+            <div class="mt-4 flex items-center justify-between gap-3">
+                <p class="text-[11px] font-bold text-gray-500 mb-0">Showing <span id="visibleCount">0</span> of <?= (int)count($orders) ?> orders</p>
+                <a href="../place_order.php#order" class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-gray-200 text-xs font-black uppercase tracking-widest text-gray-700 hover:border-pink-500 hover:text-pink-600 transition-all no-underline">
+                    <i class="fa-solid fa-plus"></i> New Order
+                </a>
             </div>
         </div>
 
@@ -158,8 +136,6 @@ try {
                     <?php endforeach; ?>
                 </div>
             <?php endif; ?>
-    </div>
-
     <script>
         (function() {
             const search = document.getElementById('orderSearch');
@@ -190,5 +166,5 @@ try {
             apply();
         })();
     </script>
-</body>
-</html>
+
+<?php require_once __DIR__ . '/portal_footer.php'; ?>

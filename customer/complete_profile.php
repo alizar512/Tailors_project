@@ -22,18 +22,13 @@ try {
 } catch (Exception $e) {
 }
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Complete Profile - Silah</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-50">
-    <div class="max-w-xl mx-auto px-4 py-10">
-        <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 sm:p-8">
+<?php
+$cp_title = 'Complete Profile';
+$cp_active = 'profile';
+require_once __DIR__ . '/portal_header.php';
+?>
+    <div class="max-w-xl mx-auto">
+        <div class="bg-white rounded-3xl border border-gray-100 p-6 sm:p-8">
             <div class="flex items-center gap-3 mb-6">
                 <img src="../images/logo1.png" alt="Silah Logo" class="w-10 h-10 object-contain mix-blend-multiply">
                 <div>
@@ -72,10 +67,9 @@ try {
                 <button type="submit" class="w-full px-5 py-3 rounded-2xl bg-pink-600 text-white text-xs font-black uppercase tracking-widest hover:bg-pink-700 transition-all">
                     Save & Continue
                 </button>
-                <a href="orders.php" class="block text-center text-[11px] font-black uppercase tracking-widest text-gray-500 hover:text-pink-600 no-underline">Skip for now</a>
+                <a href="profile.php" class="block text-center text-[11px] font-black uppercase tracking-widest text-gray-500 hover:text-pink-600 no-underline">Skip for now</a>
             </form>
         </div>
     </div>
-</body>
-</html>
 
+<?php require_once __DIR__ . '/portal_footer.php'; ?>

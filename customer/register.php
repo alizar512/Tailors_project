@@ -4,7 +4,7 @@ require_once __DIR__ . '/../includes/db_connect.php';
 require_once __DIR__ . '/../includes/theme.php';
 
 if (isset($_SESSION['customer_id'])) {
-    header("Location: orders.php");
+    header("Location: dashboard.php");
     exit;
 }
 
