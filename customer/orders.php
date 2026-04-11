@@ -128,7 +128,7 @@ require_once __DIR__ . '/portal_header.php';
                                 <a href="order_details.php?id=<?= (int)$id ?>" class="px-5 py-2 rounded-full bg-white border border-gray-200 text-xs font-black uppercase tracking-widest text-gray-700 hover:border-pink-500 hover:text-pink-600 transition-all no-underline">
                                     <i class="fas fa-receipt me-1"></i> Details
                                 </a>
-                                <a href="../order_chat.php?order_id=<?= (int)$id ?>" class="px-5 py-2 rounded-full bg-pink-600 text-white text-xs font-black uppercase tracking-widest hover:bg-pink-700 transition-all no-underline">
+                                <a href="chat.php?order_id=<?= (int)$id ?>" class="px-5 py-2 rounded-full bg-pink-600 text-white text-xs font-black uppercase tracking-widest hover:bg-pink-700 transition-all no-underline">
                                     <i class="fas fa-comments me-1"></i> Chat
                                 </a>
                             </div>

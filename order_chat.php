@@ -139,7 +139,8 @@ if ($token === '' && $order_lookup_id > 0) {
                     } catch (Exception $e) {
                     }
                 }
-                $token = $ct;
+                header("Location: customer/chat.php?order_id=" . urlencode((string)$order_lookup_id));
+                exit;
             } else {
                 header("Location: customer/orders.php");
                 exit;

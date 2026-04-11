@@ -91,7 +91,7 @@ try {
                     $hay = strtolower(trim($orderNumber . ' ' . $service . ' ' . $sender . ' ' . $msg));
                 ?>
                 <a class="msgRow block p-5 hover:bg-gray-50 transition-all no-underline"
-                   href="order_details.php?id=<?= (int)$oid ?>"
+                   href="chat.php?order_id=<?= (int)$oid ?>"
                    data-hay="<?= htmlspecialchars((string)$hay) ?>">
                     <div class="flex items-start justify-between gap-4">
                         <div class="min-w-0">
@@ -139,4 +139,3 @@ try {
 </script>
 
 <?php require_once __DIR__ . '/portal_footer.php'; ?>
-

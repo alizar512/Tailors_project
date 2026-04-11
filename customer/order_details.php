@@ -156,7 +156,7 @@ require_once __DIR__ . '/portal_header.php';
                     <a href="orders.php" class="px-4 py-2 rounded-full bg-white border border-gray-200 text-xs font-black uppercase tracking-widest text-gray-700 hover:border-pink-500 hover:text-pink-600 transition-all no-underline">
                         <i class="fas fa-arrow-left me-1"></i> Back
                     </a>
-                    <a href="../order_chat.php?order_id=<?= (int)$id ?>" class="px-4 py-2 rounded-full bg-pink-600 text-white text-xs font-black uppercase tracking-widest hover:bg-pink-700 transition-all no-underline">
+                    <a href="chat.php?order_id=<?= (int)$id ?>" class="px-4 py-2 rounded-full bg-pink-600 text-white text-xs font-black uppercase tracking-widest hover:bg-pink-700 transition-all no-underline">
                         <i class="fas fa-comments me-1"></i> Chat
                     </a>
                     <button type="button" id="printOrder" class="px-4 py-2 rounded-full bg-white border border-gray-200 text-xs font-black uppercase tracking-widest text-gray-700 hover:border-gray-300 transition-all">
@@ -222,7 +222,7 @@ require_once __DIR__ . '/portal_header.php';
                 <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-5">
                     <p class="text-xs font-black uppercase tracking-widest text-gray-400 mb-4">Quick Actions</p>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <a href="../order_chat.php?order_id=<?= (int)$id ?>" class="p-4 rounded-3xl border border-pink-100 bg-pink-50 hover:bg-pink-100 transition-all no-underline">
+                        <a href="chat.php?order_id=<?= (int)$id ?>" class="p-4 rounded-3xl border border-pink-100 bg-pink-50 hover:bg-pink-100 transition-all no-underline">
                             <div class="flex items-center gap-3">
                                 <div class="w-10 h-10 rounded-2xl bg-pink-600 text-white flex items-center justify-center"><i class="fas fa-comments"></i></div>
                                 <div>

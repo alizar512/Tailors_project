@@ -41,6 +41,7 @@ $cp_email = isset($_SESSION['customer_email']) ? (string)$_SESSION['customer_ema
                         ['id' => 'dashboard', 'href' => 'dashboard.php', 'icon' => 'fa-solid fa-grid-2', 'label' => 'Dashboard'],
                         ['id' => 'orders', 'href' => 'orders.php', 'icon' => 'fa-solid fa-receipt', 'label' => 'My Orders'],
                         ['id' => 'messages', 'href' => 'messages.php', 'icon' => 'fa-solid fa-comments', 'label' => 'Messages'],
+                        ['id' => 'chat', 'href' => 'chat.php', 'icon' => 'fa-solid fa-comment-dots', 'label' => 'Chat'],
                         ['id' => 'profile', 'href' => 'profile.php', 'icon' => 'fa-solid fa-user', 'label' => 'Profile'],
                     ];
                     foreach ($nav as $item):
