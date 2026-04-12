@@ -675,9 +675,9 @@ if ($hire_mode) {
                 <div class="col-lg-4">
                     <h5 class="text-white font-bold mb-6">Feedback</h5>
                     <p class="text-gray-400 mb-4 text-sm">We value your opinion. Let us know how we can improve.</p>
-                    <form action="#" class="relative">
-                        <input type="text" class="w-full bg-white/10 border border-white/20 rounded-full py-3 px-5 text-white placeholder-gray-400 focus:outline-none focus:border-accent" placeholder="Your Feedback">
-                        <button class="absolute right-2 top-1.5 w-10 h-10 bg-accent rounded-full flex items-center justify-center text-white hover:bg-white hover:text-accent transition-all">
+                    <form action="process_feedback.php" method="POST" class="relative">
+                        <input type="text" name="feedback" required class="w-full bg-white/10 border border-white/20 rounded-full py-3 px-5 text-white placeholder-gray-400 focus:outline-none focus:border-accent" placeholder="Your Feedback">
+                        <button type="submit" class="absolute right-2 top-1.5 w-10 h-10 bg-accent rounded-full flex items-center justify-center text-white hover:bg-white hover:text-accent transition-all">
                             <i class="fas fa-paper-plane"></i>
                         </button>
                     </form>
