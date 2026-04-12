@@ -1,11 +1,14 @@
 <?php
 require_once 'auth_check.php';
 require_once __DIR__ . '/../includes/db_connect.php';
+require_once __DIR__ . '/../includes/schema_utils.php';
 
 // Fetch Applications
 $applications = [];
 if ($pdo) {
     try {
+        silah_ensure_column($pdo, 'tailor_applications', 'profile_image_blob', "ALTER TABLE tailor_applications ADD COLUMN profile_image_blob LONGBLOB NULL");
+        silah_ensure_column($pdo, 'tailor_applications', 'profile_image_mime', "ALTER TABLE tailor_applications ADD COLUMN profile_image_mime VARCHAR(100) NULL");
         $stmt = $pdo->query("SELECT * FROM tailor_applications ORDER BY created_at DESC");
         $applications = $stmt->fetchAll(PDO::FETCH_ASSOC);
     } catch (Exception $e) {
@@ -52,9 +55,20 @@ include 'sidebar.php';
                 <tr class="group hover:bg-primary/5 transition-colors">
                     <td class="px-8 py-5 border-0">
                         <div class="flex items-center gap-4">
-                            <div class="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary font-black text-lg">
-                                <?= substr($app['name'], 0, 1) ?>
-                            </div>
+                            <?php
+                                $hasPhoto = (isset($app['profile_image_blob']) && $app['profile_image_blob'] !== null && $app['profile_image_blob'] !== '') || (isset($app['profile_image']) && trim((string)$app['profile_image']) !== '');
+                                $photoSrc = '../application_media.php?app_id=' . (int)$app['id'] . '&type=profile';
+                            ?>
+                            <?php if ($hasPhoto): ?>
+                                <img src="<?= htmlspecialchars((string)$photoSrc) ?>" class="w-12 h-12 rounded-2xl object-cover shadow-sm border-2 border-white" alt="Profile" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                <div class="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary font-black text-lg hidden">
+                                    <?= htmlspecialchars((string)substr((string)$app['name'], 0, 1)) ?>
+                                </div>
+                            <?php else: ?>
+                                <div class="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary font-black text-lg">
+                                    <?= htmlspecialchars((string)substr((string)$app['name'], 0, 1)) ?>
+                                </div>
+                            <?php endif; ?>
                             <div>
                                 <p class="text-sm font-black text-gray-800 mb-0"><?= htmlspecialchars((string)$app['name']) ?></p>
                                 <p class="text-[11px] text-gray-500 font-medium"><?= htmlspecialchars((string)$app['location']) ?></p>

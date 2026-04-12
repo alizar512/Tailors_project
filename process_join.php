@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/includes/db_connect.php';
 require_once __DIR__ . '/includes/cities.php';
+require_once __DIR__ . '/includes/schema_utils.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($_POST) && empty($_FILES)) {
@@ -28,55 +29,115 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Handle Media Uploads
     $profile_image = null;
+    $profile_blob = null;
+    $profile_mime = null;
     $portfolio_images = [];
     $portfolio_videos = [];
+    $isServerless = getenv('VERCEL') === '1' || getenv('AWS_LAMBDA_FUNCTION_NAME');
 
     if (isset($_FILES['profile_image']) && $_FILES['profile_image']['error'] === UPLOAD_ERR_OK) {
         $fileType = isset($_FILES['profile_image']['type']) ? (string)$_FILES['profile_image']['type'] : '';
+        $fileSize = isset($_FILES['profile_image']['size']) ? (int)$_FILES['profile_image']['size'] : 0;
         $allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
         if (in_array($fileType, $allowedTypes, true)) {
-            $uploadDir = 'uploads/profile/';
-            if (!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
+            if ($isServerless) {
+                if ($fileSize > 0 && $fileSize <= 800000) {
+                    $bytes = @file_get_contents($_FILES['profile_image']['tmp_name']);
+                    if ($bytes !== false && $bytes !== '') {
+                        $outBytes = $bytes;
+                        $outMime = $fileType;
+                        if (function_exists('imagecreatefromstring') && function_exists('imagejpeg') && function_exists('imagesx') && function_exists('imagesy')) {
+                            try {
+                                $im = @imagecreatefromstring($bytes);
+                                if ($im) {
+                                    $w = imagesx($im);
+                                    $h = imagesy($im);
+                                    $max = 720;
+                                    $scale = ($w > 0 && $h > 0) ? min(1, $max / max($w, $h)) : 1;
+                                    $nw = (int)max(1, floor($w * $scale));
+                                    $nh = (int)max(1, floor($h * $scale));
+                                    if (($scale < 1 || $outMime !== 'image/jpeg') && function_exists('imagecreatetruecolor')) {
+                                        $dst = imagecreatetruecolor($nw, $nh);
+                                        if ($dst) {
+                                            imagecopyresampled($dst, $im, 0, 0, 0, 0, $nw, $nh, $w, $h);
+                                            ob_start();
+                                            imagejpeg($dst, null, 82);
+                                            $jpeg = ob_get_clean();
+                                            imagedestroy($dst);
+                                            if (is_string($jpeg) && $jpeg !== '') {
+                                                $outBytes = $jpeg;
+                                                $outMime = 'image/jpeg';
+                                            }
+                                        }
+                                    }
+                                    imagedestroy($im);
+                                }
+                            } catch (Exception $e) {
+                            }
+                        }
+                        if (strlen($outBytes) <= 800000) {
+                            $profile_blob = $outBytes;
+                            $profile_mime = $outMime;
+                            $profile_image = '';
+                        }
+                    }
+                }
+            } else {
+                $uploadDir = 'uploads/profile/';
+                if (!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
 
-            $fileName = uniqid() . '_' . basename($_FILES['profile_image']['name']);
-            $uploadPath = $uploadDir . $fileName;
-            if (move_uploaded_file($_FILES['profile_image']['tmp_name'], $uploadPath)) {
-                $profile_image = $uploadPath;
+                $fileName = uniqid() . '_' . basename($_FILES['profile_image']['name']);
+                $uploadPath = $uploadDir . $fileName;
+                if (move_uploaded_file($_FILES['profile_image']['tmp_name'], $uploadPath)) {
+                    $profile_image = $uploadPath;
+                }
             }
         }
     }
 
     if (isset($_FILES['portfolio_images'])) {
         $uploadDir = 'uploads/portfolio/';
-        if (!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
+        if (!$isServerless && !is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
         
         foreach ($_FILES['portfolio_images']['tmp_name'] as $key => $tmpName) {
             if ($_FILES['portfolio_images']['error'][$key] === UPLOAD_ERR_OK) {
-                $fileName = uniqid() . '_' . basename($_FILES['portfolio_images']['name'][$key]);
-                $uploadPath = $uploadDir . $fileName;
-                if (move_uploaded_file($tmpName, $uploadPath)) {
-                    $portfolio_images[] = $uploadPath;
+                if (!$isServerless) {
+                    $fileName = uniqid() . '_' . basename($_FILES['portfolio_images']['name'][$key]);
+                    $uploadPath = $uploadDir . $fileName;
+                    if (move_uploaded_file($tmpName, $uploadPath)) {
+                        $portfolio_images[] = $uploadPath;
+                    }
+                } else {
+                    $portfolio_images[] = [
+                        'tmp' => (string)$tmpName,
+                        'type' => (string)($_FILES['portfolio_images']['type'][$key] ?? ''),
+                        'size' => (int)($_FILES['portfolio_images']['size'][$key] ?? 0),
+                    ];
                 }
             }
         }
     }
 
     if (isset($_FILES['portfolio_videos'])) {
-        $uploadDir = 'uploads/portfolio/';
-        if (!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
+        if ($isServerless) {
+            $portfolio_videos = [];
+        } else {
+            $uploadDir = 'uploads/portfolio/';
+            if (!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
         
-        foreach ($_FILES['portfolio_videos']['tmp_name'] as $key => $tmpName) {
-            if ($_FILES['portfolio_videos']['error'][$key] === UPLOAD_ERR_OK) {
-                $fileName = uniqid() . '_' . basename($_FILES['portfolio_videos']['name'][$key]);
-                $uploadPath = $uploadDir . $fileName;
-                if (move_uploaded_file($tmpName, $uploadPath)) {
-                    $portfolio_videos[] = $uploadPath;
+            foreach ($_FILES['portfolio_videos']['tmp_name'] as $key => $tmpName) {
+                if ($_FILES['portfolio_videos']['error'][$key] === UPLOAD_ERR_OK) {
+                    $fileName = uniqid() . '_' . basename($_FILES['portfolio_videos']['name'][$key]);
+                    $uploadPath = $uploadDir . $fileName;
+                    if (move_uploaded_file($tmpName, $uploadPath)) {
+                        $portfolio_videos[] = $uploadPath;
+                    }
                 }
             }
         }
     }
 
-    $portfolio_images_json = json_encode($portfolio_images);
+    $portfolio_images_json = json_encode($isServerless ? [] : $portfolio_images);
     $portfolio_videos_json = json_encode($portfolio_videos);
 
     if ($name === '' || $email === '' || $location === '' || $address === '' || $price_range_min === null) {
@@ -114,6 +175,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 name VARCHAR(100) NOT NULL,
                 email VARCHAR(100) NOT NULL,
                 profile_image VARCHAR(255),
+                profile_image_blob LONGBLOB NULL,
+                profile_image_mime VARCHAR(100) NULL,
                 phone VARCHAR(20),
                 location VARCHAR(100),
                 address TEXT NOT NULL,
@@ -125,6 +188,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 portfolio_videos TEXT,
                 status ENUM('pending', 'approved', 'rejected') DEFAULT 'pending',
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
+        );
+
+        silah_ensure_table($pdo,
+            "CREATE TABLE IF NOT EXISTS tailor_application_files (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                application_id INT NOT NULL,
+                file_kind VARCHAR(30) NOT NULL,
+                mime VARCHAR(100),
+                blob LONGBLOB,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                INDEX idx_app_files_application_id (application_id)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
         );
 
@@ -177,8 +252,71 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         }
 
-        $stmt = $pdo->prepare("INSERT INTO tailor_applications (name, email, profile_image, phone, location, address, experience_years, specialization, price_range_min, instagram_link, portfolio_link, portfolio_videos) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-        $stmt->execute([$name, $email, $profile_image, $phone, $location, $address, $experience_years, $specialization, $price_range_min, $instagram_link, $portfolio_images_json, $portfolio_videos_json]);
+        $stmt = $pdo->prepare("INSERT INTO tailor_applications (name, email, profile_image, profile_image_blob, profile_image_mime, phone, location, address, experience_years, specialization, price_range_min, instagram_link, portfolio_link, portfolio_videos) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt->execute([$name, $email, $profile_image, $profile_blob, $profile_mime, $phone, $location, $address, $experience_years, $specialization, $price_range_min, $instagram_link, $portfolio_images_json, $portfolio_videos_json]);
+        $appId = (int)$pdo->lastInsertId();
+
+        if ($isServerless && $appId > 0 && is_array($portfolio_images) && !empty($portfolio_images)) {
+            $insert = $pdo->prepare("INSERT INTO tailor_application_files (application_id, file_kind, mime, blob) VALUES (?, 'portfolio_image', ?, ?)");
+            $fileIds = [];
+            foreach ($portfolio_images as $f) {
+                if (!is_array($f)) continue;
+                $mime = isset($f['type']) ? (string)$f['type'] : '';
+                $size = isset($f['size']) ? (int)$f['size'] : 0;
+                if ($size <= 0 || $size > 1200000) continue;
+                if (!in_array($mime, ['image/jpeg', 'image/png', 'image/webp', 'image/gif'], true)) continue;
+                $tmp = isset($f['tmp']) ? (string)$f['tmp'] : '';
+                if ($tmp === '') continue;
+                $bytes = @file_get_contents($tmp);
+                if ($bytes === false || $bytes === '') continue;
+
+                $outBytes = $bytes;
+                $outMime = $mime;
+                if (function_exists('imagecreatefromstring') && function_exists('imagejpeg') && function_exists('imagesx') && function_exists('imagesy')) {
+                    try {
+                        $im = @imagecreatefromstring($bytes);
+                        if ($im) {
+                            $w = imagesx($im);
+                            $h = imagesy($im);
+                            $max = 900;
+                            $scale = ($w > 0 && $h > 0) ? min(1, $max / max($w, $h)) : 1;
+                            $nw = (int)max(1, floor($w * $scale));
+                            $nh = (int)max(1, floor($h * $scale));
+                            if (($scale < 1 || $outMime !== 'image/jpeg') && function_exists('imagecreatetruecolor')) {
+                                $dst = imagecreatetruecolor($nw, $nh);
+                                if ($dst) {
+                                    imagecopyresampled($dst, $im, 0, 0, 0, 0, $nw, $nh, $w, $h);
+                                    ob_start();
+                                    imagejpeg($dst, null, 82);
+                                    $jpeg = ob_get_clean();
+                                    imagedestroy($dst);
+                                    if (is_string($jpeg) && $jpeg !== '') {
+                                        $outBytes = $jpeg;
+                                        $outMime = 'image/jpeg';
+                                    }
+                                }
+                            }
+                            imagedestroy($im);
+                        }
+                    } catch (Exception $e) {
+                    }
+                }
+                if (strlen($outBytes) > 1200000) continue;
+                try {
+                    $insert->execute([$appId, $outMime, $outBytes]);
+                    $fid = (int)$pdo->lastInsertId();
+                    if ($fid > 0) $fileIds[] = $fid;
+                } catch (Exception $e) {
+                }
+            }
+            if (!empty($fileIds)) {
+                try {
+                    $stmt = $pdo->prepare("UPDATE tailor_applications SET portfolio_link = ? WHERE id = ?");
+                    $stmt->execute([json_encode($fileIds), $appId]);
+                } catch (Exception $e) {
+                }
+            }
+        }
         header("Location: join_tailor.php?status=success");
         exit;
     } catch (PDOException $e) {

@@ -1,6 +1,7 @@
 <?php
 require_once 'auth_check.php';
 require_once __DIR__ . '/../includes/db_connect.php';
+require_once __DIR__ . '/../includes/schema_utils.php';
 
 $tailor_id = (int)$_SESSION['tailor_id'];
 
@@ -31,32 +32,83 @@ try {
 } catch (Exception $e) {
 }
 
+silah_ensure_column($pdo, 'portfolio_images', 'image_blob', "ALTER TABLE portfolio_images ADD COLUMN image_blob LONGBLOB NULL");
+silah_ensure_column($pdo, 'portfolio_images', 'image_mime', "ALTER TABLE portfolio_images ADD COLUMN image_mime VARCHAR(100) NULL");
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     $action = (string)$_POST['action'];
 
     if ($action === 'add') {
         $description = isset($_POST['description']) ? trim((string)$_POST['description']) : '';
         $image_url = null;
+        $image_blob = null;
+        $image_mime = null;
+        $isServerless = getenv('VERCEL') === '1' || getenv('AWS_LAMBDA_FUNCTION_NAME');
 
         if (isset($_FILES['image_file']) && $_FILES['image_file']['error'] === UPLOAD_ERR_OK) {
             $fileType = isset($_FILES['image_file']['type']) ? (string)$_FILES['image_file']['type'] : '';
+            $fileSize = isset($_FILES['image_file']['size']) ? (int)$_FILES['image_file']['size'] : 0;
             $allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
             if (in_array($fileType, $allowedTypes, true)) {
-                $uploadDir = '../uploads/portfolio/';
-                if (!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
+                if ($isServerless) {
+                    if ($fileSize > 0 && $fileSize <= 1200000) {
+                        $bytes = @file_get_contents($_FILES['image_file']['tmp_name']);
+                        if ($bytes !== false && $bytes !== '') {
+                            $outBytes = $bytes;
+                            $outMime = $fileType;
+                            if (function_exists('imagecreatefromstring') && function_exists('imagejpeg') && function_exists('imagesx') && function_exists('imagesy')) {
+                                try {
+                                    $im = @imagecreatefromstring($bytes);
+                                    if ($im) {
+                                        $w = imagesx($im);
+                                        $h = imagesy($im);
+                                        $max = 900;
+                                        $scale = ($w > 0 && $h > 0) ? min(1, $max / max($w, $h)) : 1;
+                                        $nw = (int)max(1, floor($w * $scale));
+                                        $nh = (int)max(1, floor($h * $scale));
+                                        if (($scale < 1 || $outMime !== 'image/jpeg') && function_exists('imagecreatetruecolor')) {
+                                            $dst = imagecreatetruecolor($nw, $nh);
+                                            if ($dst) {
+                                                imagecopyresampled($dst, $im, 0, 0, 0, 0, $nw, $nh, $w, $h);
+                                                ob_start();
+                                                imagejpeg($dst, null, 82);
+                                                $jpeg = ob_get_clean();
+                                                imagedestroy($dst);
+                                                if (is_string($jpeg) && $jpeg !== '') {
+                                                    $outBytes = $jpeg;
+                                                    $outMime = 'image/jpeg';
+                                                }
+                                            }
+                                        }
+                                        imagedestroy($im);
+                                    }
+                                } catch (Exception $e) {
+                                }
+                            }
+                            if (strlen($outBytes) <= 1200000) {
+                                $image_blob = $outBytes;
+                                $image_mime = $outMime;
+                                $image_url = '';
+                            }
+                        }
+                    }
+                } else {
+                    $uploadDir = '../uploads/portfolio/';
+                    if (!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
 
-                $fileName = uniqid() . '_' . basename($_FILES['image_file']['name']);
-                $uploadPath = $uploadDir . $fileName;
-                if (move_uploaded_file($_FILES['image_file']['tmp_name'], $uploadPath)) {
-                    $image_url = 'uploads/portfolio/' . $fileName;
+                    $fileName = uniqid() . '_' . basename($_FILES['image_file']['name']);
+                    $uploadPath = $uploadDir . $fileName;
+                    if (move_uploaded_file($_FILES['image_file']['tmp_name'], $uploadPath)) {
+                        $image_url = 'uploads/portfolio/' . $fileName;
+                    }
                 }
             }
         }
 
         if ($image_url) {
             try {
-                $stmt = $pdo->prepare("INSERT INTO portfolio_images (tailor_id, image_url, description) VALUES (?, ?, ?)");
-                $stmt->execute([$tailor_id, $image_url, $description !== '' ? $description : null]);
+                $stmt = $pdo->prepare("INSERT INTO portfolio_images (tailor_id, image_url, description, image_blob, image_mime) VALUES (?, ?, ?, ?, ?)");
+                $stmt->execute([$tailor_id, $image_url, $description !== '' ? $description : null, $image_blob, $image_mime]);
                 header("Location: portfolio.php?added=1");
                 exit;
             } catch (Exception $e) {
@@ -85,6 +137,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     if ($action === 'add_video') {
         $description = isset($_POST['video_description']) ? trim((string)$_POST['video_description']) : '';
         $video_url = null;
+        $isServerless = getenv('VERCEL') === '1' || getenv('AWS_LAMBDA_FUNCTION_NAME');
+        if ($isServerless) {
+            $urlRaw = isset($_POST['video_url']) ? trim((string)$_POST['video_url']) : '';
+            $video_url = $urlRaw !== '' && filter_var($urlRaw, FILTER_VALIDATE_URL) ? $urlRaw : null;
+            if (!$video_url) {
+                header("Location: portfolio.php?video_added=0");
+                exit;
+            }
+            try {
+                $stmt = $pdo->prepare("INSERT INTO portfolio_videos (tailor_id, video_url, description) VALUES (?, ?, ?)");
+                $stmt->execute([$tailor_id, $video_url, $description !== '' ? $description : null]);
+                header("Location: portfolio.php?video_added=1");
+                exit;
+            } catch (Exception $e) {
+                header("Location: portfolio.php?video_added=0");
+                exit;
+            }
+        }
 
         if (isset($_FILES['video_file']) && $_FILES['video_file']['error'] === UPLOAD_ERR_OK) {
             $fileType = isset($_FILES['video_file']['type']) ? (string)$_FILES['video_file']['type'] : '';
@@ -217,13 +287,19 @@ include 'sidebar.php';
                     <input type="hidden" name="action" value="add_video">
                     <div>
                         <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">Video</label>
-                        <input type="file" name="video_file" class="form-control" accept="video/mp4,video/webm,video/quicktime" required>
+                        <?php $isServerless = getenv('VERCEL') === '1' || getenv('AWS_LAMBDA_FUNCTION_NAME'); ?>
+                        <?php if ($isServerless): ?>
+                            <input type="text" name="video_url" class="form-control" placeholder="Paste video link (YouTube/Instagram)" required>
+                            <div class="form-text text-xs">On Vercel, upload videos as links for better performance.</div>
+                        <?php else: ?>
+                            <input type="file" name="video_file" class="form-control" accept="video/mp4,video/webm,video/quicktime" required>
+                        <?php endif; ?>
                     </div>
                     <div>
                         <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">Description</label>
                         <input type="text" name="video_description" class="form-control" placeholder="e.g. Stitching process, Bridal outfit">
                     </div>
-                    <button type="submit" class="btn btn-primary w-full rounded-xl py-3 font-black uppercase tracking-widest text-xs shadow-lg hover:shadow-primary/20 transition-all">Upload Video</button>
+                    <button type="submit" class="btn btn-primary w-full rounded-xl py-3 font-black uppercase tracking-widest text-xs shadow-lg hover:shadow-primary/20 transition-all"><?= $isServerless ? 'Add Video Link' : 'Upload Video' ?></button>
                 </form>
             </div>
         </div>
@@ -247,11 +323,15 @@ include 'sidebar.php';
                 <?php else: ?>
                     <div class="row g-3">
                         <?php foreach ($images as $img): ?>
+                            <?php
+                                $imgSrc = '../portfolio_media.php?id=' . (int)$img['id'];
+                                $imgLink = $imgSrc;
+                            ?>
                             <div class="col-md-4 col-6">
                                 <div class="group relative aspect-square overflow-hidden rounded-2xl bg-gray-100 border border-gray-100">
-                                    <img src="../<?= htmlspecialchars((string)$img['image_url']) ?>" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                                    <img src="<?= htmlspecialchars((string)$imgSrc) ?>" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
                                     <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
-                                        <a href="../<?= htmlspecialchars((string)$img['image_url']) ?>" target="_blank" class="w-10 h-10 rounded-full bg-white text-primary flex items-center justify-center shadow-xl hover:scale-110 transition-transform">
+                                        <a href="<?= htmlspecialchars((string)$imgLink) ?>" target="_blank" class="w-10 h-10 rounded-full bg-white text-primary flex items-center justify-center shadow-xl hover:scale-110 transition-transform">
                                             <i class="fas fa-eye"></i>
                                         </a>
                                         <form action="portfolio.php" method="POST" onsubmit="return confirm('Delete this portfolio image?');">

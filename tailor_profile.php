@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/includes/db_connect.php';
+require_once __DIR__ . '/includes/schema_utils.php';
 
 $tailor_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 $tailor = null;
@@ -34,14 +35,18 @@ if ($tailor_id && $pdo) {
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
             );
 
+            silah_ensure_column($pdo, 'portfolio_images', 'image_blob', "ALTER TABLE portfolio_images ADD COLUMN image_blob LONGBLOB NULL");
+            silah_ensure_column($pdo, 'portfolio_images', 'image_mime', "ALTER TABLE portfolio_images ADD COLUMN image_mime VARCHAR(100) NULL");
+
             $stmt = $pdo->prepare("SELECT * FROM portfolio_images WHERE tailor_id = ?");
             $stmt->execute([$tailor_id]);
             $db_portfolio = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
             // Transform DB images into expected structure
             foreach ($db_portfolio as $item) {
+                $hasBlob = isset($item['image_blob']) && $item['image_blob'] !== null && $item['image_blob'] !== '';
                 $portfolio[] = [
-                    'image_url' => $item['image_url'],
+                    'image_url' => $hasBlob ? ('portfolio_media.php?id=' . (int)$item['id']) : $item['image_url'],
                     'description' => $item['description'] ?? 'Portfolio work'
                 ];
             }

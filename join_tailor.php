@@ -285,7 +285,7 @@ $cities = silah_get_cities($pdo);
                             </div>
 
                             <div class="md:col-span-2 pt-2">
-                                <button type="submit" class="w-full rounded-2xl bg-primary text-white py-4 font-extrabold uppercase tracking-widest text-xs shadow-xl hover:shadow-primary/20 hover:-translate-y-0.5 transition-all">
+                                <button id="joinSubmitBtn" type="submit" class="w-full rounded-2xl bg-primary text-white py-4 font-extrabold uppercase tracking-widest text-xs shadow-xl hover:shadow-primary/20 hover:-translate-y-0.5 transition-all">
                                     Submit Application
                                 </button>
                             </div>
@@ -402,6 +402,13 @@ $cities = silah_get_cities($pdo);
             if (!validatePortfolioRequirements()) {
                 e.preventDefault();
                 document.getElementById('portfolio-error').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            }
+            const btn = document.getElementById('joinSubmitBtn');
+            if (btn) {
+                btn.disabled = true;
+                btn.classList.add('opacity-80');
+                btn.textContent = 'Submitting...';
             }
         });
 
