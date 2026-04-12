@@ -33,10 +33,6 @@
       "handle": "filesystem"
     },
     {
-      "src": "/(.*).php",
-      "dest": "/$1.php"
-    },
-    {
       "src": "/(.*)",
       "dest": "/$1"
     }
