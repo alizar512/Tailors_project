@@ -1,6 +1,7 @@
 <?php
 require_once 'auth_check.php';
 require_once __DIR__ . '/../includes/db_connect.php';
+require_once __DIR__ . '/../includes/schema_utils.php';
 
 $tailor_id = (int)$_SESSION['tailor_id'];
 
@@ -9,41 +10,22 @@ if (!$pdo) {
     exit;
 }
 
-try {
-    try {
-        $pdo->exec("ALTER TABLE tailors ADD COLUMN address TEXT");
-    } catch (Exception $e) {
-    }
-    try {
-        $pdo->exec("ALTER TABLE tailors ADD COLUMN skills TEXT");
-    } catch (Exception $e) {
-    }
-    try {
-        $pdo->exec("ALTER TABLE tailors ADD COLUMN instagram_link VARCHAR(255)");
-    } catch (Exception $e) {
-    }
-    try {
-        $pdo->exec("ALTER TABLE tailors ADD COLUMN price_range_min DECIMAL(10,2)");
-    } catch (Exception $e) {
-    }
-    try {
-        $pdo->exec("ALTER TABLE tailors ADD COLUMN profile_completed TINYINT(1) NOT NULL DEFAULT 0");
-    } catch (Exception $e) {
-    }
-    try {
-        $pdo->exec(
-            "CREATE TABLE IF NOT EXISTS portfolio_images (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                tailor_id INT,
-                image_url VARCHAR(255) NOT NULL,
-                description VARCHAR(255),
-                FOREIGN KEY (tailor_id) REFERENCES tailors(id) ON DELETE CASCADE
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
-        );
-    } catch (Exception $e) {
-    }
-} catch (Exception $e) {
-}
+silah_ensure_column($pdo, 'tailors', 'address', "ALTER TABLE tailors ADD COLUMN address TEXT");
+silah_ensure_column($pdo, 'tailors', 'skills', "ALTER TABLE tailors ADD COLUMN skills TEXT");
+silah_ensure_column($pdo, 'tailors', 'instagram_link', "ALTER TABLE tailors ADD COLUMN instagram_link VARCHAR(255)");
+silah_ensure_column($pdo, 'tailors', 'price_range_min', "ALTER TABLE tailors ADD COLUMN price_range_min DECIMAL(10,2)");
+silah_ensure_column($pdo, 'tailors', 'profile_completed', "ALTER TABLE tailors ADD COLUMN profile_completed TINYINT(1) NOT NULL DEFAULT 0");
+silah_ensure_column($pdo, 'tailors', 'profile_image_blob', "ALTER TABLE tailors ADD COLUMN profile_image_blob LONGBLOB NULL");
+silah_ensure_column($pdo, 'tailors', 'profile_image_mime', "ALTER TABLE tailors ADD COLUMN profile_image_mime VARCHAR(100) NULL");
+silah_ensure_table($pdo,
+    "CREATE TABLE IF NOT EXISTS portfolio_images (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        tailor_id INT,
+        image_url VARCHAR(255) NOT NULL,
+        description VARCHAR(255),
+        FOREIGN KEY (tailor_id) REFERENCES tailors(id) ON DELETE CASCADE
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
+);
 
 $error = '';
 $success = '';
@@ -64,16 +46,65 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $profile_image = null;
         $profile_blob = null;
         $profile_mime = null;
+        $isServerless = getenv('VERCEL') === '1' || getenv('AWS_LAMBDA_FUNCTION_NAME');
+        $upload_error = '';
         if (isset($_FILES['profile_image']) && $_FILES['profile_image']['error'] === UPLOAD_ERR_OK) {
             $fileType = isset($_FILES['profile_image']['type']) ? (string)$_FILES['profile_image']['type'] : '';
+            $fileSize = isset($_FILES['profile_image']['size']) ? (int)$_FILES['profile_image']['size'] : 0;
             $allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
             if (in_array($fileType, $allowedTypes, true)) {
-                $isServerless = getenv('VERCEL') === '1' || getenv('AWS_LAMBDA_FUNCTION_NAME');
                 if ($isServerless) {
-                    $bytes = @file_get_contents($_FILES['profile_image']['tmp_name']);
-                    if ($bytes !== false && $bytes !== '') {
-                        $profile_blob = $bytes;
-                        $profile_mime = $fileType;
+                    if ($fileSize > 0 && $fileSize > 800000) {
+                        $upload_error = 'img_too_large';
+                    } else {
+                        $bytes = @file_get_contents($_FILES['profile_image']['tmp_name']);
+                        if ($bytes !== false && $bytes !== '') {
+                            $outBytes = $bytes;
+                            $outMime = $fileType;
+                            if (function_exists('imagecreatefromstring') && function_exists('imagejpeg') && function_exists('imagesx') && function_exists('imagesy')) {
+                                try {
+                                    $im = @imagecreatefromstring($bytes);
+                                    if ($im) {
+                                        $w = imagesx($im);
+                                        $h = imagesy($im);
+                                        $max = 720;
+                                        $scale = ($w > 0 && $h > 0) ? min(1, $max / max($w, $h)) : 1;
+                                        $nw = (int)max(1, floor($w * $scale));
+                                        $nh = (int)max(1, floor($h * $scale));
+                                        if ($scale < 1 && function_exists('imagecreatetruecolor')) {
+                                            $dst = imagecreatetruecolor($nw, $nh);
+                                            if ($dst) {
+                                                imagecopyresampled($dst, $im, 0, 0, 0, 0, $nw, $nh, $w, $h);
+                                                ob_start();
+                                                imagejpeg($dst, null, 82);
+                                                $jpeg = ob_get_clean();
+                                                imagedestroy($dst);
+                                                if (is_string($jpeg) && $jpeg !== '') {
+                                                    $outBytes = $jpeg;
+                                                    $outMime = 'image/jpeg';
+                                                }
+                                            }
+                                        } else {
+                                            ob_start();
+                                            imagejpeg($im, null, 82);
+                                            $jpeg = ob_get_clean();
+                                            if (is_string($jpeg) && $jpeg !== '') {
+                                                $outBytes = $jpeg;
+                                                $outMime = 'image/jpeg';
+                                            }
+                                        }
+                                        imagedestroy($im);
+                                    }
+                                } catch (Exception $e) {
+                                }
+                            }
+                            if (strlen($outBytes) > 800000) {
+                                $upload_error = 'img_too_large';
+                            } else {
+                                $profile_blob = $outBytes;
+                                $profile_mime = $outMime;
+                            }
+                        }
                     }
                 } else {
                     $uploadDir = '../uploads/profile/';
@@ -88,9 +119,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         try {
-            try { $pdo->exec("ALTER TABLE tailors ADD COLUMN profile_image_blob LONGBLOB NULL"); } catch (Exception $e) {}
-            try { $pdo->exec("ALTER TABLE tailors ADD COLUMN profile_image_mime VARCHAR(100) NULL"); } catch (Exception $e) {}
-
             if ($profile_blob !== null) {
                 $stmt = $pdo->prepare("UPDATE tailors SET name = ?, phone = ?, address = ?, experience_years = ?, skills = ?, instagram_link = ?, price_range_min = ?, profile_image_blob = ?, profile_image_mime = ?, profile_completed = 1 WHERE id = ?");
                 $stmt->execute([$name, $phone, $address, $experience_years, $skills, $instagram_link, $price_range_min, $profile_blob, $profile_mime, $tailor_id]);
@@ -102,7 +130,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt->execute([$name, $phone, $address, $experience_years, $skills, $instagram_link, $price_range_min, $tailor_id]);
             }
 
-            if (isset($_FILES['portfolio_images']) && isset($_FILES['portfolio_images']['tmp_name']) && is_array($_FILES['portfolio_images']['tmp_name'])) {
+            if (!$isServerless && isset($_FILES['portfolio_images']) && isset($_FILES['portfolio_images']['tmp_name']) && is_array($_FILES['portfolio_images']['tmp_name'])) {
                 $uploadDir = '../uploads/portfolio/';
                 if (!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
                 $imgInsertStmt = $pdo->prepare("INSERT INTO portfolio_images (tailor_id, image_url, description) VALUES (?, ?, ?)");
@@ -125,6 +153,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             $_SESSION['profile_completed'] = 1;
+            if ($upload_error === 'img_too_large') {
+                $_SESSION['profile_photo_warning'] = 1;
+            }
             header("Location: index.php?profile_completed=1");
             exit;
         } catch (Exception $e) {
@@ -135,8 +166,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $tailor = null;
 try {
-    try { $pdo->exec("ALTER TABLE tailors ADD COLUMN profile_image_blob LONGBLOB NULL"); } catch (Exception $e) {}
-    try { $pdo->exec("ALTER TABLE tailors ADD COLUMN profile_image_mime VARCHAR(100) NULL"); } catch (Exception $e) {}
     $stmt = $pdo->prepare("SELECT name, phone, address, experience_years, skills, instagram_link, price_range_min, profile_image, profile_image_blob FROM tailors WHERE id = ?");
     $stmt->execute([$tailor_id]);
     $tailor = $stmt->fetch(PDO::FETCH_ASSOC);

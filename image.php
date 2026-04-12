@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/includes/db_connect.php';
+require_once __DIR__ . '/includes/schema_utils.php';
 
 $kind = isset($_GET['kind']) ? trim((string)$_GET['kind']) : '';
 $id = isset($_GET['id']) && is_numeric($_GET['id']) ? (int)$_GET['id'] : 0;
@@ -9,8 +10,8 @@ if ($kind !== 'tailor' || $id <= 0 || !$pdo) {
     exit;
 }
 
-try { $pdo->exec("ALTER TABLE tailors ADD COLUMN profile_image_blob LONGBLOB NULL"); } catch (Exception $e) {}
-try { $pdo->exec("ALTER TABLE tailors ADD COLUMN profile_image_mime VARCHAR(100) NULL"); } catch (Exception $e) {}
+silah_ensure_column($pdo, 'tailors', 'profile_image_blob', "ALTER TABLE tailors ADD COLUMN profile_image_blob LONGBLOB NULL");
+silah_ensure_column($pdo, 'tailors', 'profile_image_mime', "ALTER TABLE tailors ADD COLUMN profile_image_mime VARCHAR(100) NULL");
 
 try {
     $stmt = $pdo->prepare("SELECT name, profile_image, profile_image_blob, profile_image_mime FROM tailors WHERE id = ? LIMIT 1");

@@ -2,6 +2,7 @@
 require_once 'auth_check.php';
 require_once __DIR__ . '/../includes/db_connect.php';
 require_once __DIR__ . '/../includes/cities.php';
+require_once __DIR__ . '/../includes/schema_utils.php';
 
 $tailor_id = (int)$_SESSION['tailor_id'];
 $cities = silah_get_cities($pdo);
@@ -44,16 +45,65 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $profile_image = null;
     $profile_blob = null;
     $profile_mime = null;
+    $upload_error = '';
     if (isset($_FILES['profile_image']) && $_FILES['profile_image']['error'] === UPLOAD_ERR_OK) {
         $fileType = isset($_FILES['profile_image']['type']) ? (string)$_FILES['profile_image']['type'] : '';
+        $fileSize = isset($_FILES['profile_image']['size']) ? (int)$_FILES['profile_image']['size'] : 0;
         $allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
         if (in_array($fileType, $allowedTypes, true)) {
             $isServerless = getenv('VERCEL') === '1' || getenv('AWS_LAMBDA_FUNCTION_NAME');
             if ($isServerless) {
-                $bytes = @file_get_contents($_FILES['profile_image']['tmp_name']);
-                if ($bytes !== false && $bytes !== '') {
-                    $profile_blob = $bytes;
-                    $profile_mime = $fileType;
+                if ($fileSize > 0 && $fileSize > 800000) {
+                    $upload_error = 'img_too_large';
+                } else {
+                    $bytes = @file_get_contents($_FILES['profile_image']['tmp_name']);
+                    if ($bytes !== false && $bytes !== '') {
+                        $outBytes = $bytes;
+                        $outMime = $fileType;
+                        if (function_exists('imagecreatefromstring') && function_exists('imagejpeg') && function_exists('imagesx') && function_exists('imagesy')) {
+                            try {
+                                $im = @imagecreatefromstring($bytes);
+                                if ($im) {
+                                    $w = imagesx($im);
+                                    $h = imagesy($im);
+                                    $max = 720;
+                                    $scale = ($w > 0 && $h > 0) ? min(1, $max / max($w, $h)) : 1;
+                                    $nw = (int)max(1, floor($w * $scale));
+                                    $nh = (int)max(1, floor($h * $scale));
+                                    if ($scale < 1 && function_exists('imagecreatetruecolor')) {
+                                        $dst = imagecreatetruecolor($nw, $nh);
+                                        if ($dst) {
+                                            imagecopyresampled($dst, $im, 0, 0, 0, 0, $nw, $nh, $w, $h);
+                                            ob_start();
+                                            imagejpeg($dst, null, 82);
+                                            $jpeg = ob_get_clean();
+                                            imagedestroy($dst);
+                                            if (is_string($jpeg) && $jpeg !== '') {
+                                                $outBytes = $jpeg;
+                                                $outMime = 'image/jpeg';
+                                            }
+                                        }
+                                    } else {
+                                        ob_start();
+                                        imagejpeg($im, null, 82);
+                                        $jpeg = ob_get_clean();
+                                        if (is_string($jpeg) && $jpeg !== '') {
+                                            $outBytes = $jpeg;
+                                            $outMime = 'image/jpeg';
+                                        }
+                                    }
+                                    imagedestroy($im);
+                                }
+                            } catch (Exception $e) {
+                            }
+                        }
+                        if (strlen($outBytes) > 800000) {
+                            $upload_error = 'img_too_large';
+                        } else {
+                            $profile_blob = $outBytes;
+                            $profile_mime = $outMime;
+                        }
+                    }
                 }
             } else {
                 $uploadDir = '../uploads/profile/';
@@ -70,30 +120,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($name !== '') {
         try {
-            try {
-                $pdo->exec("ALTER TABLE tailors ADD COLUMN price_range_min DECIMAL(10,2)");
-            } catch (Exception $e) {
-            }
-            try {
-                $pdo->exec("ALTER TABLE tailors ADD COLUMN address TEXT");
-            } catch (Exception $e) {
-            }
-            try {
-                $pdo->exec("ALTER TABLE tailors ADD COLUMN skills TEXT");
-            } catch (Exception $e) {
-            }
-            try {
-                $pdo->exec("ALTER TABLE tailors ADD COLUMN instagram_link VARCHAR(255)");
-            } catch (Exception $e) {
-            }
-            try {
-                $pdo->exec("ALTER TABLE tailors ADD COLUMN profile_image_blob LONGBLOB NULL");
-            } catch (Exception $e) {
-            }
-            try {
-                $pdo->exec("ALTER TABLE tailors ADD COLUMN profile_image_mime VARCHAR(100) NULL");
-            } catch (Exception $e) {
-            }
+            silah_ensure_column($pdo, 'tailors', 'price_range_min', "ALTER TABLE tailors ADD COLUMN price_range_min DECIMAL(10,2)");
+            silah_ensure_column($pdo, 'tailors', 'address', "ALTER TABLE tailors ADD COLUMN address TEXT");
+            silah_ensure_column($pdo, 'tailors', 'skills', "ALTER TABLE tailors ADD COLUMN skills TEXT");
+            silah_ensure_column($pdo, 'tailors', 'instagram_link', "ALTER TABLE tailors ADD COLUMN instagram_link VARCHAR(255)");
+            silah_ensure_column($pdo, 'tailors', 'profile_image_blob', "ALTER TABLE tailors ADD COLUMN profile_image_blob LONGBLOB NULL");
+            silah_ensure_column($pdo, 'tailors', 'profile_image_mime', "ALTER TABLE tailors ADD COLUMN profile_image_mime VARCHAR(100) NULL");
 
             if ($profile_blob !== null) {
                 $stmt = $pdo->prepare("UPDATE tailors SET name = ?, phone = ?, location = ?, address = ?, skills = ?, instagram_link = ?, tagline = ?, description = ?, price_range_min = ?, profile_image_blob = ?, profile_image_mime = ? WHERE id = ?");
@@ -105,7 +137,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt = $pdo->prepare("UPDATE tailors SET name = ?, phone = ?, location = ?, address = ?, skills = ?, instagram_link = ?, tagline = ?, description = ?, price_range_min = ? WHERE id = ?");
                 $stmt->execute([$name, $phone, $location, $address, $skills, $instagram_link !== '' ? $instagram_link : null, $tagline, $description, $price_range_min, $tailor_id]);
             }
-            header("Location: profile.php?saved=1");
+            $redir = "profile.php?saved=1";
+            if ($upload_error !== '') {
+                $redir .= "&upload=" . urlencode($upload_error);
+            }
+            header("Location: " . $redir);
             exit;
         } catch (Exception $e) {
             header("Location: profile.php?saved=0");
@@ -414,6 +450,13 @@ include 'sidebar.php';
                     <p class="text-sm font-semibold mb-0 <?= $_GET['saved'] == '1' ? 'text-green-800' : 'text-red-800' ?>">
                         <?= $_GET['saved'] == '1' ? 'Profile updated successfully.' : 'Could not update your profile.' ?>
                     </p>
+                </div>
+            <?php endif; ?>
+
+            <?php if (isset($_GET['upload']) && (string)$_GET['upload'] === 'img_too_large'): ?>
+                <div class="mb-8 p-4 rounded-2xl border bg-amber-50 border-amber-100">
+                    <p class="text-xs font-extrabold uppercase tracking-widest mb-1 text-amber-700">Photo Too Large</p>
+                    <p class="text-sm font-semibold mb-0 text-amber-800">Please upload an image under 800KB for faster saving.</p>
                 </div>
             <?php endif; ?>
 
