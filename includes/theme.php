@@ -24,21 +24,17 @@ function silah_set_setting($pdo, $key, $value) {
 }
 
 function silah_theme_styles($pdo, $context = 'public') {
-    $primary = silah_get_setting($pdo, $context === 'admin' ? 'admin_primary_color' : 'primary_color', $context === 'admin' ? '#865294' : '#d63384');
-    $bg = silah_get_setting($pdo, $context === 'admin' ? 'admin_bg_color' : 'bg_color', $context === 'admin' ? '#ffffff' : '#ffffff');
-    $text = silah_get_setting($pdo, 'text_color', '#0f172a');
+    $primary = $context === 'admin' ? silah_get_setting($pdo, 'admin_primary_color', '#865294') : '#d63384';
+    $bg = $context === 'admin' ? silah_get_setting($pdo, 'admin_bg_color', '#ffffff') : '#ffffff';
+    $text = '#0f172a';
     $sidebar = silah_get_setting($pdo, 'admin_sidebar_color', '#2D1B36');
-    $heroImage = silah_get_setting($pdo, 'hero_image', '');
+    $heroImage = '';
     $adminBanner = silah_get_setting($pdo, 'admin_banner', '');
 
     $css = "";
     if ($context === 'public') {
         $css .= ":root{--brand-primary: {$primary};}\n";
         $css .= "body{background-color: {$bg}; color: {$text};}\n";
-        if ($heroImage !== '') {
-            $safe = htmlspecialchars($heroImage, ENT_QUOTES);
-            $css .= "#heroBg{background-image:url('{$safe}'); background-size:cover; background-position:center;}\n";
-        }
     } else {
         $css .= ":root{--admin-primary: {$primary}; --admin-bg: {$bg};}\n";
         $css .= "body{background-color: var(--admin-bg);} .w-72.bg-\\[\\#2D1B36\\]{background-color: {$sidebar} !important;}\n";
