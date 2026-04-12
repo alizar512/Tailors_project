@@ -18,10 +18,6 @@
     {
       "src": "images/**/*",
       "use": "@vercel/static"
-    },
-    {
-      "src": "uploads/**/*",
-      "use": "@vercel/static"
     }
   ],
   "routes": [
