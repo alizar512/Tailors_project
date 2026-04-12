@@ -11,7 +11,7 @@ $feedback = filter_input(INPUT_POST, 'feedback', FILTER_SANITIZE_FULL_SPECIAL_CH
 $feedback = $feedback ? trim((string)$feedback) : '';
 
 if ($feedback === '') {
-    echo "<script>alert('Please enter your feedback.'); window.location.href='index.php#contact';</script>";
+    header("Location: index.php?feedback=error#contact");
     exit();
 }
 
@@ -47,7 +47,6 @@ if ($pdo) {
     }
 }
 
-echo "<script>alert('Thank you! Your feedback has been sent.'); window.location.href='index.php';</script>";
+header("Location: index.php?feedback=sent#contact");
 exit();
 ?>
-

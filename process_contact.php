@@ -24,15 +24,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $stmt->execute([$name, $email, $full_message]);
 
             silah_send_email($to, $emailSubject, $emailBody);
-            
-            echo "<script>alert('Thank you! Your message has been sent.'); window.location.href='index.php';</script>";
+
+            header("Location: index.php?contact=sent#contact");
+            exit();
         } catch (Exception $e) {
             try { silah_send_email($to, $emailSubject, $emailBody); } catch (Exception $e2) {}
-            echo "<script>alert('Error submitting form. Please try again.'); window.location.href='index.php';</script>";
+            header("Location: index.php?contact=error#contact");
+            exit();
         }
     } else {
         try { silah_send_email($to, $emailSubject, $emailBody); } catch (Exception $e) {}
-        echo "<script>alert('Thank you! (Demo Mode - DB not connected)'); window.location.href='index.php';</script>";
+        header("Location: index.php?contact=sent#contact");
+        exit();
     }
 } else {
     header("Location: index.php");

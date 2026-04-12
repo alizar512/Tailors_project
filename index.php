@@ -607,6 +607,32 @@ if ($hire_mode) {
                 <div class="col-lg-7" data-aos="fade-left">
                     <div class="bg-white p-8 rounded-[24px] shadow-lg border border-gray-100 h-full">
                         <h3 class="text-2xl font-bold mb-6">Send a Message</h3>
+                        <?php if (isset($_GET['contact']) && (string)$_GET['contact'] !== ''): ?>
+                            <?php
+                                $c = (string)$_GET['contact'];
+                                $ok = $c === 'sent';
+                                $box = $ok ? 'bg-green-50 border-green-100' : 'bg-red-50 border-red-100';
+                                $t1 = $ok ? 'text-green-700' : 'text-red-600';
+                                $msg = $ok ? 'Message sent successfully.' : 'Could not send message. Please try again.';
+                            ?>
+                            <div class="p-4 rounded-2xl border <?= $box ?> mb-5">
+                                <p class="text-xs font-black uppercase tracking-widest <?= $t1 ?> mb-0"><?= htmlspecialchars((string)$msg) ?></p>
+                            </div>
+                        <?php endif; ?>
+
+                        <?php if (isset($_GET['feedback']) && (string)$_GET['feedback'] !== ''): ?>
+                            <?php
+                                $f = (string)$_GET['feedback'];
+                                $ok = $f === 'sent';
+                                $box = $ok ? 'bg-green-50 border-green-100' : 'bg-red-50 border-red-100';
+                                $t1 = $ok ? 'text-green-700' : 'text-red-600';
+                                $msg = $ok ? 'Feedback sent successfully.' : 'Please enter your feedback.';
+                            ?>
+                            <div class="p-4 rounded-2xl border <?= $box ?> mb-5">
+                                <p class="text-xs font-black uppercase tracking-widest <?= $t1 ?> mb-0"><?= htmlspecialchars((string)$msg) ?></p>
+                            </div>
+                        <?php endif; ?>
+
                         <form action="process_contact.php" method="POST">
                             <div class="row g-4">
                                 <div class="col-md-6">
