@@ -107,7 +107,9 @@ try {
 
     $cargoCompany = isset($order['cargo_company']) ? (string)$order['cargo_company'] : '';
     $cargoTrack = isset($order['cargo_tracking_number']) ? (string)$order['cargo_tracking_number'] : '';
-    $cargoReceipt = isset($order['cargo_receipt_image']) ? (string)$order['cargo_receipt_image'] : '';
+    $cargoReceipt = (isset($order['cargo_receipt_blob']) && $order['cargo_receipt_blob'] !== null && $order['cargo_receipt_blob'] !== '') || (isset($order['cargo_receipt_image']) && trim((string)$order['cargo_receipt_image']) !== '')
+        ? ($baseUrl . '/order_media.php?order_id=' . urlencode((string)$id) . '&field=cargo')
+        : '';
 
     echo json_encode([
         'success' => true,

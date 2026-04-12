@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/includes/session_init.php';
 require_once __DIR__ . '/includes/db_connect.php';
+require_once __DIR__ . '/includes/schema_utils.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name = isset($_POST['name']) ? trim((string)$_POST['name']) : '';
@@ -54,19 +55,74 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Handle File Upload
     $reference_image = '';
+    $reference_blob = null;
+    $reference_mime = null;
     if (isset($_FILES['reference_image']) && $_FILES['reference_image']['error'] === UPLOAD_ERR_OK) {
         $fileType = $_FILES['reference_image']['type'];
+        $fileSize = isset($_FILES['reference_image']['size']) ? (int)$_FILES['reference_image']['size'] : 0;
         $allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
         
         if (in_array($fileType, $allowedTypes)) {
-            $uploadDir = 'uploads/';
-            if (!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
-            
-            $fileName = uniqid() . '_' . basename($_FILES['reference_image']['name']);
-            $uploadPath = $uploadDir . $fileName;
-            
-            if (move_uploaded_file($_FILES['reference_image']['tmp_name'], $uploadPath)) {
-                $reference_image = $uploadPath;
+            $isServerless = getenv('VERCEL') === '1' || getenv('AWS_LAMBDA_FUNCTION_NAME');
+            if ($isServerless) {
+                if ($fileSize > 0 && $fileSize <= 1500000) {
+                    $bytes = @file_get_contents($_FILES['reference_image']['tmp_name']);
+                    if ($bytes !== false && $bytes !== '') {
+                        $outBytes = $bytes;
+                        $outMime = $fileType;
+                        if (function_exists('imagecreatefromstring') && function_exists('imagejpeg') && function_exists('imagesx') && function_exists('imagesy')) {
+                            try {
+                                $im = @imagecreatefromstring($bytes);
+                                if ($im) {
+                                    $w = imagesx($im);
+                                    $h = imagesy($im);
+                                    $max = 900;
+                                    $scale = ($w > 0 && $h > 0) ? min(1, $max / max($w, $h)) : 1;
+                                    $nw = (int)max(1, floor($w * $scale));
+                                    $nh = (int)max(1, floor($h * $scale));
+                                    if ($scale < 1 && function_exists('imagecreatetruecolor')) {
+                                        $dst = imagecreatetruecolor($nw, $nh);
+                                        if ($dst) {
+                                            imagecopyresampled($dst, $im, 0, 0, 0, 0, $nw, $nh, $w, $h);
+                                            ob_start();
+                                            imagejpeg($dst, null, 82);
+                                            $jpeg = ob_get_clean();
+                                            imagedestroy($dst);
+                                            if (is_string($jpeg) && $jpeg !== '') {
+                                                $outBytes = $jpeg;
+                                                $outMime = 'image/jpeg';
+                                            }
+                                        }
+                                    } else {
+                                        ob_start();
+                                        imagejpeg($im, null, 82);
+                                        $jpeg = ob_get_clean();
+                                        if (is_string($jpeg) && $jpeg !== '') {
+                                            $outBytes = $jpeg;
+                                            $outMime = 'image/jpeg';
+                                        }
+                                    }
+                                    imagedestroy($im);
+                                }
+                            } catch (Exception $e) {
+                            }
+                        }
+                        if (strlen($outBytes) <= 1500000) {
+                            $reference_blob = $outBytes;
+                            $reference_mime = $outMime;
+                        }
+                    }
+                }
+            } else {
+                $uploadDir = 'uploads/';
+                if (!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
+                
+                $fileName = uniqid() . '_' . basename($_FILES['reference_image']['name']);
+                $uploadPath = $uploadDir . $fileName;
+                
+                if (move_uploaded_file($_FILES['reference_image']['tmp_name'], $uploadPath)) {
+                    $reference_image = $uploadPath;
+                }
             }
         }
     }
@@ -126,6 +182,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'location_details' => "ALTER TABLE orders ADD COLUMN location_details TEXT",
                 'expected_delivery' => "ALTER TABLE orders ADD COLUMN expected_delivery VARCHAR(50)",
                 'reference_image' => "ALTER TABLE orders ADD COLUMN reference_image VARCHAR(255)",
+                'reference_image_blob' => "ALTER TABLE orders ADD COLUMN reference_image_blob LONGBLOB NULL",
+                'reference_image_mime' => "ALTER TABLE orders ADD COLUMN reference_image_mime VARCHAR(100) NULL",
                 'notes' => "ALTER TABLE orders ADD COLUMN notes TEXT",
                 'measurements' => "ALTER TABLE orders ADD COLUMN measurements TEXT",
                 'chat_token' => "ALTER TABLE orders ADD COLUMN chat_token VARCHAR(64)",
@@ -205,6 +263,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $orderId = (int)$pdo->lastInsertId();
 
             if ($orderId > 0) {
+                if ($reference_blob !== null) {
+                    try {
+                        $stmt = $pdo->prepare("UPDATE orders SET reference_image_blob = ?, reference_image_mime = ?, reference_image = COALESCE(NULLIF(reference_image, ''), reference_image) WHERE id = ?");
+                        $stmt->execute([$reference_blob, $reference_mime, $orderId]);
+                    } catch (Exception $e) {
+                    }
+                }
                 if ($customerId > 0) {
                     try {
                         $stmt = $pdo->prepare("UPDATE orders SET customer_id = ? WHERE id = ? AND (customer_id IS NULL OR customer_id = 0)");

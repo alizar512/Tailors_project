@@ -272,11 +272,11 @@ include 'sidebar.php';
                         <p class="text-sm font-bold text-gray-700 mb-0"><?= date('F d, Y • H:i', strtotime($order['shipped_at'])) ?></p>
                     </div>
                     <?php endif; ?>
-                    <?php if (isset($order['cargo_receipt_image']) && trim((string)$order['cargo_receipt_image']) !== ''): ?>
+                    <?php if ((isset($order['cargo_receipt_blob']) && $order['cargo_receipt_blob'] !== null && $order['cargo_receipt_blob'] !== '') || (isset($order['cargo_receipt_image']) && trim((string)$order['cargo_receipt_image']) !== '')): ?>
                     <div class="col-12 mt-4">
                         <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Cargo Transcript</p>
                         <div class="rounded-2xl overflow-hidden border border-gray-100 bg-white max-w-sm">
-                            <img src="../<?= htmlspecialchars((string)$order['cargo_receipt_image']) ?>" alt="Cargo receipt" class="w-full h-auto">
+                            <img src="../order_media.php?order_id=<?= (int)$order['id'] ?>&field=cargo" alt="Cargo receipt" class="w-full h-auto">
                         </div>
                     </div>
                     <?php endif; ?>
@@ -284,17 +284,17 @@ include 'sidebar.php';
             </div>
             <?php endif; ?>
 
-            <?php if ($order['reference_image']): ?>
+            <?php if ((isset($order['reference_image_blob']) && $order['reference_image_blob'] !== null && $order['reference_image_blob'] !== '') || (isset($order['reference_image']) && trim((string)$order['reference_image']) !== '')): ?>
             <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Design Reference</p>
             <div class="rounded-2xl overflow-hidden border border-gray-100 shadow-sm max-w-sm relative group">
-                <img src="../<?= htmlspecialchars((string)$order['reference_image']) ?>" class="w-full h-auto hover:scale-105 transition-transform duration-500">
+                <img src="../order_media.php?order_id=<?= (int)$order['id'] ?>&field=reference" class="w-full h-auto hover:scale-105 transition-transform duration-500">
                 <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
-                    <a href="../<?= htmlspecialchars((string)$order['reference_image']) ?>" target="_blank" class="w-10 h-10 rounded-full bg-white text-primary flex items-center justify-center shadow-xl hover:scale-110 transition-transform">
+                    <a href="../order_media.php?order_id=<?= (int)$order['id'] ?>&field=reference" target="_blank" class="w-10 h-10 rounded-full bg-white text-primary flex items-center justify-center shadow-xl hover:scale-110 transition-transform">
                         <i class="fas fa-eye"></i>
                     </a>
                     <form action="delete_order_media.php" method="POST" onsubmit="return confirm('Delete this image? This action cannot be undone.');">
                         <input type="hidden" name="order_id" value="<?= $order['id'] ?>">
-                        <input type="hidden" name="image_path" value="<?= htmlspecialchars((string)$order['reference_image']) ?>">
+                        <input type="hidden" name="image_path" value="">
                         <button type="submit" class="w-10 h-10 rounded-full bg-white text-red-500 flex items-center justify-center shadow-xl hover:scale-110 transition-transform">
                             <i class="fas fa-trash"></i>
                         </button>
@@ -414,11 +414,11 @@ include 'sidebar.php';
                                 <?= htmlspecialchars((string)$paymentStatus) ?>
                             </span>
                         </div>
-                        <?php if (isset($order['payment_proof_image']) && trim((string)$order['payment_proof_image']) !== ''): ?>
+                        <?php if ((isset($order['payment_proof_blob']) && $order['payment_proof_blob'] !== null && $order['payment_proof_blob'] !== '') || (isset($order['payment_proof_image']) && trim((string)$order['payment_proof_image']) !== '')): ?>
                             <div class="mt-4">
                                 <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Payment Proof</p>
                                 <div class="rounded-2xl overflow-hidden border border-gray-100 bg-white">
-                                    <img src="../<?= htmlspecialchars((string)$order['payment_proof_image']) ?>" alt="Payment proof" class="w-full h-auto">
+                                    <img src="../order_media.php?order_id=<?= (int)$order['id'] ?>&field=payment" alt="Payment proof" class="w-full h-auto">
                                 </div>
                             </div>
                         <?php endif; ?>

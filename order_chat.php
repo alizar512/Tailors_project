@@ -4,6 +4,7 @@ require_once __DIR__ . '/includes/db_connect.php';
 require_once __DIR__ . '/includes/notifications.php';
 require_once __DIR__ . '/includes/mailer.php';
 require_once __DIR__ . '/includes/order_messages.php';
+require_once __DIR__ . '/includes/schema_utils.php';
 
 $token = isset($_GET['token']) ? trim((string)$_GET['token']) : '';
 $return = isset($_GET['return']) ? trim((string)$_GET['return']) : '';
@@ -67,6 +68,8 @@ try {
     $pdo->exec("ALTER TABLE orders ADD COLUMN payment_proof_image VARCHAR(255)");
 } catch (Exception $e) {
 }
+silah_ensure_column($pdo, 'orders', 'payment_proof_blob', "ALTER TABLE orders ADD COLUMN payment_proof_blob LONGBLOB NULL");
+silah_ensure_column($pdo, 'orders', 'payment_proof_mime', "ALTER TABLE orders ADD COLUMN payment_proof_mime VARCHAR(100) NULL");
 try {
     $pdo->exec("ALTER TABLE orders ADD COLUMN payment_submitted_at TIMESTAMP NULL");
 } catch (Exception $e) {
@@ -83,6 +86,8 @@ try {
     $pdo->exec("ALTER TABLE orders ADD COLUMN balance_payment_proof_image VARCHAR(255)");
 } catch (Exception $e) {
 }
+silah_ensure_column($pdo, 'orders', 'balance_payment_proof_blob', "ALTER TABLE orders ADD COLUMN balance_payment_proof_blob LONGBLOB NULL");
+silah_ensure_column($pdo, 'orders', 'balance_payment_proof_mime', "ALTER TABLE orders ADD COLUMN balance_payment_proof_mime VARCHAR(100) NULL");
 try {
     $pdo->exec("ALTER TABLE orders ADD COLUMN balance_payment_submitted_at TIMESTAMP NULL");
 } catch (Exception $e) {
@@ -103,6 +108,8 @@ try {
     $pdo->exec("ALTER TABLE orders ADD COLUMN cargo_receipt_image VARCHAR(255)");
 } catch (Exception $e) {
 }
+silah_ensure_column($pdo, 'orders', 'cargo_receipt_blob', "ALTER TABLE orders ADD COLUMN cargo_receipt_blob LONGBLOB NULL");
+silah_ensure_column($pdo, 'orders', 'cargo_receipt_mime', "ALTER TABLE orders ADD COLUMN cargo_receipt_mime VARCHAR(100) NULL");
 try {
     $pdo->exec("ALTER TABLE orders ADD COLUMN shipped_at TIMESTAMP NULL");
 } catch (Exception $e) {
@@ -194,18 +201,59 @@ if (!$is_lookup_mode && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['u
         $ext = strtolower(pathinfo($orig, PATHINFO_EXTENSION));
         $allowed = ['jpg', 'jpeg', 'png', 'webp'];
         if (in_array($ext, $allowed, true)) {
-            $dir = __DIR__ . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'payments' . DIRECTORY_SEPARATOR;
-            if (!is_dir($dir)) {
-                @mkdir($dir, 0777, true);
-            }
-            $fileName = uniqid('pay_', true) . '.' . $ext;
-            $destAbs = $dir . $fileName;
-            $destRel = 'uploads/payments/' . $fileName;
-            if (@move_uploaded_file($tmp, $destAbs)) {
+            $isServerless = getenv('VERCEL') === '1' || getenv('AWS_LAMBDA_FUNCTION_NAME');
+            $bytes = @file_get_contents($tmp);
+            if ($bytes !== false && $bytes !== '') {
+                $outBytes = $bytes;
+                $outMime = $ext === 'png' ? 'image/png' : ($ext === 'webp' ? 'image/webp' : 'image/jpeg');
+                if (function_exists('imagecreatefromstring') && function_exists('imagejpeg') && function_exists('imagesx') && function_exists('imagesy')) {
+                    try {
+                        $im = @imagecreatefromstring($bytes);
+                        if ($im) {
+                            $w = imagesx($im);
+                            $h = imagesy($im);
+                            $max = 900;
+                            $scale = ($w > 0 && $h > 0) ? min(1, $max / max($w, $h)) : 1;
+                            $nw = (int)max(1, floor($w * $scale));
+                            $nh = (int)max(1, floor($h * $scale));
+                            if (($scale < 1 || $outMime !== 'image/jpeg') && function_exists('imagecreatetruecolor')) {
+                                $dst = imagecreatetruecolor($nw, $nh);
+                                if ($dst) {
+                                    imagecopyresampled($dst, $im, 0, 0, 0, 0, $nw, $nh, $w, $h);
+                                    ob_start();
+                                    imagejpeg($dst, null, 82);
+                                    $jpeg = ob_get_clean();
+                                    imagedestroy($dst);
+                                    if (is_string($jpeg) && $jpeg !== '') {
+                                        $outBytes = $jpeg;
+                                        $outMime = 'image/jpeg';
+                                    }
+                                }
+                            }
+                            imagedestroy($im);
+                        }
+                    } catch (Exception $e) {
+                    }
+                }
+
+                $destRel = '';
+                if (!$isServerless) {
+                    $dir = __DIR__ . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'payments' . DIRECTORY_SEPARATOR;
+                    if (!is_dir($dir)) {
+                        @mkdir($dir, 0777, true);
+                    }
+                    $fileName = uniqid('pay_', true) . '.' . ($outMime === 'image/png' ? 'png' : ($outMime === 'image/webp' ? 'webp' : 'jpg'));
+                    $destAbs = $dir . $fileName;
+                    $destRel = 'uploads/payments/' . $fileName;
+                    @move_uploaded_file($tmp, $destAbs);
+                }
+
                 try {
-                    $stmt = $pdo->prepare("UPDATE orders SET payment_proof_image = ?, payment_status = 'Submitted', payment_submitted_at = NOW(), payment_confirmed_at = NULL WHERE id = ?");
-                    $stmt->execute([$destRel, (int)$order['id']]);
+                    $stmt = $pdo->prepare("UPDATE orders SET payment_proof_image = ?, payment_proof_blob = ?, payment_proof_mime = ?, payment_status = 'Submitted', payment_submitted_at = NOW(), payment_confirmed_at = NULL WHERE id = ?");
+                    $stmt->execute([$destRel !== '' ? $destRel : null, $outBytes, $outMime, (int)$order['id']]);
                     $order['payment_proof_image'] = $destRel;
+                    $order['payment_proof_blob'] = $outBytes;
+                    $order['payment_proof_mime'] = $outMime;
                     $order['payment_status'] = 'Submitted';
                     $ok = 1;
                 } catch (Exception $e) {
@@ -290,18 +338,59 @@ if (!$is_lookup_mode && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['u
         $ext = strtolower(pathinfo($orig, PATHINFO_EXTENSION));
         $allowed = ['jpg', 'jpeg', 'png', 'webp'];
         if (in_array($ext, $allowed, true)) {
-            $dir = __DIR__ . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'payments' . DIRECTORY_SEPARATOR;
-            if (!is_dir($dir)) {
-                @mkdir($dir, 0777, true);
-            }
-            $fileName = uniqid('pay70_', true) . '.' . $ext;
-            $destAbs = $dir . $fileName;
-            $destRel = 'uploads/payments/' . $fileName;
-            if (@move_uploaded_file($tmp, $destAbs)) {
+            $isServerless = getenv('VERCEL') === '1' || getenv('AWS_LAMBDA_FUNCTION_NAME');
+            $bytes = @file_get_contents($tmp);
+            if ($bytes !== false && $bytes !== '') {
+                $outBytes = $bytes;
+                $outMime = $ext === 'png' ? 'image/png' : ($ext === 'webp' ? 'image/webp' : 'image/jpeg');
+                if (function_exists('imagecreatefromstring') && function_exists('imagejpeg') && function_exists('imagesx') && function_exists('imagesy')) {
+                    try {
+                        $im = @imagecreatefromstring($bytes);
+                        if ($im) {
+                            $w = imagesx($im);
+                            $h = imagesy($im);
+                            $max = 900;
+                            $scale = ($w > 0 && $h > 0) ? min(1, $max / max($w, $h)) : 1;
+                            $nw = (int)max(1, floor($w * $scale));
+                            $nh = (int)max(1, floor($h * $scale));
+                            if (($scale < 1 || $outMime !== 'image/jpeg') && function_exists('imagecreatetruecolor')) {
+                                $dst = imagecreatetruecolor($nw, $nh);
+                                if ($dst) {
+                                    imagecopyresampled($dst, $im, 0, 0, 0, 0, $nw, $nh, $w, $h);
+                                    ob_start();
+                                    imagejpeg($dst, null, 82);
+                                    $jpeg = ob_get_clean();
+                                    imagedestroy($dst);
+                                    if (is_string($jpeg) && $jpeg !== '') {
+                                        $outBytes = $jpeg;
+                                        $outMime = 'image/jpeg';
+                                    }
+                                }
+                            }
+                            imagedestroy($im);
+                        }
+                    } catch (Exception $e) {
+                    }
+                }
+
+                $destRel = '';
+                if (!$isServerless) {
+                    $dir = __DIR__ . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'payments' . DIRECTORY_SEPARATOR;
+                    if (!is_dir($dir)) {
+                        @mkdir($dir, 0777, true);
+                    }
+                    $fileName = uniqid('pay70_', true) . '.' . ($outMime === 'image/png' ? 'png' : ($outMime === 'image/webp' ? 'webp' : 'jpg'));
+                    $destAbs = $dir . $fileName;
+                    $destRel = 'uploads/payments/' . $fileName;
+                    @move_uploaded_file($tmp, $destAbs);
+                }
+
                 try {
-                    $stmt = $pdo->prepare("UPDATE orders SET balance_payment_proof_image = ?, balance_payment_status = 'Submitted', balance_payment_submitted_at = NOW(), balance_payment_confirmed_at = NULL WHERE id = ?");
-                    $stmt->execute([$destRel, (int)$order['id']]);
+                    $stmt = $pdo->prepare("UPDATE orders SET balance_payment_proof_image = ?, balance_payment_proof_blob = ?, balance_payment_proof_mime = ?, balance_payment_status = 'Submitted', balance_payment_submitted_at = NOW(), balance_payment_confirmed_at = NULL WHERE id = ?");
+                    $stmt->execute([$destRel !== '' ? $destRel : null, $outBytes, $outMime, (int)$order['id']]);
                     $order['balance_payment_proof_image'] = $destRel;
+                    $order['balance_payment_proof_blob'] = $outBytes;
+                    $order['balance_payment_proof_mime'] = $outMime;
                     $order['balance_payment_status'] = 'Submitted';
                     $ok = 1;
                 } catch (Exception $e) {
@@ -500,9 +589,13 @@ if (!$is_lookup_mode && $order) {
     $advanceAmount = $totalPrice * 0.3;
     $balanceAmount = max(0, $totalPrice - $advanceAmount);
     $paymentStatus = isset($order['payment_status']) && $order['payment_status'] ? (string)$order['payment_status'] : 'Pending';
-    $paymentProof = isset($order['payment_proof_image']) ? trim((string)$order['payment_proof_image']) : '';
+    $paymentProof = (isset($order['payment_proof_blob']) && $order['payment_proof_blob'] !== null && $order['payment_proof_blob'] !== '') || (isset($order['payment_proof_image']) && trim((string)$order['payment_proof_image']) !== '')
+        ? ('order_media.php?order_id=' . (int)$order['id'] . '&field=payment')
+        : '';
     $balanceStatus = isset($order['balance_payment_status']) && $order['balance_payment_status'] ? (string)$order['balance_payment_status'] : 'Pending';
-    $balanceProof = isset($order['balance_payment_proof_image']) ? trim((string)$order['balance_payment_proof_image']) : '';
+    $balanceProof = (isset($order['balance_payment_proof_blob']) && $order['balance_payment_proof_blob'] !== null && $order['balance_payment_proof_blob'] !== '') || (isset($order['balance_payment_proof_image']) && trim((string)$order['balance_payment_proof_image']) !== '')
+        ? ('order_media.php?order_id=' . (int)$order['id'] . '&field=balance')
+        : '';
 }
 $emailOrders = [];
 $hasEmailLookup = $is_lookup_mode && $email_lookup !== '';

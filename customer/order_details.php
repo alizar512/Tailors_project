@@ -73,15 +73,21 @@ $paymentStatus = isset($order['payment_status']) && $order['payment_status'] ? (
 $balanceStatus = isset($order['balance_payment_status']) && $order['balance_payment_status'] ? (string)$order['balance_payment_status'] : '';
 $total = isset($order['total_price']) && $order['total_price'] !== null && $order['total_price'] !== '' ? (float)$order['total_price'] : (isset($order['budget']) ? (float)$order['budget'] : 0.0);
 $advanceRequired = $total * 0.3;
-$paymentProof = isset($order['payment_proof_image']) ? (string)$order['payment_proof_image'] : '';
+$paymentProof = (isset($order['payment_proof_blob']) && $order['payment_proof_blob'] !== null && $order['payment_proof_blob'] !== '') || (isset($order['payment_proof_image']) && trim((string)$order['payment_proof_image']) !== '')
+    ? ('order_media.php?order_id=' . (int)$id . '&field=payment')
+    : '';
 $paymentSubmittedAt = isset($order['payment_submitted_at']) ? (string)$order['payment_submitted_at'] : '';
 $paymentConfirmedAt = isset($order['payment_confirmed_at']) ? (string)$order['payment_confirmed_at'] : '';
-$balanceProof = isset($order['balance_payment_proof_image']) ? (string)$order['balance_payment_proof_image'] : '';
+$balanceProof = (isset($order['balance_payment_proof_blob']) && $order['balance_payment_proof_blob'] !== null && $order['balance_payment_proof_blob'] !== '') || (isset($order['balance_payment_proof_image']) && trim((string)$order['balance_payment_proof_image']) !== '')
+    ? ('order_media.php?order_id=' . (int)$id . '&field=balance')
+    : '';
 $balanceSubmittedAt = isset($order['balance_payment_submitted_at']) ? (string)$order['balance_payment_submitted_at'] : '';
 $balanceConfirmedAt = isset($order['balance_payment_confirmed_at']) ? (string)$order['balance_payment_confirmed_at'] : '';
 $cargoCompany = isset($order['cargo_company']) ? (string)$order['cargo_company'] : '';
 $cargoTrack = isset($order['cargo_tracking_number']) ? (string)$order['cargo_tracking_number'] : '';
-$cargoReceipt = isset($order['cargo_receipt_image']) ? (string)$order['cargo_receipt_image'] : '';
+$cargoReceipt = (isset($order['cargo_receipt_blob']) && $order['cargo_receipt_blob'] !== null && $order['cargo_receipt_blob'] !== '') || (isset($order['cargo_receipt_image']) && trim((string)$order['cargo_receipt_image']) !== '')
+    ? ('order_media.php?order_id=' . (int)$id . '&field=cargo')
+    : '';
 $shippedAt = isset($order['shipped_at']) ? (string)$order['shipped_at'] : '';
 $notes = isset($order['notes']) ? (string)$order['notes'] : '';
 $measurements = isset($order['measurements']) ? (string)$order['measurements'] : '';

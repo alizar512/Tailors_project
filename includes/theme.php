@@ -45,7 +45,9 @@ function silah_theme_styles($pdo, $context = 'public') {
         $css .= ".btn-primary:hover{filter: brightness(0.95);}\n";
         $css .= ".btn-outline{border-color: var(--admin-primary) !important; color: var(--admin-primary) !important;}\n";
         $css .= ".btn-outline:hover{background-color: rgba(0,0,0,0.03);}\n";
-        if ($adminBanner !== '') {
+        if (silah_get_setting($pdo, 'admin_banner_enabled', '0') === '1') {
+            $css .= ".admin-banner{background-image:url('/site_file.php?key=admin_banner'); background-size:cover; background-position:center;}\n";
+        } else if ($adminBanner !== '') {
             $safe = htmlspecialchars($adminBanner, ENT_QUOTES);
             $css .= ".admin-banner{background-image:url('{$safe}'); background-size:cover; background-position:center;}\n";
         }

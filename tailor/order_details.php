@@ -4,6 +4,7 @@ require_once __DIR__ . '/../includes/db_connect.php';
 require_once __DIR__ . '/../includes/notifications.php';
 require_once __DIR__ . '/../includes/mailer.php';
 require_once __DIR__ . '/../includes/order_messages.php';
+require_once __DIR__ . '/../includes/schema_utils.php';
 
 $tailor_id = (int)$_SESSION['tailor_id'];
 $order_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
@@ -81,6 +82,14 @@ try {
     $pdo->exec("ALTER TABLE orders ADD COLUMN cargo_receipt_image VARCHAR(255)");
 } catch (Exception $e) {
 }
+silah_ensure_column($pdo, 'orders', 'reference_image_blob', "ALTER TABLE orders ADD COLUMN reference_image_blob LONGBLOB NULL");
+silah_ensure_column($pdo, 'orders', 'reference_image_mime', "ALTER TABLE orders ADD COLUMN reference_image_mime VARCHAR(100) NULL");
+silah_ensure_column($pdo, 'orders', 'payment_proof_blob', "ALTER TABLE orders ADD COLUMN payment_proof_blob LONGBLOB NULL");
+silah_ensure_column($pdo, 'orders', 'payment_proof_mime', "ALTER TABLE orders ADD COLUMN payment_proof_mime VARCHAR(100) NULL");
+silah_ensure_column($pdo, 'orders', 'balance_payment_proof_blob', "ALTER TABLE orders ADD COLUMN balance_payment_proof_blob LONGBLOB NULL");
+silah_ensure_column($pdo, 'orders', 'balance_payment_proof_mime', "ALTER TABLE orders ADD COLUMN balance_payment_proof_mime VARCHAR(100) NULL");
+silah_ensure_column($pdo, 'orders', 'cargo_receipt_blob', "ALTER TABLE orders ADD COLUMN cargo_receipt_blob LONGBLOB NULL");
+silah_ensure_column($pdo, 'orders', 'cargo_receipt_mime', "ALTER TABLE orders ADD COLUMN cargo_receipt_mime VARCHAR(100) NULL");
 try {
     $pdo->exec("ALTER TABLE orders ADD COLUMN shipped_at TIMESTAMP NULL");
 } catch (Exception $e) {
@@ -183,14 +192,58 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['set_cargo']) && isset
                         if ($mime === 'image/png') $ext = 'png';
                         if ($mime === 'image/webp') $ext = 'webp';
                         if ($ext !== '') {
-                            $dirAbs = __DIR__ . '/../uploads/shipments';
-                            if (!is_dir($dirAbs)) {
-                                @mkdir($dirAbs, 0777, true);
+                            $isServerless = getenv('VERCEL') === '1' || getenv('AWS_LAMBDA_FUNCTION_NAME');
+                            $bytes = @file_get_contents($tmp);
+                            $outBytes = $bytes;
+                            $outMime = $mime;
+                            if ($bytes !== false && $bytes !== '' && function_exists('imagecreatefromstring') && function_exists('imagejpeg') && function_exists('imagesx') && function_exists('imagesy')) {
+                                try {
+                                    $im = @imagecreatefromstring($bytes);
+                                    if ($im) {
+                                        $w = imagesx($im);
+                                        $h = imagesy($im);
+                                        $max = 900;
+                                        $scale = ($w > 0 && $h > 0) ? min(1, $max / max($w, $h)) : 1;
+                                        $nw = (int)max(1, floor($w * $scale));
+                                        $nh = (int)max(1, floor($h * $scale));
+                                        if (($scale < 1 || $outMime !== 'image/jpeg') && function_exists('imagecreatetruecolor')) {
+                                            $dst = imagecreatetruecolor($nw, $nh);
+                                            if ($dst) {
+                                                imagecopyresampled($dst, $im, 0, 0, 0, 0, $nw, $nh, $w, $h);
+                                                ob_start();
+                                                imagejpeg($dst, null, 82);
+                                                $jpeg = ob_get_clean();
+                                                imagedestroy($dst);
+                                                if (is_string($jpeg) && $jpeg !== '') {
+                                                    $outBytes = $jpeg;
+                                                    $outMime = 'image/jpeg';
+                                                }
+                                            }
+                                        }
+                                        imagedestroy($im);
+                                    }
+                                } catch (Exception $e) {
+                                }
                             }
-                            $fileName = uniqid('ship_', true) . '.' . $ext;
-                            $destAbs = $dirAbs . '/' . $fileName;
-                            if (@move_uploaded_file($tmp, $destAbs)) {
-                                $destRel = 'uploads/shipments/' . $fileName;
+
+                            if (!$isServerless) {
+                                $dirAbs = __DIR__ . '/../uploads/shipments';
+                                if (!is_dir($dirAbs)) {
+                                    @mkdir($dirAbs, 0777, true);
+                                }
+                                $fileName = uniqid('ship_', true) . '.' . ($outMime === 'image/png' ? 'png' : ($outMime === 'image/webp' ? 'webp' : 'jpg'));
+                                $destAbs = $dirAbs . '/' . $fileName;
+                                if (@move_uploaded_file($tmp, $destAbs)) {
+                                    $destRel = 'uploads/shipments/' . $fileName;
+                                }
+                            }
+
+                            if ($outBytes !== false && $outBytes !== '') {
+                                try {
+                                    $stmt = $pdo->prepare("UPDATE orders SET cargo_receipt_blob = ?, cargo_receipt_mime = ? WHERE id = ? AND tailor_id = ?");
+                                    $stmt->execute([$outBytes, $outMime, $post_order_id, $tailor_id]);
+                                } catch (Exception $e) {
+                                }
                             }
                         }
                     }
@@ -485,12 +538,12 @@ include 'sidebar.php';
                 </div>
             </div>
 
-            <?php if (isset($order['reference_image']) && $order['reference_image']): ?>
+            <?php if ((isset($order['reference_image_blob']) && $order['reference_image_blob'] !== null && $order['reference_image_blob'] !== '') || (isset($order['reference_image']) && $order['reference_image'])): ?>
                 <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Reference Image</p>
                 <div class="rounded-2xl overflow-hidden border border-gray-100 shadow-sm max-w-sm relative group">
-                    <img src="../<?= htmlspecialchars((string)$order['reference_image']) ?>" class="w-full h-auto hover:scale-105 transition-transform duration-500">
+                    <img src="../order_media.php?order_id=<?= (int)$order['id'] ?>&field=reference" class="w-full h-auto hover:scale-105 transition-transform duration-500">
                     <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
-                        <a href="../<?= htmlspecialchars((string)$order['reference_image']) ?>" target="_blank" class="w-10 h-10 rounded-full bg-white text-primary flex items-center justify-center shadow-xl hover:scale-110 transition-transform">
+                        <a href="../order_media.php?order_id=<?= (int)$order['id'] ?>&field=reference" target="_blank" class="w-10 h-10 rounded-full bg-white text-primary flex items-center justify-center shadow-xl hover:scale-110 transition-transform">
                             <i class="fas fa-eye"></i>
                         </a>
                     </div>
@@ -610,9 +663,13 @@ include 'sidebar.php';
                 $tAdvance = $tTotal * 0.3;
                 $tBalance = max(0, $tTotal - $tAdvance);
                 $pStatus = isset($order['payment_status']) && $order['payment_status'] ? (string)$order['payment_status'] : 'Pending';
-                $pProof = isset($order['payment_proof_image']) ? trim((string)$order['payment_proof_image']) : '';
+                $pProof = (isset($order['payment_proof_blob']) && $order['payment_proof_blob'] !== null && $order['payment_proof_blob'] !== '') || (isset($order['payment_proof_image']) && trim((string)$order['payment_proof_image']) !== '')
+                    ? ('../order_media.php?order_id=' . (int)$order['id'] . '&field=payment')
+                    : '';
                 $bStatus = isset($order['balance_payment_status']) && $order['balance_payment_status'] ? (string)$order['balance_payment_status'] : 'Pending';
-                $bProof = isset($order['balance_payment_proof_image']) ? trim((string)$order['balance_payment_proof_image']) : '';
+                $bProof = (isset($order['balance_payment_proof_blob']) && $order['balance_payment_proof_blob'] !== null && $order['balance_payment_proof_blob'] !== '') || (isset($order['balance_payment_proof_image']) && trim((string)$order['balance_payment_proof_image']) !== '')
+                    ? ('../order_media.php?order_id=' . (int)$order['id'] . '&field=balance')
+                    : '';
                 $badge = $pStatus === 'Confirmed'
                     ? 'bg-green-100 text-green-700'
                     : ($pStatus === 'Submitted'
@@ -639,7 +696,7 @@ include 'sidebar.php';
                     <div class="mt-4">
                         <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Payment Proof</p>
                         <div class="rounded-2xl overflow-hidden border border-gray-100">
-                            <img src="../<?= htmlspecialchars((string)$pProof) ?>" alt="Payment proof" class="w-full h-auto">
+                            <img src="<?= htmlspecialchars((string)$pProof) ?>" alt="Payment proof" class="w-full h-auto">
                         </div>
                     </div>
 
@@ -731,7 +788,9 @@ include 'sidebar.php';
             <?php
                 $cargoCompany = isset($order['cargo_company']) ? trim((string)$order['cargo_company']) : '';
                 $cargoTrack = isset($order['cargo_tracking_number']) ? trim((string)$order['cargo_tracking_number']) : '';
-                $cargoReceipt = isset($order['cargo_receipt_image']) ? trim((string)$order['cargo_receipt_image']) : '';
+                $cargoReceipt = (isset($order['cargo_receipt_blob']) && $order['cargo_receipt_blob'] !== null && $order['cargo_receipt_blob'] !== '') || (isset($order['cargo_receipt_image']) && trim((string)$order['cargo_receipt_image']) !== '')
+                    ? ('../order_media.php?order_id=' . (int)$order['id'] . '&field=cargo')
+                    : '';
                 $shipAt = isset($order['shipped_at']) ? trim((string)$order['shipped_at']) : '';
                 $advanceOk = isset($order['payment_status']) && (string)$order['payment_status'] === 'Confirmed';
                 $balanceOk = isset($order['balance_payment_status']) && (string)$order['balance_payment_status'] === 'Confirmed';
@@ -762,7 +821,7 @@ include 'sidebar.php';
 
                     <?php if ($cargoReceipt !== ''): ?>
                         <div class="rounded-2xl overflow-hidden border border-gray-100 bg-white">
-                            <img src="../<?= htmlspecialchars((string)$cargoReceipt) ?>" alt="Cargo receipt" class="w-full h-auto">
+                            <img src="<?= htmlspecialchars((string)$cargoReceipt) ?>" alt="Cargo receipt" class="w-full h-auto">
                         </div>
                     <?php endif; ?>
 
