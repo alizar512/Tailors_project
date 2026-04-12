@@ -73,9 +73,20 @@ include 'sidebar.php';
                 <h2 class="text-xl font-extrabold text-primary tracking-tight mb-0">Theme Settings</h2>
                 <p class="text-xs text-gray-500 font-medium">Customize colors and images for site and admin</p>
             </div>
-            <?php if ($msg !== ''): ?>
-                <span class="px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-black uppercase tracking-widest">Saved</span>
-            <?php endif; ?>
+            <div class="flex items-center gap-2">
+                <?php if ($msg !== ''): ?>
+                    <?php
+                        $isReset = $msg === 'Admin theme reset';
+                        $box = $isReset ? 'bg-amber-50 text-amber-700' : 'bg-emerald-50 text-emerald-700';
+                    ?>
+                    <span class="px-3 py-1 rounded-full <?= $box ?> text-[10px] font-black uppercase tracking-widest"><?= htmlspecialchars((string)$msg) ?></span>
+                <?php endif; ?>
+                <form action="theme_settings.php" method="POST" class="m-0">
+                    <button type="submit" name="reset_admin_theme" value="1" class="btn btn-outline px-4 py-2 text-[10px] font-extrabold uppercase tracking-widest">
+                        <i class="fas fa-rotate-left me-1"></i> Reset Admin Theme
+                    </button>
+                </form>
+            </div>
         </div>
 
         <form action="theme_settings.php" method="POST" enctype="multipart/form-data" class="space-y-6">
@@ -135,12 +146,10 @@ include 'sidebar.php';
                 </div>
             </div>
             <div class="flex justify-end">
-                <button type="submit" class="btn btn-primary px-6 py-2.5 text-xs font-extrabold uppercase tracking-widest">Save Changes</button>
+                <button type="submit" class="btn btn-primary px-6 py-2.5 text-xs font-extrabold uppercase tracking-widest">
+                    <i class="fas fa-floppy-disk me-1"></i> Save Changes
+                </button>
             </div>
-        </form>
-
-        <form action="theme_settings.php" method="POST" class="mt-4 flex justify-end">
-            <button type="submit" name="reset_admin_theme" value="1" class="btn btn-outline px-6 py-2.5 text-xs font-extrabold uppercase tracking-widest">Reset Admin Theme</button>
         </form>
     </div>
 </div>
