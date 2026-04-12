@@ -611,9 +611,10 @@ if ($hire_mode) {
                             <?php
                                 $c = (string)$_GET['contact'];
                                 $ok = $c === 'sent';
-                                $box = $ok ? 'bg-green-50 border-green-100' : 'bg-red-50 border-red-100';
-                                $t1 = $ok ? 'text-green-700' : 'text-red-600';
-                                $msg = $ok ? 'Message sent successfully.' : 'Could not send message. Please try again.';
+                                $queued = $c === 'queued';
+                                $box = $ok ? 'bg-green-50 border-green-100' : ($queued ? 'bg-amber-50 border-amber-100' : 'bg-red-50 border-red-100');
+                                $t1 = $ok ? 'text-green-700' : ($queued ? 'text-amber-700' : 'text-red-600');
+                                $msg = $ok ? 'Message sent successfully.' : ($queued ? 'Message received. Email service is not configured yet.' : 'Could not send message. Please try again.');
                             ?>
                             <div class="p-4 rounded-2xl border <?= $box ?> mb-5">
                                 <p class="text-xs font-black uppercase tracking-widest <?= $t1 ?> mb-0"><?= htmlspecialchars((string)$msg) ?></p>
@@ -624,9 +625,10 @@ if ($hire_mode) {
                             <?php
                                 $f = (string)$_GET['feedback'];
                                 $ok = $f === 'sent';
-                                $box = $ok ? 'bg-green-50 border-green-100' : 'bg-red-50 border-red-100';
-                                $t1 = $ok ? 'text-green-700' : 'text-red-600';
-                                $msg = $ok ? 'Feedback sent successfully.' : 'Please enter your feedback.';
+                                $queued = $f === 'queued';
+                                $box = $ok ? 'bg-green-50 border-green-100' : ($queued ? 'bg-amber-50 border-amber-100' : 'bg-red-50 border-red-100');
+                                $t1 = $ok ? 'text-green-700' : ($queued ? 'text-amber-700' : 'text-red-600');
+                                $msg = $ok ? 'Feedback sent successfully.' : ($queued ? 'Feedback received. Email service is not configured yet.' : 'Please enter your feedback.');
                             ?>
                             <div class="p-4 rounded-2xl border <?= $box ?> mb-5">
                                 <p class="text-xs font-black uppercase tracking-widest <?= $t1 ?> mb-0"><?= htmlspecialchars((string)$msg) ?></p>

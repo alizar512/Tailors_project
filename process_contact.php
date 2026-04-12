@@ -23,18 +23,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $stmt = $pdo->prepare("INSERT INTO contacts (name, email, message) VALUES (?, ?, ?)");
             $stmt->execute([$name, $email, $full_message]);
 
-            silah_send_email($to, $emailSubject, $emailBody);
+            $sent = silah_send_email($to, $emailSubject, $emailBody, $email, $name);
 
-            header("Location: index.php?contact=sent#contact");
+            header("Location: index.php?contact=" . ($sent ? 'sent' : 'queued') . "#contact");
             exit();
         } catch (Exception $e) {
-            try { silah_send_email($to, $emailSubject, $emailBody); } catch (Exception $e2) {}
+            $sent = false;
+            try { $sent = silah_send_email($to, $emailSubject, $emailBody, $email, $name); } catch (Exception $e2) {}
             header("Location: index.php?contact=error#contact");
             exit();
         }
     } else {
-        try { silah_send_email($to, $emailSubject, $emailBody); } catch (Exception $e) {}
-        header("Location: index.php?contact=sent#contact");
+        $sent = false;
+        try { $sent = silah_send_email($to, $emailSubject, $emailBody, $email, $name); } catch (Exception $e) {}
+        header("Location: index.php?contact=" . ($sent ? 'sent' : 'queued') . "#contact");
         exit();
     }
 } else {

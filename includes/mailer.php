@@ -31,7 +31,7 @@ function silah_mailer_config() {
     ];
 }
 
-function silah_send_email($to, $subject, $body) {
+function silah_send_email($to, $subject, $body, $replyToEmail = '', $replyToName = '') {
     $cfg = silah_mailer_config();
     $toList = is_array($to) ? $to : [$to];
     $toList = array_values(array_filter(array_map('trim', array_map('strval', $toList))));
@@ -39,19 +39,25 @@ function silah_send_email($to, $subject, $body) {
 
     $subject = (string)$subject;
     $body = (string)$body;
+    $replyToEmail = trim((string)$replyToEmail);
+    $replyToName = trim((string)$replyToName);
 
-    $fromEmail = $cfg['from_email'] !== '' ? $cfg['from_email'] : ('silah@' . (isset($_SERVER['HTTP_HOST']) ? (string)$_SERVER['HTTP_HOST'] : 'localhost'));
+    $fromEmail = $cfg['from_email'] !== '' ? $cfg['from_email'] : ($cfg['smtp_user'] !== '' ? $cfg['smtp_user'] : ('silah@' . (isset($_SERVER['HTTP_HOST']) ? (string)$_SERVER['HTTP_HOST'] : 'localhost')));
     $fromName = $cfg['from_name'] !== '' ? $cfg['from_name'] : 'Silah';
 
     $useSmtp = $cfg['smtp_host'] !== '' && $cfg['smtp_user'] !== '' && $cfg['smtp_pass'] !== '';
     if ($useSmtp) {
-        return silah_smtp_send($cfg, $fromEmail, $fromName, $toList, $subject, $body);
+        return silah_smtp_send($cfg, $fromEmail, $fromName, $toList, $subject, $body, $replyToEmail, $replyToName);
     }
 
     $encodedSubject = '=?UTF-8?B?' . base64_encode($subject) . '?=';
     $headers = [];
     $headers[] = 'From: ' . silah_format_address($fromEmail, $fromName);
-    $headers[] = 'Reply-To: ' . $fromEmail;
+    if ($replyToEmail !== '') {
+        $headers[] = 'Reply-To: ' . silah_format_address($replyToEmail, $replyToName);
+    } else {
+        $headers[] = 'Reply-To: ' . $fromEmail;
+    }
     $headers[] = 'MIME-Version: 1.0';
     $headers[] = 'Content-Type: text/plain; charset=UTF-8';
     $headers[] = 'Content-Transfer-Encoding: 8bit';
@@ -72,7 +78,7 @@ function silah_format_address($email, $name) {
     return $encoded . ' <' . $email . '>';
 }
 
-function silah_smtp_send($cfg, $fromEmail, $fromName, $toList, $subject, $body) {
+function silah_smtp_send($cfg, $fromEmail, $fromName, $toList, $subject, $body, $replyToEmail = '', $replyToName = '') {
     $host = (string)$cfg['smtp_host'];
     $port = (int)$cfg['smtp_port'];
     $secure = (string)$cfg['smtp_secure'];
@@ -112,6 +118,9 @@ function silah_smtp_send($cfg, $fromEmail, $fromName, $toList, $subject, $body) 
     $headers[] = 'From: ' . silah_format_address($fromEmail, $fromName);
     $headers[] = 'To: ' . implode(', ', $toList);
     $headers[] = 'Subject: ' . $encodedSubject;
+    if (trim((string)$replyToEmail) !== '') {
+        $headers[] = 'Reply-To: ' . silah_format_address($replyToEmail, (string)$replyToName);
+    }
     $headers[] = 'MIME-Version: 1.0';
     $headers[] = 'Content-Type: text/plain; charset=UTF-8';
     $headers[] = 'Content-Transfer-Encoding: base64';
@@ -146,4 +155,3 @@ function silah_smtp_expect($fp, $expectedCodes) {
     }
     return in_array($code, $expectedCodes, true);
 }
-

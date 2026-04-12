@@ -22,8 +22,9 @@ $emailBody =
     (string)$feedback . "\n";
 
 try {
-    silah_send_email($to, $emailSubject, $emailBody);
+    $sent = silah_send_email($to, $emailSubject, $emailBody);
 } catch (Exception $e) {
+    $sent = false;
 }
 
 if ($pdo) {
@@ -47,6 +48,6 @@ if ($pdo) {
     }
 }
 
-header("Location: index.php?feedback=sent#contact");
+header("Location: index.php?feedback=" . ($sent ? 'sent' : 'queued') . "#contact");
 exit();
 ?>
