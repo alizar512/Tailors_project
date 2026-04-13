@@ -271,7 +271,7 @@ $cloud = silah_cloudinary_public_config();
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                                         <div>
                                             <label class="text-[11px] font-extrabold text-gray-500 uppercase tracking-widest ml-4 mb-2 block">Upload Images (Recommended Max 3)</label>
-                                            <input type="file" name="portfolio_images[]" id="portfolio_images" class="w-full rounded-2xl border border-dashed border-gray-200 bg-white px-5 py-3 text-sm font-semibold text-gray-700 file:mr-4 file:rounded-xl file:border-0 file:bg-primary/10 file:px-4 file:py-2 file:font-bold file:text-primary hover:border-primary/40 transition-all" accept="image/*" multiple onchange="previewMedia(this, 'image-preview-grid')">
+                                            <input type="file" name="portfolio_images[]" id="portfolio_images" class="w-full rounded-2xl border border-dashed border-gray-200 bg-white px-5 py-3 text-sm font-semibold text-gray-700 file:mr-4 file:rounded-xl file:border-0 file:bg-primary/10 file:px-4 file:py-2 file:font-bold file:text-primary hover:border-primary/40 transition-all" accept="image/jpeg,image/png,image/webp" multiple onchange="previewMedia(this, 'image-preview-grid')">
                                             <div id="image-preview-grid" class="grid grid-cols-4 gap-2 mt-3"></div>
                                         </div>
                                         <div>
@@ -504,8 +504,12 @@ $cloud = silah_cloudinary_public_config();
                 fd.append('upload_preset', cfg.upload_preset);
                 if (folder) fd.append('folder', folder);
                 const res = await fetch(url, { method: 'POST', body: fd });
-                if (!res.ok) return '';
-                const json = await res.json();
+                let json = null;
+                try { json = await res.json(); } catch (e) {}
+                if (!res.ok) {
+                    const msg = json && json.error && json.error.message ? String(json.error.message) : 'Cloudinary upload failed';
+                    throw new Error(msg);
+                }
                 return json && json.secure_url ? String(json.secure_url) : '';
             };
 
@@ -552,17 +556,21 @@ $cloud = silah_cloudinary_public_config();
 
                         if (profileUrl) {
                             setHiddenField('profile_image_url', profileUrl);
-                            if (profileInput) profileInput.value = '';
+                            if (profileInput) { profileInput.value = ''; profileInput.disabled = true; profileInput.removeAttribute('name'); }
                         }
                         if (portfolioUrls.length > 0) {
                             setHiddenArray('portfolio_image_urls', portfolioUrls);
-                            if (portfolioInput) portfolioInput.value = '';
+                            if (portfolioInput) { portfolioInput.value = ''; portfolioInput.disabled = true; portfolioInput.removeAttribute('name'); }
+                        }
+                        if (form) {
+                            form.enctype = 'application/x-www-form-urlencoded';
                         }
                         setDisabled('Submitting...');
                         form.submit();
                         return;
                     } catch (err) {
-                        showUploadError('Upload failed. Please try again.');
+                        const msg = err && err.message ? String(err.message) : 'Upload failed. Please try again.';
+                        showUploadError(msg);
                         if (btn) {
                             btn.disabled = false;
                             btn.classList.remove('opacity-80');
