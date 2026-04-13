@@ -3,6 +3,7 @@ require_once 'auth_check.php';
 require_once __DIR__ . '/../includes/db_connect.php';
 require_once __DIR__ . '/../includes/notifications.php';
 require_once __DIR__ . '/../includes/mailer.php';
+require_once __DIR__ . '/../includes/schema_utils.php';
 
 if (!$pdo) {
     $_SESSION['error'] = 'Database connection failed.';
@@ -39,6 +40,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['application_id']) && i
                     'skills' => "ALTER TABLE tailors ADD COLUMN skills TEXT",
                     'instagram_link' => "ALTER TABLE tailors ADD COLUMN instagram_link VARCHAR(255)",
                     'price_range_min' => "ALTER TABLE tailors ADD COLUMN price_range_min DECIMAL(10,2)",
+                    'profile_image_blob' => "ALTER TABLE tailors ADD COLUMN profile_image_blob LONGBLOB NULL",
+                    'profile_image_mime' => "ALTER TABLE tailors ADD COLUMN profile_image_mime VARCHAR(100) NULL",
                 ];
 
                 foreach ($tailorColumnsToEnsure as $columnName => $ddl) {
@@ -56,6 +59,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['application_id']) && i
                 $plain_password = bin2hex(random_bytes(4));
                 $default_password = password_hash($plain_password, PASSWORD_DEFAULT);
                 $profile_image = isset($app['profile_image']) && $app['profile_image'] ? $app['profile_image'] : $default_image;
+                $app_profile_blob = isset($app['profile_image_blob']) ? $app['profile_image_blob'] : null;
+                $app_profile_mime = isset($app['profile_image_mime']) ? (string)$app['profile_image_mime'] : null;
 
                 $existingTailor = null;
                 $existingTailorId = 0;
@@ -94,6 +99,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['application_id']) && i
                         "UPDATE tailors SET
                             name = ?, username = ?, location = ?, address = ?, experience_years = ?,
                             tagline = ?, description = ?, skills = ?, instagram_link = ?, profile_image = ?,
+                            profile_image_blob = ?, profile_image_mime = ?,
                             email = ?, phone = ?, price_range_min = ?,
                             password = ?, password_reset_required = 1, is_active = 1
                          WHERE id = ?"
@@ -109,6 +115,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['application_id']) && i
                         $app['specialization'],
                         isset($app['instagram_link']) ? $app['instagram_link'] : null,
                         $profile_image,
+                        $app_profile_blob,
+                        $app_profile_mime,
                         $app['email'],
                         $app['phone'],
                         isset($app['price_range_min']) ? $app['price_range_min'] : null,
@@ -117,7 +125,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['application_id']) && i
                     ]);
                     $newTailorId = $existingTailorId;
                 } else {
-                    $insertStmt = $pdo->prepare("INSERT INTO tailors (name, username, location, address, experience_years, tagline, description, skills, instagram_link, profile_image, email, phone, price_range_min, password, password_reset_required, is_active, profile_completed) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, 1, 0)");
+                    $insertStmt = $pdo->prepare("INSERT INTO tailors (name, username, location, address, experience_years, tagline, description, skills, instagram_link, profile_image, profile_image_blob, profile_image_mime, email, phone, price_range_min, password, password_reset_required, is_active, profile_completed) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, 1, 0)");
                     $insertStmt->execute([
                         $app['name'],
                         $username,
@@ -129,6 +137,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['application_id']) && i
                         $app['specialization'],
                         isset($app['instagram_link']) ? $app['instagram_link'] : null,
                         $profile_image,
+                        $app_profile_blob,
+                        $app_profile_mime,
                         $app['email'],
                         $app['phone'],
                         isset($app['price_range_min']) ? $app['price_range_min'] : null,
@@ -152,6 +162,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['application_id']) && i
                         INDEX idx_portfolio_images_tailor_id (tailor_id)
                     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
                 );
+                silah_ensure_column($pdo, 'portfolio_images', 'image_blob', "ALTER TABLE portfolio_images ADD COLUMN image_blob LONGBLOB NULL");
+                silah_ensure_column($pdo, 'portfolio_images', 'image_mime', "ALTER TABLE portfolio_images ADD COLUMN image_mime VARCHAR(100) NULL");
+                silah_ensure_table($pdo,
+                    "CREATE TABLE IF NOT EXISTS tailor_application_files (
+                        id INT AUTO_INCREMENT PRIMARY KEY,
+                        application_id INT NOT NULL,
+                        file_kind VARCHAR(30) NOT NULL,
+                        mime VARCHAR(100),
+                        blob LONGBLOB,
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        INDEX idx_app_files_application_id (application_id)
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
+                );
 
                 $images = json_decode(isset($app['portfolio_link']) ? (string)$app['portfolio_link'] : '', true);
                 if (!is_array($images)) {
@@ -159,15 +182,27 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['application_id']) && i
                 }
                 if ($newTailorId > 0 && !empty($images)) {
                     $imgExistsStmt = $pdo->prepare("SELECT COUNT(*) FROM portfolio_images WHERE tailor_id = ? AND image_url = ?");
-                    $imgInsertStmt = $pdo->prepare("INSERT INTO portfolio_images (tailor_id, image_url, description) VALUES (?, ?, ?)");
+                    $imgInsertStmt = $pdo->prepare("INSERT INTO portfolio_images (tailor_id, image_url, description, image_blob, image_mime) VALUES (?, ?, ?, ?, ?)");
+                    $appFileStmt = $pdo->prepare("SELECT mime, blob FROM tailor_application_files WHERE id = ? AND application_id = ? AND file_kind = 'portfolio_image' LIMIT 1");
                     foreach ($images as $imgPath) {
-                        $imgPath = is_string($imgPath) ? trim($imgPath) : '';
-                        if ($imgPath === '') {
-                            continue;
-                        }
-                        $imgExistsStmt->execute([$newTailorId, $imgPath]);
-                        if ((int)$imgExistsStmt->fetchColumn() === 0) {
-                            $imgInsertStmt->execute([$newTailorId, $imgPath, null]);
+                        if (is_int($imgPath) || (is_string($imgPath) && ctype_digit(trim($imgPath)))) {
+                            $fid = (int)$imgPath;
+                            try {
+                                $appFileStmt->execute([$fid, $app_id]);
+                                $row = $appFileStmt->fetch(PDO::FETCH_ASSOC);
+                                if ($row && isset($row['blob']) && $row['blob'] !== null && $row['blob'] !== '') {
+                                    $mime = isset($row['mime']) ? (string)$row['mime'] : 'image/jpeg';
+                                    $imgInsertStmt->execute([$newTailorId, '', null, $row['blob'], $mime]);
+                                }
+                            } catch (Exception $e) {
+                            }
+                        } else {
+                            $imgPath2 = is_string($imgPath) ? trim($imgPath) : '';
+                            if ($imgPath2 === '') continue;
+                            $imgExistsStmt->execute([$newTailorId, $imgPath2]);
+                            if ((int)$imgExistsStmt->fetchColumn() === 0) {
+                                $imgInsertStmt->execute([$newTailorId, $imgPath2, null, null, null]);
+                            }
                         }
                     }
                 }

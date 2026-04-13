@@ -23,6 +23,26 @@ if (!$app) {
     exit;
 }
 
+$fileImageIds = [];
+try {
+    silah_ensure_table($pdo,
+        "CREATE TABLE IF NOT EXISTS tailor_application_files (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            application_id INT NOT NULL,
+            file_kind VARCHAR(30) NOT NULL,
+            mime VARCHAR(100),
+            blob LONGBLOB,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            INDEX idx_app_files_application_id (application_id)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
+    );
+    $stmt = $pdo->prepare("SELECT id FROM tailor_application_files WHERE application_id = ? AND file_kind = 'portfolio_image' ORDER BY id DESC LIMIT 40");
+    $stmt->execute([(int)$app_id]);
+    $fileImageIds = array_map('intval', $stmt->fetchAll(PDO::FETCH_COLUMN));
+} catch (Exception $e) {
+    $fileImageIds = [];
+}
+
 include 'header.php';
 include 'sidebar.php';
 ?>
@@ -131,8 +151,16 @@ include 'sidebar.php';
                     <div class="px-4 py-2 rounded-2xl bg-primary/5 border border-primary/10">
                         <span class="text-[10px] font-black text-gray-500 uppercase tracking-widest">Images</span>
                         <span class="text-sm font-black text-primary ms-2">
-                            <?php $imagesCount = is_array(json_decode($app['portfolio_link'], true)) ? count(json_decode($app['portfolio_link'], true)) : 0; ?>
-                            <?= (int)$imagesCount ?>
+                            <?php
+                                $imagesList = [];
+                                if (!empty($fileImageIds)) {
+                                    $imagesList = $fileImageIds;
+                                } else {
+                                    $decoded = json_decode((string)$app['portfolio_link'], true);
+                                    $imagesList = is_array($decoded) ? $decoded : [];
+                                }
+                            ?>
+                            <?= (int)count($imagesList) ?>
                         </span>
                     </div>
                     <div class="px-4 py-2 rounded-2xl bg-primary/5 border border-primary/10">
@@ -148,7 +176,7 @@ include 'sidebar.php';
             <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Uploaded Images</p>
             <div class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-4 mb-8">
                 <?php 
-                $images = json_decode($app['portfolio_link'], true) ?: [];
+                $images = $imagesList;
                 if (empty($images)): ?>
                     <div class="col-span-full"><p class="text-sm text-gray-400 italic mb-0">No images uploaded.</p></div>
                 <?php else: foreach ($images as $img): ?>

@@ -41,11 +41,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
         if (in_array($fileType, $allowedTypes, true)) {
             if ($isServerless) {
-                if ($fileSize > 0 && $fileSize <= 800000) {
+                if ($fileSize > 0 && $fileSize <= 6000000) {
                     $bytes = @file_get_contents($_FILES['profile_image']['tmp_name']);
                     if ($bytes !== false && $bytes !== '') {
                         $outBytes = $bytes;
                         $outMime = $fileType;
+                        $maxBytes = 800000;
                         if (function_exists('imagecreatefromstring') && function_exists('imagejpeg') && function_exists('imagesx') && function_exists('imagesy')) {
                             try {
                                 $im = @imagecreatefromstring($bytes);
@@ -56,26 +57,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     $scale = ($w > 0 && $h > 0) ? min(1, $max / max($w, $h)) : 1;
                                     $nw = (int)max(1, floor($w * $scale));
                                     $nh = (int)max(1, floor($h * $scale));
-                                    if (($scale < 1 || $outMime !== 'image/jpeg') && function_exists('imagecreatetruecolor')) {
-                                        $dst = imagecreatetruecolor($nw, $nh);
-                                        if ($dst) {
-                                            imagecopyresampled($dst, $im, 0, 0, 0, 0, $nw, $nh, $w, $h);
-                                            ob_start();
-                                            imagejpeg($dst, null, 82);
-                                            $jpeg = ob_get_clean();
-                                            imagedestroy($dst);
-                                            if (is_string($jpeg) && $jpeg !== '') {
-                                                $outBytes = $jpeg;
-                                                $outMime = 'image/jpeg';
-                                            }
+                                    $dst = $im;
+                                    if ($scale < 1 && function_exists('imagecreatetruecolor')) {
+                                        $tmp = imagecreatetruecolor($nw, $nh);
+                                        if ($tmp) {
+                                            imagecopyresampled($tmp, $im, 0, 0, 0, 0, $nw, $nh, $w, $h);
+                                            $dst = $tmp;
                                         }
+                                    }
+                                    $qualities = [82, 75, 68, 60];
+                                    foreach ($qualities as $q) {
+                                        ob_start();
+                                        imagejpeg($dst, null, $q);
+                                        $jpeg = ob_get_clean();
+                                        if (is_string($jpeg) && $jpeg !== '' && strlen($jpeg) <= $maxBytes) {
+                                            $outBytes = $jpeg;
+                                            $outMime = 'image/jpeg';
+                                            break;
+                                        }
+                                        if (is_string($jpeg) && $jpeg !== '') {
+                                            $outBytes = $jpeg;
+                                            $outMime = 'image/jpeg';
+                                        }
+                                    }
+                                    if ($dst !== $im) {
+                                        imagedestroy($dst);
                                     }
                                     imagedestroy($im);
                                 }
                             } catch (Exception $e) {
                             }
                         }
-                        if (strlen($outBytes) <= 800000) {
+                        if (strlen($outBytes) <= $maxBytes) {
                             $profile_blob = $outBytes;
                             $profile_mime = $outMime;
                             $profile_image = '';
@@ -265,8 +278,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if (!is_array($f)) continue;
                 $mime = isset($f['type']) ? (string)$f['type'] : '';
                 $size = isset($f['size']) ? (int)$f['size'] : 0;
-                if ($size <= 0 || $size > 1200000) continue;
                 if (!in_array($mime, ['image/jpeg', 'image/png', 'image/webp', 'image/gif'], true)) continue;
+                if ($size <= 0 || $size > 6000000) continue;
                 $tmp = isset($f['tmp']) ? (string)$f['tmp'] : '';
                 if ($tmp === '') continue;
                 $bytes = @file_get_contents($tmp);
@@ -284,19 +297,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             $scale = ($w > 0 && $h > 0) ? min(1, $max / max($w, $h)) : 1;
                             $nw = (int)max(1, floor($w * $scale));
                             $nh = (int)max(1, floor($h * $scale));
-                            if (($scale < 1 || $outMime !== 'image/jpeg') && function_exists('imagecreatetruecolor')) {
-                                $dst = imagecreatetruecolor($nw, $nh);
-                                if ($dst) {
-                                    imagecopyresampled($dst, $im, 0, 0, 0, 0, $nw, $nh, $w, $h);
-                                    ob_start();
-                                    imagejpeg($dst, null, 82);
-                                    $jpeg = ob_get_clean();
-                                    imagedestroy($dst);
-                                    if (is_string($jpeg) && $jpeg !== '') {
-                                        $outBytes = $jpeg;
-                                        $outMime = 'image/jpeg';
-                                    }
+                            $dst = $im;
+                            if ($scale < 1 && function_exists('imagecreatetruecolor')) {
+                                $tmp2 = imagecreatetruecolor($nw, $nh);
+                                if ($tmp2) {
+                                    imagecopyresampled($tmp2, $im, 0, 0, 0, 0, $nw, $nh, $w, $h);
+                                    $dst = $tmp2;
                                 }
+                            }
+                            $maxBytes = 1200000;
+                            $qualities = [82, 75, 68, 60];
+                            foreach ($qualities as $q) {
+                                ob_start();
+                                imagejpeg($dst, null, $q);
+                                $jpeg = ob_get_clean();
+                                if (is_string($jpeg) && $jpeg !== '' && strlen($jpeg) <= $maxBytes) {
+                                    $outBytes = $jpeg;
+                                    $outMime = 'image/jpeg';
+                                    break;
+                                }
+                                if (is_string($jpeg) && $jpeg !== '') {
+                                    $outBytes = $jpeg;
+                                    $outMime = 'image/jpeg';
+                                }
+                            }
+                            if ($dst !== $im) {
+                                imagedestroy($dst);
                             }
                             imagedestroy($im);
                         }
