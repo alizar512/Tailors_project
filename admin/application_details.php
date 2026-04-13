@@ -1,12 +1,15 @@
 <?php
 require_once 'auth_check.php';
 require_once __DIR__ . '/../includes/db_connect.php';
+require_once __DIR__ . '/../includes/schema_utils.php';
 
 $app_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 $app = null;
 
 if ($app_id && $pdo) {
     try {
+        silah_ensure_column($pdo, 'tailor_applications', 'profile_image_blob', "ALTER TABLE tailor_applications ADD COLUMN profile_image_blob LONGBLOB NULL");
+        silah_ensure_column($pdo, 'tailor_applications', 'profile_image_mime', "ALTER TABLE tailor_applications ADD COLUMN profile_image_mime VARCHAR(100) NULL");
         $stmt = $pdo->prepare("SELECT * FROM tailor_applications WHERE id = ?");
         $stmt->execute([$app_id]);
         $app = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -32,16 +35,21 @@ include 'sidebar.php';
                 <?php
                 $profileImgRaw = isset($app['profile_image']) ? (string)$app['profile_image'] : '';
                 $profileImgRaw = trim($profileImgRaw);
-                $hasLocalPath = $profileImgRaw !== '' && !preg_match('#^https?://#i', $profileImgRaw);
-                $imgSrc = $profileImgRaw !== ''
-                    ? ($hasLocalPath ? '../' . $profileImgRaw : $profileImgRaw)
-                    : '';
+                $hasBlob = isset($app['profile_image_blob']) && $app['profile_image_blob'] !== null && $app['profile_image_blob'] !== '';
+                $imgSrc = $hasBlob ? ('../application_media.php?app_id=' . (int)$app_id . '&type=profile') : '';
+                if ($imgSrc === '' && $profileImgRaw !== '') {
+                    $hasLocalPath = !preg_match('#^https?://#i', $profileImgRaw);
+                    $imgSrc = $hasLocalPath ? '../' . ltrim($profileImgRaw, '/') : $profileImgRaw;
+                }
                 ?>
                 <?php if ($imgSrc !== ''): ?>
-                    <img src="<?= htmlspecialchars((string)$imgSrc) ?>" alt="Profile picture" class="w-24 h-24 rounded-3xl object-cover mx-auto mb-4 border border-gray-100 shadow-sm">
+                    <img src="<?= htmlspecialchars((string)$imgSrc) ?>" alt="Profile picture" class="w-24 h-24 rounded-3xl object-cover mx-auto mb-4 border border-gray-100 shadow-sm" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="w-24 h-24 rounded-3xl bg-primary/10 items-center justify-center text-primary font-black text-3xl mx-auto mb-4 hidden">
+                        <?= htmlspecialchars((string)substr((string)$app['name'], 0, 1)) ?>
+                    </div>
                 <?php else: ?>
                     <div class="w-24 h-24 rounded-3xl bg-primary/10 flex items-center justify-center text-primary font-black text-3xl mx-auto mb-4">
-                        <?= substr($app['name'], 0, 1) ?>
+                        <?= htmlspecialchars((string)substr((string)$app['name'], 0, 1)) ?>
                     </div>
                 <?php endif; ?>
                 <h2 class="text-2xl font-black text-primary mb-1"><?= htmlspecialchars((string)$app['name']) ?></h2>
@@ -144,7 +152,19 @@ include 'sidebar.php';
                 if (empty($images)): ?>
                     <div class="col-span-full"><p class="text-sm text-gray-400 italic mb-0">No images uploaded.</p></div>
                 <?php else: foreach ($images as $img): ?>
-                    <?php $src = '../' . ltrim((string)$img, '/'); ?>
+                    <?php
+                        $src = '';
+                        if (is_int($img) || (is_string($img) && ctype_digit(trim($img)))) {
+                            $src = '../application_media.php?app_id=' . (int)$app_id . '&file_id=' . (int)$img;
+                        } else {
+                            $raw = is_string($img) ? trim($img) : '';
+                            if ($raw !== '' && preg_match('#^https?://#i', $raw)) {
+                                $src = $raw;
+                            } else if ($raw !== '') {
+                                $src = '../' . ltrim($raw, '/');
+                            }
+                        }
+                    ?>
                     <button type="button" class="group text-left relative overflow-hidden rounded-3xl bg-gray-100 border border-gray-100 shadow-sm hover:shadow-lg transition-all aspect-[4/3]" data-portfolio-open="<?= htmlspecialchars((string)$src) ?>">
                         <img src="<?= htmlspecialchars((string)$src) ?>" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" alt="Portfolio image">
                         <div class="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
