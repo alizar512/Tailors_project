@@ -196,7 +196,7 @@ include 'sidebar.php';
 
 <?php if (isset($_GET['success'])): ?>
     <?php $ok = (string)$_GET['success'] === '1'; ?>
-    <div class="mb-6 p-4 rounded-3xl <?= $ok ? 'bg-green-50 border border-green-100' : 'bg-red-50 border border-red-100' ?>">
+    <div class="mb-6 p-4 rounded-3xl border <?= $ok ? 'bg-green-50 border-green-100' : 'bg-red-50 border-red-100' ?>">
         <p class="text-sm font-semibold mb-0 <?= $ok ? 'text-green-800' : 'text-red-800' ?>">
             <?= $ok ? 'Order updated successfully.' : 'Could not update order. Please try again.' ?>
         </p>

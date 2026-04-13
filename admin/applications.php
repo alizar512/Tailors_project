@@ -61,7 +61,7 @@ include 'sidebar.php';
                             ?>
                             <?php if ($hasPhoto): ?>
                                 <img src="<?= htmlspecialchars((string)$photoSrc) ?>" class="w-12 h-12 rounded-2xl object-cover shadow-sm border-2 border-white" alt="Profile" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                                <div class="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary font-black text-lg hidden">
+                                <div class="w-12 h-12 rounded-2xl bg-primary/10 items-center justify-center text-primary font-black text-lg hidden">
                                     <?= htmlspecialchars((string)substr((string)$app['name'], 0, 1)) ?>
                                 </div>
                             <?php else: ?>
