@@ -242,7 +242,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['application_id']) && i
                 }
 
             } catch (Exception $e) {
-                $pdo->rollBack();
+                if ($pdo->inTransaction()) {
+                    $pdo->rollBack();
+                }
                 $_SESSION['error'] = "Error approving tailor: " . $e->getMessage();
             }
         }
