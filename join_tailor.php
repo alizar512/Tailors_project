@@ -4,6 +4,7 @@ require_once __DIR__ . '/includes/cities.php';
 require_once __DIR__ . '/includes/cloudinary.php';
 $cities = silah_get_cities($pdo);
 $cloud = silah_cloudinary_public_config();
+$isServerless = getenv('VERCEL') === '1' || getenv('AWS_LAMBDA_FUNCTION_NAME');
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -188,7 +189,11 @@ $cloud = silah_cloudinary_public_config();
                             </div>
                             <div class="md:col-span-2">
                                 <label class="text-[11px] font-extrabold text-gray-500 uppercase tracking-widest ml-4 mb-2 block">Profile Picture</label>
-                                <input type="file" data-name="profile_image" id="profile_image" class="w-full rounded-2xl border border-dashed border-gray-200 bg-white px-5 py-3 text-sm font-semibold text-gray-700 file:mr-4 file:rounded-xl file:border-0 file:bg-primary/10 file:px-4 file:py-2 file:font-bold file:text-primary hover:border-primary/40 transition-all" accept="image/jpeg,image/png,image/webp" onchange="previewMedia(this, 'profile-preview-grid')">
+                                <?php if ($isServerless): ?>
+                                    <input type="file" data-name="profile_image" id="profile_image" class="w-full rounded-2xl border border-dashed border-gray-200 bg-white px-5 py-3 text-sm font-semibold text-gray-700 file:mr-4 file:rounded-xl file:border-0 file:bg-primary/10 file:px-4 file:py-2 file:font-bold file:text-primary hover:border-primary/40 transition-all" accept="image/jpeg,image/png,image/webp" onchange="previewMedia(this, 'profile-preview-grid')">
+                                <?php else: ?>
+                                    <input type="file" name="profile_image" id="profile_image" class="w-full rounded-2xl border border-dashed border-gray-200 bg-white px-5 py-3 text-sm font-semibold text-gray-700 file:mr-4 file:rounded-xl file:border-0 file:bg-primary/10 file:px-4 file:py-2 file:font-bold file:text-primary hover:border-primary/40 transition-all" accept="image/jpeg,image/png,image/webp" onchange="previewMedia(this, 'profile-preview-grid')">
+                                <?php endif; ?>
                                 <div id="profile-preview-grid" class="grid grid-cols-4 gap-2 mt-3"></div>
                             </div>
                             <div>
@@ -271,18 +276,22 @@ $cloud = silah_cloudinary_public_config();
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                                         <div>
                                             <label class="text-[11px] font-extrabold text-gray-500 uppercase tracking-widest ml-4 mb-2 block">Upload Images (Recommended Max 3)</label>
-                                            <input type="file" data-name="portfolio_images[]" id="portfolio_images" class="w-full rounded-2xl border border-dashed border-gray-200 bg-white px-5 py-3 text-sm font-semibold text-gray-700 file:mr-4 file:rounded-xl file:border-0 file:bg-primary/10 file:px-4 file:py-2 file:font-bold file:text-primary hover:border-primary/40 transition-all" accept="image/jpeg,image/png,image/webp" multiple onchange="previewMedia(this, 'image-preview-grid')">
+                                            <?php if ($isServerless): ?>
+                                                <input type="file" data-name="portfolio_images[]" id="portfolio_images" class="w-full rounded-2xl border border-dashed border-gray-200 bg-white px-5 py-3 text-sm font-semibold text-gray-700 file:mr-4 file:rounded-xl file:border-0 file:bg-primary/10 file:px-4 file:py-2 file:font-bold file:text-primary hover:border-primary/40 transition-all" accept="image/jpeg,image/png,image/webp" multiple onchange="previewMedia(this, 'image-preview-grid')">
+                                            <?php else: ?>
+                                                <input type="file" name="portfolio_images[]" id="portfolio_images" class="w-full rounded-2xl border border-dashed border-gray-200 bg-white px-5 py-3 text-sm font-semibold text-gray-700 file:mr-4 file:rounded-xl file:border-0 file:bg-primary/10 file:px-4 file:py-2 file:font-bold file:text-primary hover:border-primary/40 transition-all" accept="image/jpeg,image/png,image/webp" multiple onchange="previewMedia(this, 'image-preview-grid')">
+                                            <?php endif; ?>
                                             <div id="image-preview-grid" class="grid grid-cols-4 gap-2 mt-3"></div>
                                         </div>
                                         <div>
                                             <label class="text-[11px] font-extrabold text-gray-500 uppercase tracking-widest ml-4 mb-2 block">Upload Short Videos (Max 3)</label>
-                                            <?php if ($cloud['enabled']): ?>
+                                            <?php if ($isServerless): ?>
                                                 <input type="text" name="portfolio_video_urls[]" class="w-full rounded-2xl border border-dashed border-gray-200 bg-white px-5 py-3 text-sm font-semibold text-gray-700" placeholder="Video link 1 (YouTube/Instagram)">
                                                 <input type="text" name="portfolio_video_urls[]" class="w-full rounded-2xl border border-dashed border-gray-200 bg-white px-5 py-3 text-sm font-semibold text-gray-700 mt-2" placeholder="Video link 2 (optional)">
                                                 <input type="text" name="portfolio_video_urls[]" class="w-full rounded-2xl border border-dashed border-gray-200 bg-white px-5 py-3 text-sm font-semibold text-gray-700 mt-2" placeholder="Video link 3 (optional)">
                                                 <div class="form-text text-xs">Video uploads are disabled on Vercel. Use links instead.</div>
                                             <?php else: ?>
-                                                <input type="file" data-name="portfolio_videos[]" id="portfolio_videos" class="w-full rounded-2xl border border-dashed border-gray-200 bg-white px-5 py-3 text-sm font-semibold text-gray-700 file:mr-4 file:rounded-xl file:border-0 file:bg-primary/10 file:px-4 file:py-2 file:font-bold file:text-primary hover:border-primary/40 transition-all" accept="video/*" multiple onchange="previewMedia(this, 'video-preview-grid')">
+                                                <input type="file" name="portfolio_videos[]" id="portfolio_videos" class="w-full rounded-2xl border border-dashed border-gray-200 bg-white px-5 py-3 text-sm font-semibold text-gray-700 file:mr-4 file:rounded-xl file:border-0 file:bg-primary/10 file:px-4 file:py-2 file:font-bold file:text-primary hover:border-primary/40 transition-all" accept="video/*" multiple onchange="previewMedia(this, 'video-preview-grid')">
                                             <?php endif; ?>
                                             <div id="video-preview-grid" class="grid grid-cols-4 gap-2 mt-3"></div>
                                         </div>

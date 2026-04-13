@@ -177,7 +177,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (!empty($portfolio_video_urls)) {
         $portfolio_videos = $portfolio_video_urls;
-        $portfolio_videos_json = json_encode($portfolio_videos);
     }
 
     if (!empty($portfolio_image_urls)) {
@@ -383,14 +382,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         if ($portfolio_required) {
-            $hasAny = $isServerless ? !empty($savedPortfolioIds) : !empty($portfolio_images);
+            $hasAny = $isServerless ? (!empty($portfolio_image_urls) || !empty($savedPortfolioIds)) : !empty($portfolio_images);
             if (!$hasAny) {
                 try {
                     $stmt = $pdo->prepare("DELETE FROM tailor_applications WHERE id = ? LIMIT 1");
                     $stmt->execute([$appId]);
                 } catch (Exception $e) {
                 }
-                $err = "Portfolio image was not received. Please upload JPG/PNG and keep each image under 1.2MB.";
+                $err = $isServerless
+                    ? "Portfolio image was not received. Please ensure Cloudinary is configured and upload JPG/PNG."
+                    : "Portfolio image was not received. Please upload JPG/PNG and keep each image under 1.2MB.";
                 header("Location: join_tailor.php?status=error&err=" . urlencode($err));
                 exit;
             }
