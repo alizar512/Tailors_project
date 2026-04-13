@@ -524,7 +524,6 @@ $isServerless = getenv('VERCEL') === '1' || getenv('AWS_LAMBDA_FUNCTION_NAME');
 
             const disableFileUploads = () => {
                 document.querySelectorAll('input[type="file"][data-name]').forEach(inp => {
-                    inp.value = '';
                     inp.disabled = true;
                     inp.removeAttribute('name');
                 });
@@ -576,7 +575,6 @@ $isServerless = getenv('VERCEL') === '1' || getenv('AWS_LAMBDA_FUNCTION_NAME');
                 if (cfg && cfg.enabled) {
                     setDisabled('Uploading...');
                     try {
-                        disableFileUploads();
                         let profileUrl = '';
                         if (profileInput && profileInput.files && profileInput.files.length === 1) {
                             profileUrl = await cloudUpload(profileInput.files[0], 'silah/applications/profile', 'image');
@@ -604,6 +602,17 @@ $isServerless = getenv('VERCEL') === '1' || getenv('AWS_LAMBDA_FUNCTION_NAME');
                             }
                         }
 
+                        const instagram = document.getElementById('instagram_link') ? document.getElementById('instagram_link').value : '';
+                        if (!instagram && portfolioUrls.length === 0) {
+                            showUploadError('Please upload at least one portfolio image (or add Instagram link).');
+                            if (btn) {
+                                btn.disabled = false;
+                                btn.classList.remove('opacity-80');
+                                btn.textContent = 'Submit Application';
+                            }
+                            return;
+                        }
+
                         if (profileUrl) {
                             setHiddenField('profile_image_url', profileUrl);
                             if (profileInput) { profileInput.value = ''; profileInput.disabled = true; profileInput.removeAttribute('name'); }
@@ -618,6 +627,7 @@ $isServerless = getenv('VERCEL') === '1' || getenv('AWS_LAMBDA_FUNCTION_NAME');
                         if (form) {
                             form.enctype = 'application/x-www-form-urlencoded';
                         }
+                        disableFileUploads();
                         setDisabled('Submitting...');
                         form.submit();
                         return;
