@@ -408,12 +408,29 @@ $cities = silah_get_cities($pdo);
             const btn = document.getElementById('joinSubmitBtn');
             const profileInput = document.getElementById('profile_image');
             const portfolioInput = document.getElementById('portfolio_images');
+            const portfolioError = document.getElementById('portfolio-error');
 
             const setDisabled = (text) => {
                 if (!btn) return;
                 btn.disabled = true;
                 btn.classList.add('opacity-80');
                 btn.textContent = text;
+            };
+
+            const showUploadError = (msg) => {
+                if (portfolioError) {
+                    portfolioError.textContent = msg;
+                    portfolioError.classList.remove('hidden');
+                    portfolioError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                } else {
+                    alert(msg);
+                }
+            };
+
+            const isUnsupportedImage = (file) => {
+                const t = ((file && file.type) ? String(file.type) : '').toLowerCase();
+                const n = ((file && file.name) ? String(file.name) : '').toLowerCase();
+                return t.includes('heic') || t.includes('heif') || n.endsWith('.heic') || n.endsWith('.heif');
             };
 
             const compressImageFile = (file, maxDim, quality, maxBytes) => {
@@ -486,6 +503,17 @@ $cities = silah_get_cities($pdo);
             };
 
             e.preventDefault();
+            if (profileInput && profileInput.files && profileInput.files.length === 1 && isUnsupportedImage(profileInput.files[0])) {
+                showUploadError('Please convert HEIC/HEIF photos to JPG/PNG before submitting.');
+                return;
+            }
+            if (portfolioInput && portfolioInput.files && portfolioInput.files.length > 0) {
+                const anyBad = Array.from(portfolioInput.files).some(isUnsupportedImage);
+                if (anyBad) {
+                    showUploadError('Please convert HEIC/HEIF portfolio photos to JPG/PNG before submitting.');
+                    return;
+                }
+            }
             doSubmit();
         });
 

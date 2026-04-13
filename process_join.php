@@ -26,6 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $price_range_min = isset($_POST['price_range_min']) && is_numeric($_POST['price_range_min']) ? (float)$_POST['price_range_min'] : null;
     $instagram_link_raw = isset($_POST['instagram_link']) ? trim((string)$_POST['instagram_link']) : '';
     $instagram_link = $instagram_link_raw !== '' && filter_var($instagram_link_raw, FILTER_VALIDATE_URL) ? $instagram_link_raw : '';
+    $portfolio_required = $instagram_link === '';
 
     // Handle Media Uploads
     $profile_image = null;
@@ -275,6 +276,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->execute([$name, $email, $profile_image, $profile_blob, $profile_mime, $phone, $location, $address, $experience_years, $specialization, $price_range_min, $instagram_link, $portfolio_images_json, $portfolio_videos_json]);
         $appId = (int)$pdo->lastInsertId();
 
+        $savedPortfolioIds = [];
         if ($isServerless && $appId > 0 && is_array($portfolio_images) && !empty($portfolio_images)) {
             $insert = $pdo->prepare("INSERT INTO tailor_application_files (application_id, file_kind, mime, blob) VALUES (?, 'portfolio_image', ?, ?)");
             $fileIds = [];
@@ -341,11 +343,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             }
             if (!empty($fileIds)) {
+                $savedPortfolioIds = $fileIds;
                 try {
                     $stmt = $pdo->prepare("UPDATE tailor_applications SET portfolio_link = ? WHERE id = ?");
                     $stmt->execute([json_encode($fileIds), $appId]);
                 } catch (Exception $e) {
                 }
+            }
+        }
+
+        if ($portfolio_required) {
+            $hasAny = $isServerless ? !empty($savedPortfolioIds) : !empty($portfolio_images);
+            if (!$hasAny) {
+                try {
+                    $stmt = $pdo->prepare("DELETE FROM tailor_applications WHERE id = ? LIMIT 1");
+                    $stmt->execute([$appId]);
+                } catch (Exception $e) {
+                }
+                $err = "Portfolio image was not received. Please upload JPG/PNG and keep each image under 1.2MB.";
+                header("Location: join_tailor.php?status=error&err=" . urlencode($err));
+                exit;
             }
         }
         header("Location: join_tailor.php?status=success");
