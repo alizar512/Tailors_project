@@ -404,12 +404,89 @@ $cities = silah_get_cities($pdo);
                 document.getElementById('portfolio-error').scrollIntoView({ behavior: 'smooth', block: 'center' });
                 return;
             }
+            const form = this;
             const btn = document.getElementById('joinSubmitBtn');
-            if (btn) {
+            const profileInput = document.getElementById('profile_image');
+            const portfolioInput = document.getElementById('portfolio_images');
+
+            const setDisabled = (text) => {
+                if (!btn) return;
                 btn.disabled = true;
                 btn.classList.add('opacity-80');
-                btn.textContent = 'Submitting...';
-            }
+                btn.textContent = text;
+            };
+
+            const compressImageFile = (file, maxDim, quality, maxBytes) => {
+                return new Promise((resolve) => {
+                    try {
+                        if (!file || !file.type || !file.type.startsWith('image/')) return resolve(file);
+                        if (file.size > 0 && file.size <= maxBytes) return resolve(file);
+                        const img = new Image();
+                        img.onload = () => {
+                            try {
+                                const w = img.naturalWidth || img.width || 0;
+                                const h = img.naturalHeight || img.height || 0;
+                                const scale = w > 0 && h > 0 ? Math.min(1, maxDim / Math.max(w, h)) : 1;
+                                const nw = Math.max(1, Math.floor(w * scale));
+                                const nh = Math.max(1, Math.floor(h * scale));
+                                const canvas = document.createElement('canvas');
+                                canvas.width = nw;
+                                canvas.height = nh;
+                                const ctx = canvas.getContext('2d');
+                                if (!ctx) return resolve(file);
+                                ctx.drawImage(img, 0, 0, nw, nh);
+                                const tryQualities = [quality, 0.78, 0.7, 0.62];
+                                const tryNext = (i) => {
+                                    const q = tryQualities[Math.min(i, tryQualities.length - 1)];
+                                    canvas.toBlob((blob) => {
+                                        if (!blob) return resolve(file);
+                                        if (blob.size <= maxBytes || i >= tryQualities.length - 1) {
+                                            const newName = (file.name || 'image').replace(/\.[^/.]+$/, '') + '.jpg';
+                                            return resolve(new File([blob], newName, { type: 'image/jpeg' }));
+                                        }
+                                        return tryNext(i + 1);
+                                    }, 'image/jpeg', q);
+                                };
+                                tryNext(0);
+                            } catch (err) {
+                                resolve(file);
+                            }
+                        };
+                        img.onerror = () => resolve(file);
+                        img.src = URL.createObjectURL(file);
+                    } catch (err) {
+                        resolve(file);
+                    }
+                });
+            };
+
+            const replaceInputFiles = (input, files) => {
+                if (!input) return;
+                const dt = new DataTransfer();
+                files.forEach(f => dt.items.add(f));
+                input.files = dt.files;
+            };
+
+            const doSubmit = async () => {
+                setDisabled('Compressing images...');
+                const tasks = [];
+                if (profileInput && profileInput.files && profileInput.files.length === 1) {
+                    tasks.push(compressImageFile(profileInput.files[0], 720, 0.82, 800000).then(f => replaceInputFiles(profileInput, [f])));
+                }
+                if (portfolioInput && portfolioInput.files && portfolioInput.files.length > 0) {
+                    const files = Array.from(portfolioInput.files).slice(0, 10);
+                    tasks.push(Promise.all(files.map(f => compressImageFile(f, 900, 0.82, 1200000))).then(out => replaceInputFiles(portfolioInput, out)));
+                }
+                try {
+                    await Promise.all(tasks);
+                } catch (err) {
+                }
+                setDisabled('Submitting...');
+                form.submit();
+            };
+
+            e.preventDefault();
+            doSubmit();
         });
 
         (function() {
