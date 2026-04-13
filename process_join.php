@@ -36,6 +36,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         return $u !== '' && filter_var($u, FILTER_VALIDATE_URL) ? $u : '';
     }, $portfolio_image_urls)));
 
+    $portfolio_video_urls = isset($_POST['portfolio_video_urls']) && is_array($_POST['portfolio_video_urls']) ? $_POST['portfolio_video_urls'] : [];
+    $portfolio_video_urls = array_values(array_filter(array_map(function($u) {
+        $u = trim((string)$u);
+        return $u !== '' && filter_var($u, FILTER_VALIDATE_URL) ? $u : '';
+    }, $portfolio_video_urls)));
+
     // Handle Media Uploads
     $profile_image = null;
     $profile_blob = null;
@@ -167,6 +173,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             }
         }
+    }
+
+    if (!empty($portfolio_video_urls)) {
+        $portfolio_videos = $portfolio_video_urls;
+        $portfolio_videos_json = json_encode($portfolio_videos);
     }
 
     if (!empty($portfolio_image_urls)) {

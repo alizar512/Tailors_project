@@ -188,7 +188,7 @@ $cloud = silah_cloudinary_public_config();
                             </div>
                             <div class="md:col-span-2">
                                 <label class="text-[11px] font-extrabold text-gray-500 uppercase tracking-widest ml-4 mb-2 block">Profile Picture</label>
-                                <input type="file" name="profile_image" id="profile_image" class="w-full rounded-2xl border border-dashed border-gray-200 bg-white px-5 py-3 text-sm font-semibold text-gray-700 file:mr-4 file:rounded-xl file:border-0 file:bg-primary/10 file:px-4 file:py-2 file:font-bold file:text-primary hover:border-primary/40 transition-all" accept="image/*" onchange="previewMedia(this, 'profile-preview-grid')">
+                                <input type="file" data-name="profile_image" id="profile_image" class="w-full rounded-2xl border border-dashed border-gray-200 bg-white px-5 py-3 text-sm font-semibold text-gray-700 file:mr-4 file:rounded-xl file:border-0 file:bg-primary/10 file:px-4 file:py-2 file:font-bold file:text-primary hover:border-primary/40 transition-all" accept="image/jpeg,image/png,image/webp" onchange="previewMedia(this, 'profile-preview-grid')">
                                 <div id="profile-preview-grid" class="grid grid-cols-4 gap-2 mt-3"></div>
                             </div>
                             <div>
@@ -271,12 +271,19 @@ $cloud = silah_cloudinary_public_config();
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                                         <div>
                                             <label class="text-[11px] font-extrabold text-gray-500 uppercase tracking-widest ml-4 mb-2 block">Upload Images (Recommended Max 3)</label>
-                                            <input type="file" name="portfolio_images[]" id="portfolio_images" class="w-full rounded-2xl border border-dashed border-gray-200 bg-white px-5 py-3 text-sm font-semibold text-gray-700 file:mr-4 file:rounded-xl file:border-0 file:bg-primary/10 file:px-4 file:py-2 file:font-bold file:text-primary hover:border-primary/40 transition-all" accept="image/jpeg,image/png,image/webp" multiple onchange="previewMedia(this, 'image-preview-grid')">
+                                            <input type="file" data-name="portfolio_images[]" id="portfolio_images" class="w-full rounded-2xl border border-dashed border-gray-200 bg-white px-5 py-3 text-sm font-semibold text-gray-700 file:mr-4 file:rounded-xl file:border-0 file:bg-primary/10 file:px-4 file:py-2 file:font-bold file:text-primary hover:border-primary/40 transition-all" accept="image/jpeg,image/png,image/webp" multiple onchange="previewMedia(this, 'image-preview-grid')">
                                             <div id="image-preview-grid" class="grid grid-cols-4 gap-2 mt-3"></div>
                                         </div>
                                         <div>
                                             <label class="text-[11px] font-extrabold text-gray-500 uppercase tracking-widest ml-4 mb-2 block">Upload Short Videos (Max 3)</label>
-                                            <input type="file" name="portfolio_videos[]" id="portfolio_videos" class="w-full rounded-2xl border border-dashed border-gray-200 bg-white px-5 py-3 text-sm font-semibold text-gray-700 file:mr-4 file:rounded-xl file:border-0 file:bg-primary/10 file:px-4 file:py-2 file:font-bold file:text-primary hover:border-primary/40 transition-all" accept="video/*" multiple onchange="previewMedia(this, 'video-preview-grid')">
+                                            <?php if ($cloud['enabled']): ?>
+                                                <input type="text" name="portfolio_video_urls[]" class="w-full rounded-2xl border border-dashed border-gray-200 bg-white px-5 py-3 text-sm font-semibold text-gray-700" placeholder="Video link 1 (YouTube/Instagram)">
+                                                <input type="text" name="portfolio_video_urls[]" class="w-full rounded-2xl border border-dashed border-gray-200 bg-white px-5 py-3 text-sm font-semibold text-gray-700 mt-2" placeholder="Video link 2 (optional)">
+                                                <input type="text" name="portfolio_video_urls[]" class="w-full rounded-2xl border border-dashed border-gray-200 bg-white px-5 py-3 text-sm font-semibold text-gray-700 mt-2" placeholder="Video link 3 (optional)">
+                                                <div class="form-text text-xs">Video uploads are disabled on Vercel. Use links instead.</div>
+                                            <?php else: ?>
+                                                <input type="file" data-name="portfolio_videos[]" id="portfolio_videos" class="w-full rounded-2xl border border-dashed border-gray-200 bg-white px-5 py-3 text-sm font-semibold text-gray-700 file:mr-4 file:rounded-xl file:border-0 file:bg-primary/10 file:px-4 file:py-2 file:font-bold file:text-primary hover:border-primary/40 transition-all" accept="video/*" multiple onchange="previewMedia(this, 'video-preview-grid')">
+                                            <?php endif; ?>
                                             <div id="video-preview-grid" class="grid grid-cols-4 gap-2 mt-3"></div>
                                         </div>
                                     </div>
@@ -495,6 +502,21 @@ $cloud = silah_cloudinary_public_config();
                 }
             };
 
+            const enableFallbackFileUploads = () => {
+                document.querySelectorAll('input[type="file"][data-name]').forEach(inp => {
+                    inp.setAttribute('name', inp.getAttribute('data-name') || '');
+                    inp.disabled = false;
+                });
+            };
+
+            const disableFileUploads = () => {
+                document.querySelectorAll('input[type="file"][data-name]').forEach(inp => {
+                    inp.value = '';
+                    inp.disabled = true;
+                    inp.removeAttribute('name');
+                });
+            };
+
             const cloudUpload = async (file, folder) => {
                 const cfg = getCloudinary();
                 if (!cfg || !cfg.enabled || !cfg.cloud_name || !cfg.upload_preset) return '';
@@ -540,6 +562,7 @@ $cloud = silah_cloudinary_public_config();
                 if (cfg && cfg.enabled) {
                     setDisabled('Uploading...');
                     try {
+                        disableFileUploads();
                         let profileUrl = '';
                         if (profileInput && profileInput.files && profileInput.files.length === 1) {
                             profileUrl = await cloudUpload(profileInput.files[0], 'silah/applications/profile');
@@ -569,6 +592,7 @@ $cloud = silah_cloudinary_public_config();
                         form.submit();
                         return;
                     } catch (err) {
+                        enableFallbackFileUploads();
                         const msg = err && err.message ? String(err.message) : 'Upload failed. Please try again.';
                         showUploadError(msg);
                         if (btn) {
@@ -580,6 +604,20 @@ $cloud = silah_cloudinary_public_config();
                     }
                 }
 
+                if (location && typeof location.hostname === 'string' && (location.hostname.endsWith('vercel.app') || location.hostname.includes('tailors-project'))) {
+                    const c = getCloudinary();
+                    if (!c || !c.enabled) {
+                        showUploadError('Cloudinary is not configured on Vercel. Add CLOUDINARY_CLOUD_NAME and CLOUDINARY_UPLOAD_PRESET in Vercel, then redeploy.');
+                        if (btn) {
+                            btn.disabled = false;
+                            btn.classList.remove('opacity-80');
+                            btn.textContent = 'Submit Application';
+                        }
+                        return;
+                    }
+                }
+
+                enableFallbackFileUploads();
                 setDisabled('Compressing images...');
                 const tasks = [];
                 if (profileInput && profileInput.files && profileInput.files.length === 1) {
