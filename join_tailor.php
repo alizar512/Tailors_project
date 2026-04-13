@@ -286,10 +286,14 @@ $isServerless = getenv('VERCEL') === '1' || getenv('AWS_LAMBDA_FUNCTION_NAME');
                                         <div>
                                             <label class="text-[11px] font-extrabold text-gray-500 uppercase tracking-widest ml-4 mb-2 block">Upload Short Videos (Max 3)</label>
                                             <?php if ($isServerless): ?>
-                                                <input type="text" name="portfolio_video_urls[]" class="w-full rounded-2xl border border-dashed border-gray-200 bg-white px-5 py-3 text-sm font-semibold text-gray-700" placeholder="Video link 1 (YouTube/Instagram)">
-                                                <input type="text" name="portfolio_video_urls[]" class="w-full rounded-2xl border border-dashed border-gray-200 bg-white px-5 py-3 text-sm font-semibold text-gray-700 mt-2" placeholder="Video link 2 (optional)">
-                                                <input type="text" name="portfolio_video_urls[]" class="w-full rounded-2xl border border-dashed border-gray-200 bg-white px-5 py-3 text-sm font-semibold text-gray-700 mt-2" placeholder="Video link 3 (optional)">
-                                                <div class="form-text text-xs">Video uploads are disabled on Vercel. Use links instead.</div>
+                                                <input type="file" data-name="portfolio_videos[]" id="portfolio_videos" class="w-full rounded-2xl border border-dashed border-gray-200 bg-white px-5 py-3 text-sm font-semibold text-gray-700 file:mr-4 file:rounded-xl file:border-0 file:bg-primary/10 file:px-4 file:py-2 file:font-bold file:text-primary hover:border-primary/40 transition-all" accept="video/mp4,video/webm,video/quicktime" multiple>
+                                                <div class="form-text text-xs">Videos upload to Cloudinary (recommended under 15MB each).</div>
+                                                <div class="mt-3">
+                                                    <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Or paste links</p>
+                                                    <input type="text" name="portfolio_video_urls[]" class="w-full rounded-2xl border border-dashed border-gray-200 bg-white px-5 py-3 text-sm font-semibold text-gray-700" placeholder="Video link 1 (YouTube/Instagram)">
+                                                    <input type="text" name="portfolio_video_urls[]" class="w-full rounded-2xl border border-dashed border-gray-200 bg-white px-5 py-3 text-sm font-semibold text-gray-700 mt-2" placeholder="Video link 2 (optional)">
+                                                    <input type="text" name="portfolio_video_urls[]" class="w-full rounded-2xl border border-dashed border-gray-200 bg-white px-5 py-3 text-sm font-semibold text-gray-700 mt-2" placeholder="Video link 3 (optional)">
+                                                </div>
                                             <?php else: ?>
                                                 <input type="file" name="portfolio_videos[]" id="portfolio_videos" class="w-full rounded-2xl border border-dashed border-gray-200 bg-white px-5 py-3 text-sm font-semibold text-gray-700 file:mr-4 file:rounded-xl file:border-0 file:bg-primary/10 file:px-4 file:py-2 file:font-bold file:text-primary hover:border-primary/40 transition-all" accept="video/*" multiple onchange="previewMedia(this, 'video-preview-grid')">
                                             <?php endif; ?>
@@ -526,13 +530,14 @@ $isServerless = getenv('VERCEL') === '1' || getenv('AWS_LAMBDA_FUNCTION_NAME');
                 });
             };
 
-            const cloudUpload = async (file, folder) => {
+            const cloudUpload = async (file, folder, kind) => {
                 const cfg = getCloudinary();
                 if (!cfg || !cfg.enabled || !cfg.cloud_name || !cfg.upload_preset) return '';
-                const url = 'https://api.cloudinary.com/v1_1/' + encodeURIComponent(cfg.cloud_name) + '/image/upload';
+                const isVideo = kind === 'video';
+                const url = 'https://api.cloudinary.com/v1_1/' + encodeURIComponent(cfg.cloud_name) + '/' + (isVideo ? 'video' : 'image') + '/upload';
                 const fd = new FormData();
                 fd.append('file', file);
-                fd.append('upload_preset', cfg.upload_preset);
+                fd.append('upload_preset', isVideo && cfg.video_upload_preset ? cfg.video_upload_preset : cfg.upload_preset);
                 if (folder) fd.append('folder', folder);
                 const res = await fetch(url, { method: 'POST', body: fd });
                 let json = null;
@@ -574,15 +579,28 @@ $isServerless = getenv('VERCEL') === '1' || getenv('AWS_LAMBDA_FUNCTION_NAME');
                         disableFileUploads();
                         let profileUrl = '';
                         if (profileInput && profileInput.files && profileInput.files.length === 1) {
-                            profileUrl = await cloudUpload(profileInput.files[0], 'silah/applications/profile');
+                            profileUrl = await cloudUpload(profileInput.files[0], 'silah/applications/profile', 'image');
                         }
 
                         let portfolioUrls = [];
                         if (portfolioInput && portfolioInput.files && portfolioInput.files.length > 0) {
                             const files = Array.from(portfolioInput.files).slice(0, 3);
                             for (const f of files) {
-                                const u = await cloudUpload(f, 'silah/applications/portfolio');
+                                const u = await cloudUpload(f, 'silah/applications/portfolio', 'image');
                                 if (u) portfolioUrls.push(u);
+                            }
+                        }
+
+                        let videoUrls = [];
+                        const videoInput = document.getElementById('portfolio_videos');
+                        if (videoInput && videoInput.files && videoInput.files.length > 0) {
+                            const vids = Array.from(videoInput.files).slice(0, 3);
+                            for (const v of vids) {
+                                if (v.size > 15000000) {
+                                    throw new Error('Video too large. Please upload under 15MB.');
+                                }
+                                const u = await cloudUpload(v, 'silah/applications/videos', 'video');
+                                if (u) videoUrls.push(u);
                             }
                         }
 
@@ -593,6 +611,9 @@ $isServerless = getenv('VERCEL') === '1' || getenv('AWS_LAMBDA_FUNCTION_NAME');
                         if (portfolioUrls.length > 0) {
                             setHiddenArray('portfolio_image_urls', portfolioUrls);
                             if (portfolioInput) { portfolioInput.value = ''; portfolioInput.disabled = true; portfolioInput.removeAttribute('name'); }
+                        }
+                        if (videoUrls.length > 0) {
+                            setHiddenArray('portfolio_video_urls', videoUrls);
                         }
                         if (form) {
                             form.enctype = 'application/x-www-form-urlencoded';
