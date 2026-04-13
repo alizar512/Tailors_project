@@ -78,6 +78,7 @@ try {
             http_response_code(404);
             exit;
         }
+        if ($mime === 'image/jpg' || $mime === 'image/pjpeg') $mime = 'image/jpeg';
         if ($mime === '') $mime = 'image/jpeg';
         header('Content-Type: ' . $mime);
         header('Cache-Control: public, max-age=604800');
@@ -92,4 +93,3 @@ try {
     exit;
 }
 ?>
-

@@ -38,8 +38,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_FILES['profile_image']) && $_FILES['profile_image']['error'] === UPLOAD_ERR_OK) {
         $fileType = isset($_FILES['profile_image']['type']) ? (string)$_FILES['profile_image']['type'] : '';
         $fileSize = isset($_FILES['profile_image']['size']) ? (int)$_FILES['profile_image']['size'] : 0;
-        $allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
-        if (in_array($fileType, $allowedTypes, true)) {
+        $isImage = $fileType !== '' ? (stripos($fileType, 'image/') === 0) : true;
+        if ($isImage) {
             if ($isServerless) {
                 if ($fileSize > 0 && $fileSize <= 6000000) {
                     $bytes = @file_get_contents($_FILES['profile_image']['tmp_name']);
@@ -90,7 +90,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         }
                         if (strlen($outBytes) <= $maxBytes) {
                             $profile_blob = $outBytes;
-                            $profile_mime = $outMime;
+                            $profile_mime = $outMime !== '' ? $outMime : 'image/jpeg';
                             $profile_image = '';
                         }
                     }
@@ -121,9 +121,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $portfolio_images[] = $uploadPath;
                     }
                 } else {
+                    $type = (string)($_FILES['portfolio_images']['type'][$key] ?? '');
+                    if ($type !== '' && stripos($type, 'image/') !== 0) {
+                        continue;
+                    }
                     $portfolio_images[] = [
                         'tmp' => (string)$tmpName,
-                        'type' => (string)($_FILES['portfolio_images']['type'][$key] ?? ''),
+                        'type' => $type,
                         'size' => (int)($_FILES['portfolio_images']['size'][$key] ?? 0),
                     ];
                 }
@@ -278,7 +282,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if (!is_array($f)) continue;
                 $mime = isset($f['type']) ? (string)$f['type'] : '';
                 $size = isset($f['size']) ? (int)$f['size'] : 0;
-                if (!in_array($mime, ['image/jpeg', 'image/png', 'image/webp', 'image/gif'], true)) continue;
                 if ($size <= 0 || $size > 6000000) continue;
                 $tmp = isset($f['tmp']) ? (string)$f['tmp'] : '';
                 if ($tmp === '') continue;
