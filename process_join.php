@@ -212,6 +212,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'name' => "ALTER TABLE tailor_applications ADD COLUMN name VARCHAR(100) NOT NULL",
             'email' => "ALTER TABLE tailor_applications ADD COLUMN email VARCHAR(100) NOT NULL",
             'profile_image' => "ALTER TABLE tailor_applications ADD COLUMN profile_image VARCHAR(255)",
+            'profile_image_blob' => "ALTER TABLE tailor_applications ADD COLUMN profile_image_blob LONGBLOB NULL",
+            'profile_image_mime' => "ALTER TABLE tailor_applications ADD COLUMN profile_image_mime VARCHAR(100) NULL",
             'phone' => "ALTER TABLE tailor_applications ADD COLUMN phone VARCHAR(20)",
             'location' => "ALTER TABLE tailor_applications ADD COLUMN location VARCHAR(100)",
             'address' => "ALTER TABLE tailor_applications ADD COLUMN address TEXT",
