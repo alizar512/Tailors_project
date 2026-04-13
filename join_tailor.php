@@ -268,7 +268,7 @@ $cities = silah_get_cities($pdo);
 
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                                         <div>
-                                            <label class="text-[11px] font-extrabold text-gray-500 uppercase tracking-widest ml-4 mb-2 block">Upload Images (Max 10)</label>
+                                            <label class="text-[11px] font-extrabold text-gray-500 uppercase tracking-widest ml-4 mb-2 block">Upload Images (Recommended Max 3)</label>
                                             <input type="file" name="portfolio_images[]" id="portfolio_images" class="w-full rounded-2xl border border-dashed border-gray-200 bg-white px-5 py-3 text-sm font-semibold text-gray-700 file:mr-4 file:rounded-xl file:border-0 file:bg-primary/10 file:px-4 file:py-2 file:font-bold file:text-primary hover:border-primary/40 transition-all" accept="image/*" multiple onchange="previewMedia(this, 'image-preview-grid')">
                                             <div id="image-preview-grid" class="grid grid-cols-4 gap-2 mt-3"></div>
                                         </div>
@@ -491,11 +491,25 @@ $cities = silah_get_cities($pdo);
                     tasks.push(compressImageFile(profileInput.files[0], 720, 0.82, 800000).then(f => replaceInputFiles(profileInput, [f])));
                 }
                 if (portfolioInput && portfolioInput.files && portfolioInput.files.length > 0) {
-                    const files = Array.from(portfolioInput.files).slice(0, 10);
-                    tasks.push(Promise.all(files.map(f => compressImageFile(f, 900, 0.82, 1200000))).then(out => replaceInputFiles(portfolioInput, out)));
+                    const files = Array.from(portfolioInput.files).slice(0, 3);
+                    tasks.push(Promise.all(files.map(f => compressImageFile(f, 900, 0.78, 450000))).then(out => replaceInputFiles(portfolioInput, out)));
                 }
                 try {
                     await Promise.all(tasks);
+                } catch (err) {
+                }
+                try {
+                    const total = (profileInput && profileInput.files && profileInput.files[0] ? profileInput.files[0].size : 0)
+                        + (portfolioInput && portfolioInput.files ? Array.from(portfolioInput.files).reduce((s, f) => s + (f.size || 0), 0) : 0);
+                    if (total > 3600000) {
+                        showUploadError('Upload too large for Vercel (413). Please use max 1–3 images and keep them small (try again after compressing).');
+                        if (btn) {
+                            btn.disabled = false;
+                            btn.classList.remove('opacity-80');
+                            btn.textContent = 'Submit Application';
+                        }
+                        return;
+                    }
                 } catch (err) {
                 }
                 setDisabled('Submitting...');
