@@ -1,7 +1,9 @@
 <?php
 require_once __DIR__ . '/includes/db_connect.php';
 require_once __DIR__ . '/includes/cities.php';
+require_once __DIR__ . '/includes/cloudinary.php';
 $cities = silah_get_cities($pdo);
+$cloud = silah_cloudinary_public_config();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -28,7 +30,7 @@ $cities = silah_get_cities($pdo);
     <!-- Custom CSS -->
     <link rel="stylesheet" href="css/style.css">
 </head>
-<body class="bg-bg text-text">
+<body class="bg-bg text-text" data-cloudinary='<?= htmlspecialchars((string)json_encode($cloud), ENT_QUOTES) ?>'>
 
     <!-- Navigation -->
     <nav class="navbar fixed-top navbar-expand-lg navbar-light bg-white shadow-sm z-50" id="mainNav">
@@ -484,7 +486,92 @@ $cities = silah_get_cities($pdo);
                 input.files = dt.files;
             };
 
+            const getCloudinary = () => {
+                try {
+                    const raw = document.body.getAttribute('data-cloudinary') || '';
+                    return raw ? JSON.parse(raw) : { enabled: false };
+                } catch (e) {
+                    return { enabled: false };
+                }
+            };
+
+            const cloudUpload = async (file, folder) => {
+                const cfg = getCloudinary();
+                if (!cfg || !cfg.enabled || !cfg.cloud_name || !cfg.upload_preset) return '';
+                const url = 'https://api.cloudinary.com/v1_1/' + encodeURIComponent(cfg.cloud_name) + '/image/upload';
+                const fd = new FormData();
+                fd.append('file', file);
+                fd.append('upload_preset', cfg.upload_preset);
+                if (folder) fd.append('folder', folder);
+                const res = await fetch(url, { method: 'POST', body: fd });
+                if (!res.ok) return '';
+                const json = await res.json();
+                return json && json.secure_url ? String(json.secure_url) : '';
+            };
+
+            const setHiddenField = (name, value) => {
+                let el = form.querySelector('input[name="' + name + '"]');
+                if (!el) {
+                    el = document.createElement('input');
+                    el.type = 'hidden';
+                    el.name = name;
+                    form.appendChild(el);
+                }
+                el.value = value;
+            };
+
+            const setHiddenArray = (name, values) => {
+                form.querySelectorAll('input[name="' + name + '[]"]').forEach(n => n.remove());
+                values.forEach(v => {
+                    const el = document.createElement('input');
+                    el.type = 'hidden';
+                    el.name = name + '[]';
+                    el.value = v;
+                    form.appendChild(el);
+                });
+            };
+
             const doSubmit = async () => {
+                const cfg = getCloudinary();
+                if (cfg && cfg.enabled) {
+                    setDisabled('Uploading...');
+                    try {
+                        let profileUrl = '';
+                        if (profileInput && profileInput.files && profileInput.files.length === 1) {
+                            profileUrl = await cloudUpload(profileInput.files[0], 'silah/applications/profile');
+                        }
+
+                        let portfolioUrls = [];
+                        if (portfolioInput && portfolioInput.files && portfolioInput.files.length > 0) {
+                            const files = Array.from(portfolioInput.files).slice(0, 3);
+                            for (const f of files) {
+                                const u = await cloudUpload(f, 'silah/applications/portfolio');
+                                if (u) portfolioUrls.push(u);
+                            }
+                        }
+
+                        if (profileUrl) {
+                            setHiddenField('profile_image_url', profileUrl);
+                            if (profileInput) profileInput.value = '';
+                        }
+                        if (portfolioUrls.length > 0) {
+                            setHiddenArray('portfolio_image_urls', portfolioUrls);
+                            if (portfolioInput) portfolioInput.value = '';
+                        }
+                        setDisabled('Submitting...');
+                        form.submit();
+                        return;
+                    } catch (err) {
+                        showUploadError('Upload failed. Please try again.');
+                        if (btn) {
+                            btn.disabled = false;
+                            btn.classList.remove('opacity-80');
+                            btn.textContent = 'Submit Application';
+                        }
+                        return;
+                    }
+                }
+
                 setDisabled('Compressing images...');
                 const tasks = [];
                 if (profileInput && profileInput.files && profileInput.files.length === 1) {

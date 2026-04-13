@@ -45,6 +45,10 @@ try {
             exit;
         }
         $path = isset($row['profile_image']) ? trim((string)$row['profile_image']) : '';
+        if ($path !== '' && (strpos($path, 'http://') === 0 || strpos($path, 'https://') === 0)) {
+            header('Location: ' . $path, true, 302);
+            exit;
+        }
         if ($path !== '') {
             $rel = ltrim($path, '/');
             if (strpos($rel, '..') === false && (strpos($rel, 'uploads/') === 0 || strpos($rel, 'images/') === 0)) {

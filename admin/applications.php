@@ -57,7 +57,17 @@ include 'sidebar.php';
                         <div class="flex items-center gap-4">
                             <?php
                                 $hasPhoto = (isset($app['profile_image_blob']) && $app['profile_image_blob'] !== null && $app['profile_image_blob'] !== '') || (isset($app['profile_image']) && trim((string)$app['profile_image']) !== '');
-                                $photoSrc = '../application_media.php?app_id=' . (int)$app['id'] . '&type=profile';
+                                $photoSrc = '';
+                                if (isset($app['profile_image_blob']) && $app['profile_image_blob'] !== null && $app['profile_image_blob'] !== '') {
+                                    $photoSrc = '../application_media.php?app_id=' . (int)$app['id'] . '&type=profile';
+                                } else {
+                                    $raw = isset($app['profile_image']) ? trim((string)$app['profile_image']) : '';
+                                    if ($raw !== '' && preg_match('#^https?://#i', $raw)) {
+                                        $photoSrc = $raw;
+                                    } else if ($raw !== '') {
+                                        $photoSrc = '../' . ltrim($raw, '/');
+                                    }
+                                }
                             ?>
                             <?php if ($hasPhoto): ?>
                                 <img src="<?= htmlspecialchars((string)$photoSrc) ?>" class="w-12 h-12 rounded-2xl object-cover shadow-sm border-2 border-white" alt="Profile" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">

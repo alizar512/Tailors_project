@@ -28,6 +28,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $instagram_link = $instagram_link_raw !== '' && filter_var($instagram_link_raw, FILTER_VALIDATE_URL) ? $instagram_link_raw : '';
     $portfolio_required = $instagram_link === '';
 
+    $profile_image_url = isset($_POST['profile_image_url']) ? trim((string)$_POST['profile_image_url']) : '';
+    $profile_image_url = $profile_image_url !== '' && filter_var($profile_image_url, FILTER_VALIDATE_URL) ? $profile_image_url : '';
+    $portfolio_image_urls = isset($_POST['portfolio_image_urls']) && is_array($_POST['portfolio_image_urls']) ? $_POST['portfolio_image_urls'] : [];
+    $portfolio_image_urls = array_values(array_filter(array_map(function($u) {
+        $u = trim((string)$u);
+        return $u !== '' && filter_var($u, FILTER_VALIDATE_URL) ? $u : '';
+    }, $portfolio_image_urls)));
+
     // Handle Media Uploads
     $profile_image = null;
     $profile_blob = null;
@@ -109,6 +117,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
+    if ($profile_image_url !== '') {
+        $profile_image = $profile_image_url;
+        $profile_blob = null;
+        $profile_mime = null;
+    }
+
     if (isset($_FILES['portfolio_images'])) {
         $uploadDir = 'uploads/portfolio/';
         if (!$isServerless && !is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
@@ -155,7 +169,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    $portfolio_images_json = json_encode($isServerless ? [] : $portfolio_images);
+    if (!empty($portfolio_image_urls)) {
+        $portfolio_images_json = json_encode($portfolio_image_urls);
+        $portfolio_images = $portfolio_image_urls;
+    } else {
+        $portfolio_images_json = json_encode($isServerless ? [] : $portfolio_images);
+    }
     $portfolio_videos_json = json_encode($portfolio_videos);
 
     if ($name === '' || $email === '' || $location === '' || $address === '' || $price_range_min === null) {
