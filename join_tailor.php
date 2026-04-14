@@ -591,7 +591,8 @@ $isServerless = getenv('VERCEL') === '1' || getenv('AWS_LAMBDA_FUNCTION_NAME');
                         let profileUrl = '';
                         if (profileInput && profileInput.files && profileInput.files.length === 1) {
                             setDisabled('Uploading profile...');
-                            profileUrl = await cloudUpload(profileInput.files[0], 'silah/applications/profile', 'image', 90000);
+                            const pf = await compressImageFile(profileInput.files[0], 720, 0.82, 650000);
+                            profileUrl = await cloudUpload(pf, 'silah/applications/profile', 'image', 90000);
                         }
 
                         let portfolioUrls = [];
@@ -600,7 +601,8 @@ $isServerless = getenv('VERCEL') === '1' || getenv('AWS_LAMBDA_FUNCTION_NAME');
                             for (let i = 0; i < files.length; i++) {
                                 const f = files[i];
                                 setDisabled('Uploading images ' + (i + 1) + '/' + files.length + '...');
-                                const u = await cloudUpload(f, 'silah/applications/portfolio', 'image', 90000);
+                                const cf = await compressImageFile(f, 900, 0.8, 650000);
+                                const u = await cloudUpload(cf, 'silah/applications/portfolio', 'image', 90000);
                                 if (u) portfolioUrls.push(u);
                             }
                         }
