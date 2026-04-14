@@ -529,7 +529,7 @@ $isServerless = getenv('VERCEL') === '1' || getenv('AWS_LAMBDA_FUNCTION_NAME');
                 });
             };
 
-            const cloudUpload = async (file, folder, kind) => {
+            const cloudUpload = async (file, folder, kind, timeoutMs) => {
                 const cfg = getCloudinary();
                 if (!cfg || !cfg.enabled || !cfg.cloud_name || !cfg.upload_preset) return '';
                 const isVideo = kind === 'video';
@@ -538,7 +538,20 @@ $isServerless = getenv('VERCEL') === '1' || getenv('AWS_LAMBDA_FUNCTION_NAME');
                 fd.append('file', file);
                 fd.append('upload_preset', isVideo && cfg.video_upload_preset ? cfg.video_upload_preset : cfg.upload_preset);
                 if (folder) fd.append('folder', folder);
-                const res = await fetch(url, { method: 'POST', body: fd });
+                const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+                const ms = typeof timeoutMs === 'number' && timeoutMs > 0 ? timeoutMs : 90000;
+                const t = controller ? setTimeout(() => controller.abort(), ms) : null;
+                let res;
+                try {
+                    res = await fetch(url, { method: 'POST', body: fd, signal: controller ? controller.signal : undefined });
+                } catch (e) {
+                    if (controller && controller.signal && controller.signal.aborted) {
+                        throw new Error('Upload timed out. Please try a smaller file or faster connection.');
+                    }
+                    throw e;
+                } finally {
+                    if (t) clearTimeout(t);
+                }
                 let json = null;
                 try { json = await res.json(); } catch (e) {}
                 if (!res.ok) {
@@ -577,14 +590,17 @@ $isServerless = getenv('VERCEL') === '1' || getenv('AWS_LAMBDA_FUNCTION_NAME');
                     try {
                         let profileUrl = '';
                         if (profileInput && profileInput.files && profileInput.files.length === 1) {
-                            profileUrl = await cloudUpload(profileInput.files[0], 'silah/applications/profile', 'image');
+                            setDisabled('Uploading profile...');
+                            profileUrl = await cloudUpload(profileInput.files[0], 'silah/applications/profile', 'image', 90000);
                         }
 
                         let portfolioUrls = [];
                         if (portfolioInput && portfolioInput.files && portfolioInput.files.length > 0) {
                             const files = Array.from(portfolioInput.files).slice(0, 3);
-                            for (const f of files) {
-                                const u = await cloudUpload(f, 'silah/applications/portfolio', 'image');
+                            for (let i = 0; i < files.length; i++) {
+                                const f = files[i];
+                                setDisabled('Uploading images ' + (i + 1) + '/' + files.length + '...');
+                                const u = await cloudUpload(f, 'silah/applications/portfolio', 'image', 90000);
                                 if (u) portfolioUrls.push(u);
                             }
                         }
@@ -593,11 +609,13 @@ $isServerless = getenv('VERCEL') === '1' || getenv('AWS_LAMBDA_FUNCTION_NAME');
                         const videoInput = document.getElementById('portfolio_videos');
                         if (videoInput && videoInput.files && videoInput.files.length > 0) {
                             const vids = Array.from(videoInput.files).slice(0, 3);
-                            for (const v of vids) {
+                            for (let i = 0; i < vids.length; i++) {
+                                const v = vids[i];
                                 if (v.size > 15000000) {
                                     throw new Error('Video too large. Please upload under 15MB.');
                                 }
-                                const u = await cloudUpload(v, 'silah/applications/videos', 'video');
+                                setDisabled('Uploading videos ' + (i + 1) + '/' + vids.length + '...');
+                                const u = await cloudUpload(v, 'silah/applications/videos', 'video', 180000);
                                 if (u) videoUrls.push(u);
                             }
                         }
